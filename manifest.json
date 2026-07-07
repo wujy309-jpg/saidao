@@ -1,0 +1,20 @@
+{
+    "name": "软件实训全流程管理与评价系统",
+    "short_name": "实训管理",
+    "description": "软件实训全流程管理与评价系统 - 提供高效的实训任务管理、过程记录、评价反馈和数据分析功能",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#2563eb",
+    "orientation": "any",
+    "icons": [
+        {
+            "src": "/icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        }
+    ],
+    "categories": ["education", "productivity"],
+    "lang": "zh-CN",
+    "dir": "ltr"
+}

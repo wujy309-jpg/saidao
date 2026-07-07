@@ -1,0 +1,27 @@
+# Build outputs
+target/
+*.class
+*.jar
+*.war
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Dependencies
+node_modules/
+
+# API Keys - KEEP SECRET
+backend/src/main/resources/application.yml
+
+# Temp files
+*.pyc
+__pycache__/

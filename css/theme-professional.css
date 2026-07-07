@@ -1,0 +1,557 @@
+/* ==================== Professional Color Theme ==================== */
+/* Based on Taste Skill 4.2: Avoid AI Purple, use Slate neutrals */
+/* Enterprise SaaS: Trust, Professional, Clean */
+
+:root {
+  /* ---- Primary Accent: Deep Blue (Professional, not AI-purple) ---- */
+  --accent: #1E40AF;
+  --accent-hover: #1E3A8A;
+  --accent-light: #EFF6FF;
+  --accent-subtle: rgba(30, 64, 175, 0.08);
+  
+  /* ---- Neutrals: Slate (Professional gray, not warm) ---- */
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F8FAFC;
+  --bg-tertiary: #F1F5F9;
+  --bg-elevated: #FFFFFF;
+  
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-tertiary: #94A3B8;
+  --text-placeholder: #94A3B8;
+  
+  --border-default: #E2E8F0;
+  --border-hover: #CBD5E1;
+  --border-focus: #1E40AF;
+  
+  /* ---- Status Colors: Muted, Professional ---- */
+  --blue-50: #EFF6FF;
+  --blue-100: #DBEAFE;
+  --blue-200: #BFDBFE;
+  --blue-500: #3B82F6;
+  --blue-600: #2563EB;
+  --blue-700: #1D4ED8;
+  
+  --green-50: #F0FDF4;
+  --green-100: #DCFCE7;
+  --green-500: #16A34A;
+  --green-600: #15803D;
+  --green-700: #166534;
+  
+  --amber-50: #FFFBEB;
+  --amber-100: #FEF3C7;
+  --amber-500: #D97706;
+  --amber-600: #B45309;
+  
+  --red-50: #FEF2F2;
+  --red-100: #FEE2E2;
+  --red-500: #DC2626;
+  --red-600: #B91C1C;
+  
+  --slate-50: #F8FAFC;
+  --slate-100: #F1F5F9;
+  --slate-200: #E2E8F0;
+  --slate-300: #CBD5E1;
+  --slate-400: #94A3B8;
+  --slate-500: #64748B;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1E293B;
+  --slate-900: #0F172A;
+}
+
+/* ==================== LOGIN PAGE ==================== */
+/* Taste Skill: No AI gradients, professional solid background */
+.login-page {
+  background: #0F172A !important;
+}
+
+.login-bg {
+  background: 
+    radial-gradient(ellipse at 30% 50%, rgba(30, 64, 175, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 30%, rgba(30, 64, 175, 0.05) 0%, transparent 50%) !important;
+}
+
+.login-bg-gradient {
+  display: none !important;
+}
+
+.login-bg-pattern {
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px) !important;
+  background-size: 48px 48px !important;
+}
+
+.login-container {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: 
+    0 1px 3px rgba(15, 23, 42, 0.04),
+    0 10px 40px rgba(15, 23, 42, 0.08) !important;
+}
+
+.login-header h1 {
+  color: #0F172A !important;
+}
+
+.login-header p {
+  color: #475569 !important;
+}
+
+.login-form label {
+  color: #334155 !important;
+}
+
+.login-form input {
+  background: #F8FAFC !important;
+  border: 1px solid #E2E8F0 !important;
+  color: #0F172A !important;
+}
+
+.login-form input:focus {
+  border-color: #1E40AF !important;
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1) !important;
+  background: #FFFFFF !important;
+}
+
+.login-form input::placeholder {
+  color: #94A3B8 !important;
+}
+
+/* Taste Skill: No gradient button, solid professional color */
+.login-btn {
+  background: #1E40AF !important;
+  box-shadow: 0 1px 3px rgba(30, 64, 175, 0.2) !important;
+}
+
+.login-btn:hover {
+  background: #1E3A8A !important;
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25) !important;
+}
+
+.login-divider {
+  color: #94A3B8 !important;
+}
+
+.login-divider::before,
+.login-divider::after {
+  background: #E2E8F0 !important;
+}
+
+.demo-account {
+  background: #F8FAFC !important;
+  border: 1px solid #E2E8F0 !important;
+}
+
+.demo-account:hover {
+  background: #EFF6FF !important;
+  border-color: #BFDBFE !important;
+}
+
+.demo-name {
+  color: #0F172A !important;
+}
+
+.demo-cred {
+  color: #94A3B8 !important;
+}
+
+.demo-avatar.admin { background: #DC2626 !important; }
+.demo-avatar.teacher { background: #2563EB !important; }
+.demo-avatar.student { background: #16A34A !important; }
+.demo-avatar.enterprise { background: #D97706 !important; }
+
+.login-footer {
+  border-top-color: #E2E8F0 !important;
+}
+
+.login-footer p {
+  color: #94A3B8 !important;
+}
+
+.lang-btn {
+  color: rgba(255, 255, 255, 0.6) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.lang-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+
+.lang-btn.active {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #1E40AF !important;
+}
+
+/* ==================== SIDEBAR ==================== */
+/* Taste Skill: Professional dark, not gradient */
+.sidebar {
+  background: #0F172A !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+.sidebar-header {
+  border-bottom-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.brand-icon {
+  background: #1E40AF !important;
+  box-shadow: none !important;
+}
+
+.brand-name {
+  color: #F1F5F9 !important;
+}
+
+.brand-version {
+  color: #64748B !important;
+}
+
+.nav-list .nav-link {
+  color: #94A3B8 !important;
+}
+
+.nav-list .nav-link:hover {
+  color: #F1F5F9 !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.nav-list .nav-link.active {
+  color: #F1F5F9 !important;
+  background: rgba(30, 64, 175, 0.2) !important;
+}
+
+.nav-list .nav-link.active::before {
+  background: #3B82F6 !important;
+}
+
+.nav-list .nav-link.active i,
+.nav-list .nav-link.active svg {
+  color: #60A5FA !important;
+}
+
+.sidebar-user:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.user-avatar {
+  background: #1E40AF !important;
+}
+
+.user-name {
+  color: #F1F5F9 !important;
+}
+
+.user-role {
+  color: #64748B !important;
+}
+
+/* ==================== TOPBAR ==================== */
+.topbar {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+}
+
+.global-search input {
+  background: #F1F5F9 !important;
+  border-color: transparent !important;
+}
+
+.global-search input:focus {
+  background: #FFFFFF !important;
+  border-color: #1E40AF !important;
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.08) !important;
+}
+
+/* ==================== STAT CARDS ==================== */
+/* Taste Skill: No gradient backgrounds, clean solid */
+.stat-card {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 12px !important;
+}
+
+.stat-card:hover {
+  border-color: #CBD5E1 !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05) !important;
+}
+
+.stat-card .icon.blue {
+  background: #EFF6FF !important;
+  color: #2563EB !important;
+  box-shadow: none !important;
+}
+
+.stat-card .icon.green {
+  background: #F0FDF4 !important;
+  color: #16A34A !important;
+  box-shadow: none !important;
+}
+
+.stat-card .icon.orange {
+  background: #FFFBEB !important;
+  color: #D97706 !important;
+  box-shadow: none !important;
+}
+
+.stat-card .icon.purple {
+  background: #F5F3FF !important;
+  color: #7C3AED !important;
+  box-shadow: none !important;
+}
+
+.stat-card .info h3 {
+  color: #0F172A !important;
+  background: none !important;
+  -webkit-text-fill-color: initial !important;
+}
+
+/* ==================== CARDS ==================== */
+.card {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 12px !important;
+}
+
+.card:hover {
+  border-color: #CBD5E1 !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+}
+
+.card-header {
+  border-bottom-color: #E2E8F0 !important;
+}
+
+.card-header h3 {
+  color: #0F172A !important;
+}
+
+.card-header h3 i,
+.card-header h3 svg {
+  color: #475569 !important;
+}
+
+.card-header a {
+  color: #1E40AF !important;
+}
+
+/* ==================== TABLES ==================== */
+th {
+  background: #F8FAFC !important;
+  color: #64748B !important;
+  border-bottom-color: #E2E8F0 !important;
+}
+
+td {
+  color: #334155 !important;
+  border-bottom-color: #F1F5F9 !important;
+}
+
+tr:hover td {
+  background: #F8FAFC !important;
+}
+
+/* ==================== FORMS ==================== */
+.form-group input,
+.form-group select,
+.form-group textarea {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  color: #0F172A !important;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #1E40AF !important;
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.08) !important;
+}
+
+.form-group label {
+  color: #334155 !important;
+}
+
+/* ==================== BUTTONS ==================== */
+.btn-primary {
+  background: #1E40AF !important;
+  box-shadow: 0 1px 2px rgba(30, 64, 175, 0.15) !important;
+}
+
+.btn-primary:hover {
+  background: #1E3A8A !important;
+  box-shadow: 0 2px 6px rgba(30, 64, 175, 0.2) !important;
+}
+
+.btn-outline {
+  border-color: #E2E8F0 !important;
+  color: #475569 !important;
+}
+
+.btn-outline:hover {
+  background: #F8FAFC !important;
+  border-color: #CBD5E1 !important;
+}
+
+/* ==================== BADGES ==================== */
+.badge-pending {
+  background: #F1F5F9 !important;
+  color: #475569 !important;
+}
+
+.badge-in_progress {
+  background: #DBEAFE !important;
+  color: #1E40AF !important;
+}
+
+.badge-submitted {
+  background: #FEF3C7 !important;
+  color: #92400E !important;
+}
+
+.badge-approved {
+  background: #DCFCE7 !important;
+  color: #166534 !important;
+}
+
+.badge-completed {
+  background: #DCFCE7 !important;
+  color: #166534 !important;
+}
+
+.badge-rejected {
+  background: #FEE2E2 !important;
+  color: #991B1B !important;
+}
+
+/* ==================== QUICK ACTIONS ==================== */
+.quick-action-card {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  border-radius: 12px !important;
+}
+
+.quick-action-card:hover {
+  border-color: #CBD5E1 !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+}
+
+.quick-action-icon.blue {
+  background: #EFF6FF !important;
+  color: #2563EB !important;
+}
+
+.quick-action-icon.green {
+  background: #F0FDF4 !important;
+  color: #16A34A !important;
+}
+
+.quick-action-icon.orange {
+  background: #FFFBEB !important;
+  color: #D97706 !important;
+}
+
+.quick-action-icon.purple {
+  background: #F5F3FF !important;
+  color: #7C3AED !important;
+}
+
+.quick-action-info h4 {
+  color: #0F172A !important;
+}
+
+.quick-action-info p {
+  color: #475569 !important;
+}
+
+/* ==================== TOAST ==================== */
+.toast {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
+}
+
+.toast-success { border-left-color: #16A34A !important; }
+.toast-error { border-left-color: #DC2626 !important; }
+.toast-warning { border-left-color: #D97706 !important; }
+.toast-info { border-left-color: #1E40AF !important; }
+
+/* ==================== MODAL ==================== */
+.modal {
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12) !important;
+}
+
+/* ==================== DARK THEME ==================== */
+/* Taste Skill: Professional dark, not purple */
+[data-theme="dark"] {
+  --bg-primary: #0F172A;
+  --bg-secondary: #1E293B;
+  --bg-tertiary: #334155;
+  --bg-elevated: #1E293B;
+  --text-primary: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --text-tertiary: #64748B;
+  --border-default: #334155;
+  --border-hover: #475569;
+  --accent: #3B82F6;
+  --accent-hover: #60A5FA;
+  --accent-light: rgba(59, 130, 246, 0.1);
+}
+
+[data-theme="dark"] .sidebar {
+  background: #020617 !important;
+}
+
+[data-theme="dark"] .topbar {
+  background: rgba(15, 23, 42, 0.95) !important;
+  border-bottom-color: #1E293B !important;
+}
+
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .card,
+[data-theme="dark"] .quick-action-card {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .stat-card .info h3,
+[data-theme="dark"] .card-header h3,
+[data-theme="dark"] .quick-action-info h4 {
+  color: #F1F5F9 !important;
+}
+
+[data-theme="dark"] .stat-card:hover,
+[data-theme="dark"] .card:hover {
+  border-color: #475569 !important;
+}
+
+[data-theme="dark"] th {
+  background: #1E293B !important;
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] td {
+  color: #CBD5E1 !important;
+  border-bottom-color: #334155 !important;
+}
+
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group select,
+[data-theme="dark"] .form-group textarea {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+  color: #F1F5F9 !important;
+}
+
+[data-theme="dark"] .btn-outline {
+  border-color: #334155 !important;
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .login-container {
+  background: #1E293B !important;
+  border-color: #334155 !important;
+}

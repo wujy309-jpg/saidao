@@ -1,0 +1,43 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (如果有)
+node_modules/
+
+# Java
+backend/target/
+*.class
+*.jar
+*.war
+
+# Logs
+*.log
+logs/
+
+# Env
+.env
+.env.local
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Database
+*.db
+*.sqlite

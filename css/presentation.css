@@ -1,0 +1,105 @@
+/* 答辩/演示模式样式 */
+.pm-container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+.pm-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
+.pm-header-left { display: flex; align-items: center; gap: 16px; }
+.pm-icon-box { width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #ec4899, #f43f5e); display: flex; align-items: center; justify-content: center; color: #fff; }
+.pm-title { font-size: 24px; font-weight: 700; margin: 0; }
+.pm-subtitle { color: var(--gray-500, #64748b); margin: 4px 0 0; font-size: 14px; }
+.pm-start-btn { display: flex; align-items: center; gap: 8px; padding: 14px 28px; border-radius: 12px; border: none; background: linear-gradient(135deg, #ec4899, #f43f5e); color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; transition: all .2s; }
+.pm-start-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(244,63,94,.35); }
+
+.pm-preview-section { background: var(--card-bg, #fff); border-radius: 16px; border: 1px solid var(--border-color, #e2e8f0); padding: 24px; margin-bottom: 24px; }
+.pm-section-title { display: flex; align-items: center; gap: 8px; margin: 0 0 20px; font-size: 16px; font-weight: 600; }
+.pm-slides-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+.pm-preview-card { cursor: pointer; transition: all .2s; animation: pm-fadeIn .4s ease both; }
+.pm-preview-card:hover { transform: translateY(-4px); }
+.pm-preview-card:hover .pm-preview-thumb { box-shadow: 0 8px 24px rgba(0,0,0,.15); }
+.pm-preview-thumb { aspect-ratio: 16/10; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.5); font-size: 28px; font-weight: 800; transition: all .2s; }
+.pm-preview-number { font-size: 32px; font-weight: 800; color: rgba(255,255,255,.3); }
+.pm-preview-title { margin-top: 8px; font-size: 13px; font-weight: 600; text-align: center; }
+
+.pm-config-section { background: var(--card-bg, #fff); border-radius: 16px; border: 1px solid var(--border-color, #e2e8f0); padding: 24px; }
+.pm-config-options { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.pm-checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color, #e2e8f0); transition: all .15s; }
+.pm-checkbox-item:hover { background: var(--hover-bg, #f1f5f9); }
+.pm-checkbox-item input { accent-color: #ec4899; }
+
+/* Overlay / Fullscreen Slides */
+.pm-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 9999; display: flex; flex-direction: column; }
+.pm-slide-container { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.pm-slide-container.pm-slide-enter { animation: pm-slideEnter .4s ease; }
+@keyframes pm-slideEnter { from { opacity: 0; transform: translateX(60px); } to { opacity: 1; transform: translateX(0); } }
+
+.pm-slide { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; color: #fff; }
+.pm-slide-content { text-align: center; z-index: 2; padding: 40px; }
+.pm-slide h1 { font-size: 48px; font-weight: 800; margin: 0 0 16px; text-shadow: 0 2px 20px rgba(0,0,0,.2); }
+.pm-slide-subtitle { font-size: 20px; opacity: .8; }
+
+/* Cover */
+.pm-slide-main-title { font-size: 52px !important; letter-spacing: -1px; }
+.pm-slide-footer { margin-top: 40px; font-size: 16px; opacity: .6; }
+.pm-slide-decoration { position: absolute; inset: 0; pointer-events: none; }
+.pm-deco-circle { position: absolute; border-radius: 50%; border: 2px solid rgba(255,255,255,.15); }
+.pm-deco-circle.c1 { width: 300px; height: 300px; top: -80px; right: -80px; }
+.pm-deco-circle.c2 { width: 200px; height: 200px; bottom: -60px; left: -60px; }
+.pm-deco-circle.c3 { width: 150px; height: 150px; top: 50%; left: 10%; animation: pm-float 6s ease-in-out infinite; }
+@keyframes pm-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+
+/* Agenda */
+.pm-slide-agenda { flex-direction: column; padding: 60px; }
+.pm-slide-agenda h1 { margin-bottom: 40px; }
+.pm-agenda-list { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 600px; }
+.pm-agenda-item { display: flex; align-items: center; gap: 20px; padding: 16px 24px; background: rgba(255,255,255,.15); border-radius: 12px; font-size: 20px; animation: pm-fadeIn .5s ease both; }
+.pm-agenda-num { font-size: 28px; font-weight: 800; opacity: .5; min-width: 40px; }
+
+/* Overview */
+.pm-slide-overview { flex-direction: column; padding: 60px; }
+.pm-overview-text { font-size: 18px; line-height: 1.8; max-width: 700px; margin: 0 auto 32px; opacity: .9; }
+.pm-highlights { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+.pm-highlight-card { display: flex; align-items: center; gap: 10px; padding: 14px 24px; background: rgba(255,255,255,.2); border-radius: 12px; font-size: 16px; font-weight: 600; animation: pm-fadeIn .5s ease both; }
+
+/* Architecture */
+.pm-slide-arch { flex-direction: column; padding: 60px; }
+.pm-arch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; width: 100%; max-width: 800px; }
+.pm-arch-card { background: rgba(255,255,255,.15); border-radius: 14px; padding: 24px; }
+.pm-arch-card h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 16px; font-size: 18px; }
+.pm-arch-card ul { margin: 0; padding: 0 0 0 20px; font-size: 15px; line-height: 2; }
+
+/* Features */
+.pm-slide-features { flex-direction: column; padding: 60px; }
+.pm-features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; max-width: 800px; }
+.pm-feature-card { text-align: center; padding: 24px 16px; background: rgba(255,255,255,.15); border-radius: 14px; animation: pm-fadeIn .5s ease both; }
+.pm-feature-card h3 { margin: 10px 0 6px; font-size: 16px; }
+.pm-feature-card p { font-size: 13px; opacity: .8; margin: 0; }
+
+/* Stats */
+.pm-slide-stats { flex-direction: column; padding: 60px; }
+.pm-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; width: 100%; max-width: 800px; }
+.pm-stat-card { text-align: center; padding: 28px 16px; background: rgba(255,255,255,.15); border-radius: 14px; animation: pm-fadeIn .5s ease both; }
+.pm-stat-value { font-size: 36px; font-weight: 800; margin: 10px 0 4px; }
+.pm-stat-label { font-size: 14px; opacity: .8; }
+
+/* Team */
+.pm-slide-team { flex-direction: column; padding: 60px; }
+.pm-team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; width: 100%; max-width: 800px; }
+.pm-team-card { text-align: center; padding: 24px 16px; background: rgba(255,255,255,.15); border-radius: 14px; animation: pm-fadeIn .5s ease both; }
+.pm-team-avatar { width: 60px; height: 60px; border-radius: 50%; background: rgba(255,255,255,.25); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; margin: 0 auto 12px; }
+.pm-team-card h3 { margin: 0 0 8px; font-size: 16px; }
+.pm-team-card p { font-size: 12px; opacity: .8; margin: 0 0 10px; line-height: 1.5; }
+.pm-team-ratio { font-size: 20px; font-weight: 800; }
+
+/* Closing */
+.pm-slide-closing { flex-direction: column; }
+.pm-closing-title { font-size: 64px !important; margin-bottom: 10px !important; }
+.pm-closing-subtitle { font-size: 24px; opacity: .7; margin-bottom: 16px; }
+.pm-closing-text { font-size: 18px; opacity: .6; }
+
+/* Controls */
+.pm-controls { display: flex; align-items: center; justify-content: center; gap: 20px; padding: 16px; background: rgba(0,0,0,.5); backdrop-filter: blur(10px); }
+.pm-ctrl-btn { width: 44px; height: 44px; border-radius: 50%; border: none; background: rgba(255,255,255,.15); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .15s; }
+.pm-ctrl-btn:hover { background: rgba(255,255,255,.3); }
+.pm-exit-btn { background: rgba(239,68,68,.3); }
+.pm-exit-btn:hover { background: rgba(239,68,68,.5); }
+.pm-slide-counter { font-size: 14px; color: rgba(255,255,255,.7); min-width: 60px; text-align: center; }
+
+@keyframes pm-fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }

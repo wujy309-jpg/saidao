@@ -1,0 +1,452 @@
+/* ==================== Modern Color Theme ==================== */
+/* Fresh, vibrant, modern color scheme */
+
+:root {
+  /* Primary - Vibrant Blue-Purple */
+  --accent: #6366F1;
+  --accent-hover: #4F46E5;
+  --accent-light: #EEF2FF;
+  --accent-subtle: rgba(99, 102, 241, 0.1);
+  
+  /* Background - Warm Gray */
+  --bg-primary: #FAFAF9;
+  --bg-secondary: #F5F5F4;
+  --bg-tertiary: #E7E5E4;
+  --bg-elevated: #FFFFFF;
+  
+  /* Text */
+  --text-primary: #1C1917;
+  --text-secondary: #57534E;
+  --text-tertiary: #A8A29E;
+  
+  /* Borders */
+  --border-default: #E7E5E4;
+  --border-hover: #D6D3D1;
+  --border-focus: #6366F1;
+  
+  /* Status Colors - More vibrant */
+  --blue-50: #EEF2FF;
+  --blue-100: #E0E7FF;
+  --blue-500: #6366F1;
+  --blue-600: #4F46E5;
+  --blue-700: #4338CA;
+  
+  --green-50: #ECFDF5;
+  --green-100: #D1FAE5;
+  --green-500: #10B981;
+  --green-600: #059669;
+  
+  --amber-50: #FFFBEB;
+  --amber-100: #FEF3C7;
+  --amber-500: #F59E0B;
+  --amber-600: #D97706;
+  
+  --red-50: #FEF2F2;
+  --red-100: #FEE2E2;
+  --red-500: #EF4444;
+  --red-600: #DC2626;
+  
+  --purple-50: #F5F3FF;
+  --purple-100: #EDE9FE;
+  --purple-500: #8B5CF6;
+  --purple-600: #7C3AED;
+}
+
+/* ==================== LOGIN PAGE - Modern Gradient ==================== */
+.login-page {
+  background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%) !important;
+}
+
+.login-bg {
+  background: 
+    radial-gradient(ellipse at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%) !important;
+}
+
+.login-bg-pattern {
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px) !important;
+}
+
+.login-container {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15) !important;
+}
+
+.login-header h1 {
+  color: #1C1917 !important;
+}
+
+.login-header p {
+  color: #57534E !important;
+}
+
+.login-form label {
+  color: #44403C !important;
+}
+
+.login-form input {
+  background: #F5F5F4 !important;
+  border: 1px solid #E7E5E4 !important;
+  color: #1C1917 !important;
+}
+
+.login-form input:focus {
+  border-color: #6366F1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+  background: white !important;
+}
+
+.login-form input::placeholder {
+  color: #A8A29E !important;
+}
+
+.login-btn {
+  background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%) !important;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35) !important;
+}
+
+.login-btn:hover {
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45) !important;
+  transform: translateY(-2px) !important;
+}
+
+.login-divider {
+  color: #A8A29E !important;
+}
+
+.login-divider::before,
+.login-divider::after {
+  background: #E7E5E4 !important;
+}
+
+.demo-account {
+  background: #F5F5F4 !important;
+  border: 1px solid #E7E5E4 !important;
+}
+
+.demo-account:hover {
+  background: #EEF2FF !important;
+  border-color: #6366F1 !important;
+}
+
+.demo-name {
+  color: #1C1917 !important;
+}
+
+.demo-cred {
+  color: #A8A29E !important;
+}
+
+.login-footer {
+  border-top-color: #E7E5E4 !important;
+}
+
+.login-footer p {
+  color: #A8A29E !important;
+}
+
+.lang-btn {
+  color: rgba(255, 255, 255, 0.7) !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.lang-btn:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+}
+
+.lang-btn.active {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #6366F1 !important;
+}
+
+/* ==================== SIDEBAR - Modern Dark ==================== */
+.sidebar {
+  background: linear-gradient(180deg, #1E1B4B 0%, #312E81 100%) !important;
+  border-right: none !important;
+}
+
+.sidebar-header {
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.brand-icon {
+  background: linear-gradient(135deg, #818CF8, #6366F1) !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4) !important;
+}
+
+.brand-name {
+  color: white !important;
+}
+
+.brand-version {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.nav-list .nav-link {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.nav-list .nav-link:hover {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.nav-list .nav-link.active {
+  color: white !important;
+  background: rgba(99, 102, 241, 0.3) !important;
+}
+
+.nav-list .nav-link.active::before {
+  background: #818CF8 !important;
+}
+
+.nav-list .nav-link.active i,
+.nav-list .nav-link.active svg {
+  color: #A5B4FC !important;
+}
+
+.sidebar-user:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.user-avatar {
+  background: linear-gradient(135deg, #818CF8, #A78BFA) !important;
+}
+
+.user-name {
+  color: white !important;
+}
+
+.user-role {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* ==================== TOPBAR ==================== */
+.topbar {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+.global-search input {
+  background: #F5F5F4 !important;
+  border-color: transparent !important;
+}
+
+.global-search input:focus {
+  background: white !important;
+  border-color: #6366F1 !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+}
+
+/* ==================== STAT CARDS ==================== */
+.stat-card {
+  background: white !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  border-radius: 16px !important;
+}
+
+.stat-card:hover {
+  border-color: rgba(99, 102, 241, 0.2) !important;
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.1) !important;
+}
+
+.stat-card .icon.blue {
+  background: linear-gradient(135deg, #EEF2FF, #E0E7FF) !important;
+  color: #6366F1 !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2) !important;
+}
+
+.stat-card .icon.green {
+  background: linear-gradient(135deg, #ECFDF5, #D1FAE5) !important;
+  color: #059669 !important;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2) !important;
+}
+
+.stat-card .icon.orange {
+  background: linear-gradient(135deg, #FFFBEB, #FEF3C7) !important;
+  color: #D97706 !important;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2) !important;
+}
+
+.stat-card .icon.purple {
+  background: linear-gradient(135deg, #F5F3FF, #EDE9FE) !important;
+  color: #7C3AED !important;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2) !important;
+}
+
+.stat-card .info h3 {
+  background: linear-gradient(135deg, #1E1B4B, #312E81) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+}
+
+/* ==================== CARDS ==================== */
+.card {
+  background: white !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  border-radius: 16px !important;
+}
+
+.card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
+}
+
+.card-header h3 i,
+.card-header h3 svg {
+  color: #6366F1 !important;
+}
+
+/* ==================== BUTTONS ==================== */
+.btn-primary {
+  background: linear-gradient(135deg, #6366F1, #8B5CF6) !important;
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3) !important;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4) !important;
+}
+
+/* ==================== QUICK ACTIONS ==================== */
+.quick-action-card {
+  background: white !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  border-radius: 14px !important;
+}
+
+.quick-action-card:hover {
+  border-color: rgba(99, 102, 241, 0.3) !important;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.1) !important;
+}
+
+.quick-action-icon.blue {
+  background: linear-gradient(135deg, #EEF2FF, #E0E7FF) !important;
+  color: #6366F1 !important;
+}
+
+.quick-action-icon.green {
+  background: linear-gradient(135deg, #ECFDF5, #D1FAE5) !important;
+  color: #059669 !important;
+}
+
+.quick-action-icon.orange {
+  background: linear-gradient(135deg, #FFFBEB, #FEF3C7) !important;
+  color: #D97706 !important;
+}
+
+.quick-action-icon.purple {
+  background: linear-gradient(135deg, #F5F3FF, #EDE9FE) !important;
+  color: #7C3AED !important;
+}
+
+.quick-action-info h4 {
+  color: #1C1917 !important;
+}
+
+.quick-action-info p {
+  color: #57534E !important;
+}
+
+/* ==================== BADGES ==================== */
+.badge-pending {
+  background: #F5F5F4 !important;
+  color: #57534E !important;
+}
+
+.badge-in_progress {
+  background: #EEF2FF !important;
+  color: #6366F1 !important;
+}
+
+.badge-submitted {
+  background: #FFFBEB !important;
+  color: #D97706 !important;
+}
+
+.badge-approved {
+  background: #ECFDF5 !important;
+  color: #059669 !important;
+}
+
+.badge-completed {
+  background: #ECFDF5 !important;
+  color: #059669 !important;
+}
+
+.badge-rejected {
+  background: #FEF2F2 !important;
+  color: #DC2626 !important;
+}
+
+/* ==================== TOAST ==================== */
+.toast {
+  background: white !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12) !important;
+}
+
+.toast-success { border-left: 3px solid #10B981 !important; }
+.toast-error { border-left: 3px solid #EF4444 !important; }
+.toast-warning { border-left: 3px solid #F59E0B !important; }
+.toast-info { border-left: 3px solid #6366F1 !important; }
+
+/* ==================== MODAL ==================== */
+.modal {
+  border-radius: 20px !important;
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ==================== DARK THEME ==================== */
+[data-theme="dark"] {
+  --bg-primary: #0F0E1A;
+  --bg-secondary: #1A1830;
+  --bg-tertiary: #252342;
+  --bg-elevated: #1E1C3A;
+  --text-primary: #F1F0FF;
+  --text-secondary: #A5A3C8;
+  --text-tertiary: #6B6990;
+  --border-default: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .sidebar {
+  background: linear-gradient(180deg, #0F0E1A 0%, #1A1830 100%) !important;
+}
+
+[data-theme="dark"] .topbar {
+  background: rgba(15, 14, 26, 0.9) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .card,
+[data-theme="dark"] .quick-action-card {
+  background: #1A1830 !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+[data-theme="dark"] .stat-card .info h3 {
+  background: linear-gradient(135deg, #E0E0FF, #A5A3FF) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+}
+
+[data-theme="dark"] .card-header h3,
+[data-theme="dark"] .quick-action-info h4 {
+  color: #F1F0FF !important;
+}
+
+[data-theme="dark"] .quick-action-info p,
+[data-theme="dark"] .card-header a {
+  color: #A5A3C8 !important;
+}
+
+[data-theme="dark"] .stat-card:hover {
+  border-color: rgba(99, 102, 241, 0.3) !important;
+  box-shadow: 0 8px 30px rgba(99, 102, 241, 0.15) !important;
+}
