@@ -31,14 +31,6 @@ spring:
       max-file-size: 50MB
       max-request-size: 50MB
 
-  # SQL初始化配置
-  sql:
-    init:
-      mode: always
-      schema-locations: classpath:schema.sql
-      data-locations: classpath:data.sql
-      continue-on-error: true
-
 # File storage path
 file:
   upload-dir: ./uploads
