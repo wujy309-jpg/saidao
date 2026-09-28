@@ -55,6 +55,10 @@ public class User {
     @Column(length = 100)
     private String company;
     
+    /** 社区声望:发帖+2/回帖+1/被赞+1/被采纳+15/加精+20 */
+    @Column(name = "reputation")
+    private Integer reputation;
+    
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
@@ -65,6 +69,7 @@ public class User {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        if (reputation == null) reputation = 0;
     }
     
     @PreUpdate
@@ -77,9 +82,7 @@ public class User {
      */
     public enum UserRole {
         ADMIN("管理员"),
-        TEACHER("指导教师"),
-        STUDENT("学生"),
-        ENTERPRISE("企业导师");
+        STUDENT("学生");
         
         private final String description;
         

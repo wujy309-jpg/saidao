@@ -1,6 +1,7 @@
 package com.training.backend.config;
 
 import com.training.backend.dto.ApiResponse;
+import com.training.backend.exception.TokenInsufficientException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -92,6 +93,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleDuplicateResourceException(DuplicateResourceException e) {
         log.error("资源重复: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponse.error(e.getMessage()));
+    }
+    
+    @ExceptionHandler(TokenInsufficientException.class)
+    public ResponseEntity<ApiResponse<Void>> handleTokenInsufficient(TokenInsufficientException e) {
+        log.warn("Token 余额不足: {}", e.getMessage());
+        // 402：前端据此引导用户前往充值中心
+        return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED)
                 .body(ApiResponse.error(e.getMessage()));
     }
     

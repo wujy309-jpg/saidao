@@ -17,6 +17,8 @@ public interface CodeRepositoryRepository extends JpaRepository<CodeRepository, 
 
     List<CodeRepository> findByVisibility(Visibility visibility);
 
+    List<CodeRepository> findByTeamId(Long teamId);
+
     @Query("SELECT r FROM CodeRepository r WHERE r.owner.id = :userId OR r.id IN " +
            "(SELECT m.repository.id FROM RepoMember m WHERE m.user.id = :userId)")
     List<CodeRepository> findByUserId(@Param("userId") Long userId);

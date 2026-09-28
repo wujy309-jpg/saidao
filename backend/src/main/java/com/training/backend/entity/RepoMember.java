@@ -23,7 +23,7 @@ public class RepoMember {
     @JoinColumn(name = "repository_id", nullable = false)
     private CodeRepository repository;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

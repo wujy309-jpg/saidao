@@ -1,0 +1,71 @@
+version: '3.8'
+
+# ============================================
+# 正式对外部署版：Spring Boot 后端 + MySQL 8.0
+# 用法：docker compose -f docker-compose.prod-mysql.yml up -d --build
+# ============================================
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: training-mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=training_system
+      - TZ=Asia/Shanghai
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - training-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: training-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - JWT_SECRET=${JWT_SECRET}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      # MySQL 连接配置（切换数据库）
+      - "DB_URL=jdbc:mysql://mysql:3306/training_system?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true"
+      - DB_DRIVER=com.mysql.cj.jdbc.Driver
+      - DB_USERNAME=root
+      - DB_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - DB_PLATFORM=org.hibernate.dialect.MySQLDialect
+    volumes:
+      - backend-uploads:/app/uploads
+      - backend-logs:/app/logs
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - training-network
+
+volumes:
+  mysql-data:
+  backend-uploads:
+  backend-logs:
+
+networks:
+  training-network:
+    driver: bridge

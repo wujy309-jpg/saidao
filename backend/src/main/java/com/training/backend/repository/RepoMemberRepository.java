@@ -19,4 +19,6 @@ public interface RepoMemberRepository extends JpaRepository<RepoMember, Long> {
     List<RepoMember> findByRepositoryIdAndRole(Long repositoryId, MemberRole role);
 
     void deleteByRepositoryIdAndUserId(Long repositoryId, Long userId);
+
+    void deleteByRepositoryId(Long repositoryId);
 }

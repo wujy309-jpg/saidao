@@ -8,9 +8,10 @@ spring:
     name: training-backend
   
   datasource:
-    url: jdbc:h2:file:/app/data/trainingdb;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE
-    driver-class-name: org.h2.Driver
-    username: sa
+    # 默认 H2 文件库；设置 DB_URL/DB_DRIVER/DB_USERNAME/DB_PASSWORD/DB_PLATFORM 环境变量即可切换 MySQL
+    url: ${DB_URL:jdbc:h2:file:/app/data/trainingdb;DB_CLOSE_ON_EXIT=FALSE;AUTO_RECONNECT=TRUE}
+    driver-class-name: ${DB_DRIVER:org.h2.Driver}
+    username: ${DB_USERNAME:sa}
     password: ${DB_PASSWORD:}
   
   h2:
@@ -18,7 +19,7 @@ spring:
       enabled: false
   
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: ${DB_PLATFORM:org.hibernate.dialect.H2Dialect}
     hibernate:
       ddl-auto: update
     show-sql: false
@@ -61,3 +62,10 @@ logging:
     com.training.backend: INFO
     org.springframework.web: WARN
     org.springframework.security: WARN
+
+# 生产环境关闭 Swagger 文档接口（避免对外暴露 API 文档）
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

@@ -135,12 +135,12 @@ class AuthServiceTest {
         when(passwordEncoder.encode(anyString())).thenReturn("encodedPassword");
         when(userRepository.save(any(User.class))).thenReturn(testUser);
         
-        User result = authService.register(testUser, 1L);
+        User result = authService.registerStudent(testUser);
         
         assertNotNull(result);
         assertEquals("testuser", result.getUsername());
         verify(userRepository).save(any(User.class));
-        verify(auditService).logCreate(eq(1L), eq("admin"), eq("USER"), eq(1L), anyString());
+        verify(auditService).logCreate(eq(1L), eq("student"), eq("USER"), eq(1L), anyString());
     }
     
     @Test
@@ -148,7 +148,7 @@ class AuthServiceTest {
         when(userRepository.existsByUsername(anyString())).thenReturn(true);
         
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            authService.register(testUser, 1L);
+            authService.registerStudent(testUser);
         });
         
         assertEquals("用户名已存在", exception.getMessage());

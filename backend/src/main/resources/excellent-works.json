@@ -1,0 +1,290 @@
+{
+  "works": [
+    {
+      "competitionName": "全国大学生数学建模竞赛",
+      "title": "2025年赛题及附件（A–E 题全套）",
+      "description": "全国组委会官方赛题包直链下载（约 50MB）：含 2025 年全部赛题、数据与附件，是刷题与论文写作的原始官方材料。",
+      "year": 2025,
+      "award": "官方赛题",
+      "team": "全国组委会",
+      "type": "PROJECT",
+      "link": "https://www.mcm.edu.cn/upload_cn/node/759/SvpohSGacdffe718bcaa3b6e835c03ae3461cab1.zip",
+      "sortOrder": 1
+    },
+    {
+      "competitionName": "全国大学生数学建模竞赛",
+      "title": "2024年赛题及附件（A–E 题全套）",
+      "description": "官方赛题包直链下载（约 103MB）：2024 年全部赛题、数据与附件，含优秀论文写作参照的原始题目。",
+      "year": 2024,
+      "award": "官方赛题",
+      "team": "全国组委会",
+      "type": "PROJECT",
+      "link": "https://www.mcm.edu.cn/upload_cn/node/725/pmkWxf8H9cfe9984c1a1a5b1263e5dd3b5596ed5.zip",
+      "sortOrder": 2
+    },
+    {
+      "competitionName": "全国大学生数学建模竞赛",
+      "title": "2023年赛题及附件",
+      "description": "官方赛题压缩包直链下载（约 42MB）：2023 年 A/B/C/E 题及全部数据附件。",
+      "year": 2023,
+      "award": "官方赛题",
+      "team": "全国组委会",
+      "type": "PROJECT",
+      "link": "https://www.mcm.edu.cn/upload_cn/node/690/Y20WPner9fa62862794e6dc82731a5561ce1132f.rar",
+      "sortOrder": 3
+    },
+    {
+      "competitionName": "全国大学生数学建模竞赛",
+      "title": "2021年赛题及附件",
+      "description": "官方赛题压缩包直链下载（约 46MB）：2021 年全部赛题与附件。",
+      "year": 2021,
+      "award": "官方赛题",
+      "team": "全国组委会",
+      "type": "PROJECT",
+      "link": "https://www.mcm.edu.cn/upload_cn/node/669/HtbJEt9Nb655e46bebfa2a66ec63f940e2da156b.rar",
+      "sortOrder": 4
+    },
+    {
+      "competitionName": "全国大学生数学建模竞赛",
+      "title": "历年竞赛赛题归档（2001–2025 全部）",
+      "description": "官网「历年竞赛赛题」专栏，逐年收录 2001–2025 共 25 届全部赛题与附件，进入后按年份直接下载。",
+      "year": 2025,
+      "award": "官方归档",
+      "team": "全国组委会",
+      "type": "PROJECT",
+      "link": "https://www.mcm.edu.cn/html_cn/block/8579f5fce999cdc896f78bca5d4f8237.html",
+      "sortOrder": 5
+    },
+    {
+      "competitionName": "全国大学生数学建模竞赛",
+      "title": "2026年参赛论文格式规范（官方模板）",
+      "description": "官方最新论文格式规范 PDF 直链下载：排版、图表、引用与提交要求全文，参赛论文按此规范撰写。",
+      "year": 2026,
+      "award": "官方规范",
+      "team": "全国组委会",
+      "type": "PAPER",
+      "link": "https://www.mcm.edu.cn/upload_cn/node/775/cQMeL0YY905244c8bd4b9af832f1699446d8385e.pdf",
+      "sortOrder": 6
+    },
+    {
+      "competitionName": "全国大学生数学建模竞赛",
+      "title": "2026年竞赛参赛规则",
+      "description": "官方参赛规则全文 PDF 直链下载：报名、赛程、评审与纪律要求，参赛前必读。",
+      "year": 2026,
+      "award": "官方规则",
+      "team": "全国组委会",
+      "type": "PAPER",
+      "link": "https://www.mcm.edu.cn/upload_cn/node/774/FlQt6kJV6f5d5b4603e06c3c60acf89b72d7f298.pdf",
+      "sortOrder": 7
+    },
+    {
+      "competitionName": "美国大学生数学建模竞赛（MCM/ICM）",
+      "title": "Outstanding Winner（特等奖）论文频道",
+      "description": "COMAP 官方竞赛频道刊载历年 Outstanding 特等奖论文与获奖名录，每年全球仅约 20 篇，是全英文建模论文的顶级范本。",
+      "year": 2024,
+      "award": "Outstanding Winner",
+      "team": "COMAP 官方刊载",
+      "type": "PAPER",
+      "link": "https://www.comap.com/contests/mcm-icm",
+      "sortOrder": 1
+    },
+    {
+      "competitionName": "中国国际大学生创新大赛（原互联网+）",
+      "title": "Ofo 共享单车",
+      "description": "北京大学团队项目，获第二届大赛金奖，是大赛历史上最具影响力的获奖项目之一；大赛官方项目库收录历届获奖项目。",
+      "year": 2016,
+      "award": "金奖",
+      "team": "北京大学",
+      "type": "PROJECT",
+      "link": "https://cy.ncss.cn/search/projects",
+      "sortOrder": 1
+    },
+    {
+      "competitionName": "中国国际大学生创新大赛（原互联网+）",
+      "title": "Insta360 全景相机",
+      "description": "深圳大学团队的全景影像硬件创业项目，获第四届大赛金奖，展示了高校科技成果产业化的完整路径。",
+      "year": 2018,
+      "award": "金奖",
+      "team": "深圳大学",
+      "type": "PROJECT",
+      "link": "https://cy.ncss.cn/search/projects",
+      "sortOrder": 2
+    },
+    {
+      "competitionName": "中国国际大学生创新大赛（原互联网+）",
+      "title": "官方项目库（寻找项目）",
+      "description": "大赛官方项目库直链入口，可按赛道、届次检索往届参赛与获奖项目，是了解评委视角与项目包装的最佳素材。",
+      "year": 2024,
+      "award": "官方项目库",
+      "team": "大赛组委会",
+      "type": "PROJECT",
+      "link": "https://cy.ncss.cn/search/projects",
+      "sortOrder": 3
+    },
+    {
+      "competitionName": "全国大学生电子设计竞赛",
+      "title": "2019年赛题包（本科组）",
+      "description": "官方赛题压缩包直链下载：2019 年本科组全部赛题与附图。",
+      "year": 2019,
+      "award": "官方赛题",
+      "team": "全国竞赛组委会",
+      "type": "PROJECT",
+      "link": "http://nuedc.xjtu.edu.cn/static/uploadfile/2021/0726/20210726031942844.rar",
+      "sortOrder": 1
+    },
+    {
+      "competitionName": "全国大学生电子设计竞赛",
+      "title": "2019年赛题包（高职高专组）",
+      "description": "官方赛题压缩包直链下载：2019 年高职高专组全部赛题与附图。",
+      "year": 2019,
+      "award": "官方赛题",
+      "team": "全国竞赛组委会",
+      "type": "PROJECT",
+      "link": "http://nuedc.xjtu.edu.cn/static/uploadfile/2021/0726/20210726033236563.rar",
+      "sortOrder": 2
+    },
+    {
+      "competitionName": "全国大学生电子设计竞赛",
+      "title": "2021年赛题包（高职高专组）",
+      "description": "官方赛题压缩包直链下载：2021 年高职高专组全部赛题与附图。",
+      "year": 2021,
+      "award": "官方赛题",
+      "team": "全国竞赛组委会",
+      "type": "PROJECT",
+      "link": "http://nuedc.xjtu.edu.cn/static/uploadfile/2021/1104/20211104080126489.rar",
+      "sortOrder": 3
+    },
+    {
+      "competitionName": "全国大学生电子设计竞赛",
+      "title": "往届试题频道（历年赛题合集）",
+      "description": "官网「往届试题」下载频道直链：2019–2023 历年赛题、附图与附件持续更新，一键进入下载。",
+      "year": 2023,
+      "award": "官方归档",
+      "team": "全国竞赛组委会",
+      "type": "PROJECT",
+      "link": "http://nuedc.xjtu.edu.cn/index/index/lists/catid/21.html",
+      "sortOrder": 4
+    },
+    {
+      "competitionName": "全国大学生机器人大赛 RoboMaster 机甲大师超级对抗赛",
+      "title": "东北大学 T-DT 战队 · 2019 机甲大师总冠军",
+      "description": "东北大学 T-DT 战队一路过关斩将夺得 2019 赛季全国总冠军；官方 B 站空间收录该赛季总决赛全程录像与战队纪录片。",
+      "year": 2019,
+      "award": "总冠军",
+      "team": "东北大学 T-DT 战队",
+      "type": "VIDEO",
+      "link": "https://space.bilibili.com/20554233/video",
+      "sortOrder": 1
+    },
+    {
+      "competitionName": "全国大学生机器人大赛 RoboMaster 机甲大师超级对抗赛",
+      "title": "上海交通大学 · 2021 机甲大师总冠军",
+      "description": "上海交通大学在 2021 赛季夺冠，官方视频资源库收录该赛季从分区赛到总决赛的比赛影像。",
+      "year": 2021,
+      "award": "总冠军",
+      "team": "上海交通大学",
+      "type": "VIDEO",
+      "link": "https://www.robomaster.com/zh-CN/resource/video",
+      "sortOrder": 2
+    },
+    {
+      "competitionName": "全国大学生机器人大赛 RoboMaster 机甲大师超级对抗赛",
+      "title": "历届决赛视频与纪录片",
+      "description": "官方视频中心直链：历届总决赛全场录像、年度纪录片与技术开源分享，是了解机器人实战的宝库。",
+      "year": 2024,
+      "award": "官方影像",
+      "team": "RoboMaster 官方",
+      "type": "VIDEO",
+      "link": "https://www.robomaster.com/zh-CN/resource/video",
+      "sortOrder": 3
+    },
+    {
+      "competitionName": "全国大学生信息安全竞赛",
+      "title": "基于时空音频感知的智慧城市安防管控系统",
+      "description": "官方优秀作品专栏展示：通过声音事件检测构建城市声谱地图，为城市安防赋予听觉感知，含完整作品介绍与团队信息。",
+      "year": 2023,
+      "award": "官方展列优秀作品",
+      "team": "武汉大学 小丑氛围组（队长：杨楚秦）",
+      "type": "PROJECT",
+      "link": "http://www.ciscn.cn/excellents",
+      "sortOrder": 1
+    },
+    {
+      "competitionName": "全国大学生信息安全竞赛",
+      "title": "翼安——无人机安全通信与欺骗检测系统",
+      "description": "官方优秀作品专栏展示：新型无人机安全通信方案结合区块链与神经网络，实现 GPS 欺骗实时检测，含完整作品介绍。",
+      "year": 2023,
+      "award": "官方展列优秀作品",
+      "team": "西安电子科技大学 心算SHA256队（队长：柴若晨）",
+      "type": "PROJECT",
+      "link": "http://www.ciscn.cn/excellents",
+      "sortOrder": 2
+    },
+    {
+      "competitionName": "全国大学生信息安全竞赛",
+      "title": "优秀作品专栏（创新创业价值作品展示）",
+      "description": "官网优秀作品专栏直链：持续收录作品赛获奖项目的完整介绍、团队与指导教师信息。",
+      "year": 2024,
+      "award": "官方专栏",
+      "team": "历届获奖团队",
+      "type": "PROJECT",
+      "link": "http://www.ciscn.cn/excellents",
+      "sortOrder": 3
+    },
+    {
+      "competitionName": "中国大学生计算机设计大赛",
+      "title": "2025年国赛入围作品信息公告",
+      "description": "官方发布的当届国赛入围作品名单与作品信息，可了解最新一届获奖作品全貌与作品命名规范。",
+      "year": 2025,
+      "award": "官方公告",
+      "team": "大赛组委会",
+      "type": "PROJECT",
+      "link": "https://jsjds.blcu.edu.cn/info/1043/2184.htm",
+      "sortOrder": 1
+    },
+    {
+      "competitionName": "中国大学生计算机设计大赛",
+      "title": "软件应用与开发类作品文档模板（2023版）",
+      "description": "官方作品提交要求与文档模板直链：做同类作品可直接对照官方规范撰写说明文档。",
+      "year": 2023,
+      "award": "官方模板",
+      "team": "大赛组委会",
+      "type": "PAPER",
+      "link": "https://jsjds.blcu.edu.cn/info/1045/1785.htm",
+      "sortOrder": 2
+    },
+    {
+      "competitionName": "蓝桥杯全国软件和信息技术专业人才大赛",
+      "title": "官方真题题库（历年真题+题解）",
+      "description": "蓝桥官方题库直链：历年真题按语言组别与难度分类，配套题解与评测，个人赛冲奖的首选训练入口。",
+      "year": 2024,
+      "award": "官方题库",
+      "team": "蓝桥杯官方",
+      "type": "PAPER",
+      "link": "https://www.lanqiao.cn/problems/",
+      "sortOrder": 1
+    },
+    {
+      "competitionName": "蓝桥杯全国软件和信息技术专业人才大赛",
+      "title": "大赛官方频道（章程·组别·赛程）",
+      "description": "官方大赛频道直链：竞赛章程、组别设置与历届赛况一站式了解。",
+      "year": 2023,
+      "award": "官方频道",
+      "team": "蓝桥杯官方",
+      "type": "PAPER",
+      "link": "https://www.lanqiao.cn/cup/",
+      "sortOrder": 2
+    },
+    {
+      "competitionName": "全国大学生统计建模大赛",
+      "title": "赛事回顾频道（历届赛况与资料）",
+      "description": "官方赛事回顾频道直链：逐年收录竞赛组织、赛题与获奖情况的回顾资料。",
+      "year": 2024,
+      "award": "官方频道",
+      "team": "大赛组委会",
+      "type": "PAPER",
+      "link": "http://tjjmds.ai-learning.net/sshg.jhtml",
+      "sortOrder": 1
+    }
+  ]
+}

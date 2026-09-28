@@ -11,6 +11,8 @@ public interface RepoFileRepository extends JpaRepository<RepoFile, Long> {
 
     List<RepoFile> findByRepositoryIdAndBranchName(Long repositoryId, String branchName);
 
+    List<RepoFile> findByRepositoryId(Long repositoryId);
+
     List<RepoFile> findByRepositoryIdAndBranchNameAndFilePathStartingWith(
             Long repositoryId, String branchName, String pathPrefix);
 
@@ -22,4 +24,6 @@ public interface RepoFileRepository extends JpaRepository<RepoFile, Long> {
 
     void deleteByRepositoryIdAndBranchNameAndFilePath(
             Long repositoryId, String branchName, String filePath);
+
+    void deleteByRepositoryId(Long repositoryId);
 }

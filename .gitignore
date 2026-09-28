@@ -1,8 +1,12 @@
 # Build outputs
 target/
+dist/
 *.class
 *.jar
 *.war
+
+# 部署产物暂存区（由 deploy/scripts/prepare-stage.sh 生成，勿提交）
+deploy/stage/
 
 # IDE
 .idea/
@@ -19,8 +23,22 @@ Thumbs.db
 # Dependencies
 node_modules/
 
+# Local toolchain (JDK/Maven downloaded for this machine)
+.tools/
+
+# Local database files (H2 file mode)
+backend/data/
+backend/uploads/
+
+# 后台管理平台本地静态产物（供后端本地联调，生产走 Docker COPY）
+backend/admin-static/
+
 # API Keys - KEEP SECRET
 backend/src/main/resources/application.yml
+
+# 本机云 API 签名脚本（含明文 AccessKey/Secret，严禁提交）
+.aliyun-call.py
+.env
 
 # Temp files
 *.pyc

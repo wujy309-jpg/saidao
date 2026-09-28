@@ -1,0 +1,184 @@
+@import "tailwindcss";
+
+/* ============ 设计 token(「赛道」2.0 · 赛车场品牌语言) ============
+   主色:翠绿(品牌保留),全站唯一交互强调色
+   画布:暖白 #f4f6f2;卡片纯白 + 翠绿调柔和阴影(替代灰边框堆砌)
+   圆角规则(形状锁):卡片 16px / 控件 12px / 标签胶囊
+   类别色(仅类别徽章语义色):工科 blue / 理科 violet / 文科 amber / 综合 emerald
+   状态色:截止红 / 精华琥珀 / 认证天蓝
+   数字:Space Grotesk(等宽数字,仪表盘感);中文:系统栈
+*/
+
+@theme {
+  --color-brand-50: #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-300: #6ee7b7;
+  --color-brand-400: #34d399;
+  --color-brand-500: #10b981;
+  --color-brand-600: #059669;
+  --color-brand-700: #047857;
+  --color-brand-800: #065f46;
+  --color-brand-900: #064e3b;
+
+  --color-canvas: #f4f6f2;
+  --color-ink: #17211c;
+
+  --radius-card: 16px;
+  --radius-control: 12px;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Segoe UI", sans-serif;
+  --font-num: "Space Grotesk", -apple-system, BlinkMacSystemFont, "PingFang SC",
+    "Microsoft YaHei", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas,
+    "JetBrains Mono", monospace;
+
+  --shadow-card: 0 1px 2px rgba(23, 33, 28, 0.05), 0 1px 6px rgba(23, 33, 28, 0.04);
+  --shadow-lift: 0 4px 12px rgba(23, 33, 28, 0.06), 0 12px 32px rgba(6, 78, 59, 0.06);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-canvas text-zinc-800 antialiased;
+  font-feature-settings: "tnum";
+}
+
+/* 细滚动条(产品界面一致性) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: theme(--color-zinc-300) transparent;
+}
+
+/* 表单控件统一外观 */
+input,
+select,
+textarea {
+  @apply outline-none;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  @apply ring-2 ring-brand-500/50 ring-offset-1 ring-offset-canvas;
+}
+
+/* 页面进入动画(克制,仅首屏) */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-rise {
+  animation: rise 0.4s ease-out both;
+}
+
+/* 抽屉/底部弹层入场 */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(64px);
+    opacity: 0.4;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.32s cubic-bezier(0.32, 0.72, 0.24, 1) both;
+}
+
+@keyframes slide-up-sheet {
+  from {
+    transform: translateY(64px);
+    opacity: 0.4;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.animate-slide-up-sheet {
+  animation: slide-up-sheet 0.3s cubic-bezier(0.32, 0.72, 0.24, 1) both;
+}
+
+/* 生成中时间线节点脉冲 */
+@keyframes node-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px var(--color-brand-100);
+  }
+  50% {
+    box-shadow: 0 0 0 6px var(--color-brand-100);
+  }
+}
+
+.animate-node-pulse {
+  animation: node-pulse 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .animate-slide-in-right,
+  .animate-slide-up-sheet,
+  .animate-node-pulse {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ============ 品牌签名:起跑格纹 / 车道虚线 / 速度线 ============ */
+
+/* 起跑格纹 logo 标记(2×2 棋盘格) */
+.checker-mark {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+}
+.checker-mark i:nth-child(1) {
+  background: var(--color-brand-600);
+}
+.checker-mark i:nth-child(2) {
+  background: var(--color-ink);
+}
+.checker-mark i:nth-child(3) {
+  background: var(--color-ink);
+}
+.checker-mark i:nth-child(4) {
+  background: var(--color-brand-600);
+}
+
+/* 车道虚线(分隔线与装饰) */
+.lane-line {
+  height: 2px;
+  background-image: linear-gradient(
+    90deg,
+    var(--color-brand-300) 0 18px,
+    transparent 18px 34px
+  );
+  background-size: 34px 2px;
+  opacity: 0.55;
+}
+
+/* 速度线(深色横幅氛围,绝对定位容器内使用) */
+.speedlines i {
+  position: absolute;
+  height: 1.5px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85));
+}

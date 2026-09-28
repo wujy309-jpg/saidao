@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+/* ============ 运营管理后台设计语言 ============
+   与主站一致:翠绿品牌 + 暖白画布;后台用深墨侧栏强化"控制台"气质
+   数字:SF 等宽数字;圆角:卡片 16 / 控件 12
+*/
+@theme {
+  --color-brand-50: #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-300: #6ee7b7;
+  --color-brand-400: #34d399;
+  --color-brand-500: #10b981;
+  --color-brand-600: #059669;
+  --color-brand-700: #047857;
+  --color-brand-800: #065f46;
+  --color-brand-900: #064e3b;
+
+  --color-canvas: #f4f6f2;
+  --color-ink: #17211c;
+
+  --radius-card: 16px;
+  --radius-control: 12px;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Segoe UI", sans-serif;
+
+  --shadow-card: 0 1px 2px rgba(23, 33, 28, 0.05), 0 1px 6px rgba(23, 33, 28, 0.04);
+  --shadow-lift: 0 4px 12px rgba(23, 33, 28, 0.06), 0 12px 32px rgba(6, 78, 59, 0.06);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-canvas text-zinc-800 antialiased;
+  font-feature-settings: "tnum";
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-zinc-300) transparent;
+}
+
+input,
+select,
+textarea {
+  @apply outline-none;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-rise {
+  animation: rise 0.25s ease-out both;
+}
+
+/* 表格数字统一等宽 */
+.num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}

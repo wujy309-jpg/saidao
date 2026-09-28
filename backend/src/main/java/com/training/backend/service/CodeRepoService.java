@@ -6,9 +6,12 @@ import com.training.backend.entity.RepoMember.MemberRole;
 import com.training.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,12 +31,13 @@ public class CodeRepoService {
     // ==================== 仓库管理 ====================
 
     @Transactional
-    public CodeRepository createRepository(CodeRepository repo, Long ownerId, Long projectId) {
+    public CodeRepository createRepository(CodeRepository repo, Long ownerId, Long projectId, Long teamId) {
         User owner = userRepository.findById(ownerId)
                 .orElseThrow(() -> new RuntimeException("用户不存在"));
         repo.setOwner(owner);
         repo.setDefaultBranch("main");
         repo.setStarCount(0);
+        repo.setTeamId(teamId);
         CodeRepository saved = repoRepository.save(repo);
 
         RepoMember member = new RepoMember();
@@ -63,7 +67,7 @@ public class CodeRepoService {
 
     public CodeRepository getRepository(Long repoId) {
         return repoRepository.findById(repoId)
-                .orElseThrow(() -> new RuntimeException("仓库不存在"));
+                .orElseThrow(() -> new RuntimeException("项目空间不存在"));
     }
 
     // ==================== 成员管理 ====================
@@ -77,7 +81,7 @@ public class CodeRepoService {
                 .orElseThrow(() -> new RuntimeException("邀请人不存在"));
 
         if (memberRepository.existsByRepositoryIdAndUserId(repoId, userId)) {
-            throw new RuntimeException("该用户已是仓库成员");
+            throw new RuntimeException("该用户已是项目成员");
         }
 
         RepoMember member = new RepoMember();
@@ -256,10 +260,82 @@ public class CodeRepoService {
         return commitRepository.search(repoId, keyword);
     }
 
+    // ==================== 文件上传（磁盘存储）与仓库删除 ====================
+
+    @Value("${file.upload-dir:./uploads}")
+    private String uploadDir;
+
+    public String getUploadDir() {
+        return uploadDir;
+    }
+
+    public RepoBranch findBranchByName(Long repoId, String branchName) {
+        return branchRepository.findByRepositoryIdAndName(repoId, branchName).orElse(null);
+    }
+
+    /**
+     * 保存上传文件记录（二进制文件存磁盘，storagePath 指向磁盘路径）
+     */
+    @Transactional
+    public RepoFile uploadFile(Long repoId, String branchName, String filePath,
+                               String storagePath, Long fileSize, Long userId) {
+        CodeRepository repo = getRepository(repoId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("用户不存在"));
+
+        Optional<RepoFile> existing = fileRepository
+                .findByRepositoryIdAndBranchNameAndFilePath(repoId, branchName, filePath);
+
+        RepoFile file;
+        if (existing.isPresent()) {
+            file = existing.get();
+            file.setStoragePath(storagePath);
+            file.setContent(null);
+            file.setFileSize(fileSize);
+            file.setLastModifiedBy(user);
+        } else {
+            file = new RepoFile();
+            file.setRepository(repo);
+            file.setBranchName(branchName);
+            file.setFilePath(filePath);
+            file.setFileName(extractFileName(filePath));
+            file.setStoragePath(storagePath);
+            file.setFileSize(fileSize);
+            file.setLastModifiedBy(user);
+            file.setFileType(RepoFile.FileType.FILE);
+        }
+        return fileRepository.save(file);
+    }
+
+    /**
+     * 删除仓库（连同成员/分支/文件/提交与磁盘文件）
+     */
+    @Transactional
+    public void deleteRepository(Long repoId) {
+        getRepository(repoId);
+        List<RepoFile> files = fileRepository.findByRepositoryId(repoId);
+        for (RepoFile f : files) {
+            if (f.getStoragePath() != null && !f.getStoragePath().isBlank()) {
+                try {
+                    Files.deleteIfExists(Paths.get(f.getStoragePath()));
+                } catch (Exception ignored) {
+                    log.warn("清理磁盘文件失败: {}", f.getStoragePath());
+                }
+            }
+        }
+        fileRepository.deleteByRepositoryId(repoId);
+        commitRepository.deleteByRepositoryId(repoId);
+        branchRepository.deleteByRepositoryId(repoId);
+        memberRepository.deleteByRepositoryId(repoId);
+        repoRepository.deleteById(repoId);
+        log.info("仓库已删除: {}", repoId);
+    }
+
     // ==================== 工具方法 ====================
 
     private String generateCommitHash() {
-        return UUID.randomUUID().toString().replace("-", "").substring(0, 40);
+        return UUID.randomUUID().toString().replace("-", "")
+                + UUID.randomUUID().toString().replace("-", "").substring(0, 8);
     }
 
     private String extractFileName(String filePath) {

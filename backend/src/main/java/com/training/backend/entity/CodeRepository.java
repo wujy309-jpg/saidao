@@ -24,9 +24,12 @@ public class CodeRepository {
     @Column(length = 500)
     private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id")
-    private Project project;
+    @Column(name = "project_id")
+    private Long projectId;
+
+    /** 关联团队（项目空间可挂靠到团队） */
+    @Column(name = "team_id")
+    private Long teamId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)

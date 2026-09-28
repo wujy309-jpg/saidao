@@ -75,6 +75,12 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
+        <!-- Jackson Hibernate6 模块：序列化懒加载代理 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-hibernate6</artifactId>
+        </dependency>
+
         <!-- Apache POI for Excel/Word -->
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -147,6 +153,12 @@
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
         
+        <!-- Spring AOP：AI 接口 Token 扣费切面 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+        
         <!-- Spring Boot Security Test -->
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -154,11 +166,7 @@
             <scope>test</scope>
         </dependency>
         
-        <!-- Spring WebSocket -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-websocket</artifactId>
-        </dependency>
+        <!-- Spring WebSocket 已移除（改造后不再使用实时通信） -->
     </dependencies>
 
     <build>

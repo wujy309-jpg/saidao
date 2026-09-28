@@ -25,4 +25,6 @@ public interface RepoCommitRepository extends JpaRepository<RepoCommit, Long> {
 
     @Query("SELECT COUNT(c) FROM RepoCommit c WHERE c.repository.id = :repoId")
     long countByRepositoryId(@Param("repoId") Long repoId);
+
+    void deleteByRepositoryId(Long repositoryId);
 }

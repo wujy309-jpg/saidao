@@ -14,4 +14,6 @@ public interface RepoBranchRepository extends JpaRepository<RepoBranch, Long> {
     Optional<RepoBranch> findByRepositoryIdAndName(Long repositoryId, String name);
 
     boolean existsByRepositoryIdAndName(Long repositoryId, String name);
+
+    void deleteByRepositoryId(Long repositoryId);
 }

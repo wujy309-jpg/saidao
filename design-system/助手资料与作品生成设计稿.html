@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>「赛道」AI 助手 · 我的资料上传 + 作品生成 设计稿</title>
+<!--
+  AI 助手增强 v3
+  · 右栏「已加载的比赛资料」新增「我的资料」模块:上传规则/要求/笔记(txt/md/pdf),自动注入助手上下文
+  · 作品生成:文件块输出(路径头+代码) → 存入项目空间(批量落库) → HTML 在线预览
+  · 形状锁 16/12/胶囊;单强调色翠绿;数字 Space Grotesk
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --brand-50:#ecfdf5;--brand-100:#d1fae5;--brand-200:#a7f3d0;--brand-300:#6ee7b7;
+    --brand-400:#34d399;--brand-500:#10b981;--brand-600:#059669;--brand-700:#047857;
+    --brand-800:#065f46;--brand-900:#064e3b;
+    --canvas:#f4f6f2;--card:#fff;--line:#e5eae4;
+    --ink:#17211c;--ink-2:#3f4d46;--ink-3:#7a8a80;
+    --red:#e5484d;--amber:#b45309;--sky:#0369a1;--violet:#7c3aed;
+    --shadow-sm:0 1px 2px rgba(23,33,28,.05),0 1px 6px rgba(23,33,28,.04);
+    --shadow-lg:0 8px 24px rgba(23,33,28,.10),0 24px 64px rgba(6,78,59,.12);
+    --r-lg:16px;--r-md:12px;--r-pill:999px;
+    --fn:"Space Grotesk","PingFang SC",system-ui,sans-serif;
+    --fu:"PingFang SC","HarmonyOS Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--fu);background:#e9ede7;color:var(--ink);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .num{font-family:var(--fn)}
+  ::selection{background:var(--brand-200)}
+
+  /* 查看器 */
+  .viewer{position:fixed;top:0;left:0;right:0;z-index:300;height:54px;background:rgba(17,26,21,.96);display:flex;align-items:center;gap:16px;padding:0 20px}
+  .vbrand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:800;font-size:14px;letter-spacing:.5px}
+  .vbrand .mk{width:24px;height:24px;border-radius:7px;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;border:1px solid rgba(255,255,255,.35)}
+  .vbrand .mk i{background:var(--brand-500)}
+  .vbrand .mk i:nth-child(1){background:var(--brand-600)}
+  .vbrand .mk i:nth-child(2){background:#fff}
+  .vbrand .mk i:nth-child(3){background:#fff}
+  .vbrand .mk i:nth-child(4){background:var(--brand-600)}
+  .vtabs{display:flex;gap:4px;flex:1}
+  .vtabs button{border:0;background:transparent;color:rgba(255,255,255,.62);font-size:13px;font-family:var(--fu);padding:6px 14px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:.18s}
+  .vtabs button:hover{color:#fff;background:rgba(255,255,255,.08)}
+  .vtabs button.on{background:var(--brand-600);color:#fff;font-weight:600}
+  .vnote{font-size:11px;color:rgba(255,255,255,.45);white-space:nowrap}
+  .screen{display:none;padding-top:54px}
+  .screen.on{display:block;animation:fadein .25s ease}
+  @keyframes fadein{from{opacity:0}to{opacity:1}}
+
+  /* 顶栏(简略) */
+  .topbar{position:sticky;top:54px;z-index:50;height:58px;background:rgba(244,246,242,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;padding:0 28px}
+  .tlogo{display:flex;align-items:center;gap:8px;font-weight:800;letter-spacing:1px;margin-right:6px}
+  .tlogo .mk{width:30px;height:30px;border-radius:9px;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;box-shadow:var(--shadow-sm)}
+  .tlogo .mk i:nth-child(1){background:var(--brand-600)}
+  .tlogo .mk i:nth-child(2){background:var(--ink)}
+  .tlogo .mk i:nth-child(3){background:var(--ink)}
+  .tlogo .mk i:nth-child(4){background:var(--brand-600)}
+  .tnav{display:flex;gap:2px}
+  .tnav a{position:relative;text-decoration:none;color:var(--ink-2);font-size:13px;padding:7px 12px;border-radius:var(--r-md);white-space:nowrap}
+  .tnav a.on{color:var(--brand-800);font-weight:700;background:var(--brand-50)}
+  .tnav a.on::after{content:"";position:absolute;left:12px;right:12px;bottom:2px;height:2px;border-radius:2px;background:var(--brand-600)}
+  .tright{margin-left:auto;display:flex;align-items:center;gap:10px}
+  .sel{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:var(--r-md);padding:7px 12px;font-size:12.5px;color:var(--ink-2);box-shadow:var(--shadow-sm)}
+  .bell{position:relative;width:34px;height:34px;border-radius:var(--r-md);background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm)}
+  .bell::before{content:"◉";font-size:13px;color:var(--ink-2)}
+  .bell i{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:9px;font-style:normal;min-width:15px;height:15px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-family:var(--fn)}
+  .avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--brand-600),var(--brand-800));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+
+  /* 三段式布局 */
+  .main{padding:22px 28px;max-width:1400px;margin:0 auto}
+  .layout{display:grid;grid-template-columns:200px 1fr 300px;gap:14px;height:calc(100vh - 150px);min-height:560px}
+
+  /* 左:会话 */
+  .sess{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:12px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:6px;overflow-y:auto}
+  .newbtn{background:var(--brand-600);color:#fff;border:0;border-radius:var(--r-md);padding:9px 12px;font-size:13px;font-weight:700;cursor:pointer}
+  .s{display:flex;flex-direction:column;gap:1px;padding:8px 10px;border-radius:10px;cursor:pointer}
+  .s.on{background:var(--brand-50)}
+  .s b{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .s span{font-size:10px;color:var(--ink-3)}
+
+  /* 中:对话 */
+  .chat{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);display:flex;flex-direction:column;overflow:hidden}
+  .msgs{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px}
+  .msg{display:flex;gap:10px;max-width:92%}
+  .msg.user{align-self:flex-end;flex-direction:row-reverse}
+  .msg .bubble{border-radius:14px;padding:11px 15px;font-size:13px;line-height:1.7}
+  .msg.ai .bubble{background:var(--canvas);border:1px solid var(--line);border-top-left-radius:4px;min-width:0;width:100%}
+  .msg.user .bubble{background:var(--brand-600);color:#fff;border-top-right-radius:4px}
+  .avatar-sm{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--brand-600),var(--brand-800));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0}
+  .bot-sm{width:30px;height:30px;border-radius:9px;background:var(--brand-600);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+
+  /* 文件块(作品生成) */
+  .fileblock{margin-top:10px;border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden}
+  .filehead{display:flex;align-items:center;gap:8px;background:#f7f9f6;padding:7px 12px;border-bottom:1px solid var(--line);font-family:var(--fn);font-size:11.5px;color:var(--ink-2)}
+  .filehead .dot{width:8px;height:8px;border-radius:3px;background:var(--brand-400)}
+  .filehead .act{margin-left:auto;display:flex;gap:6px}
+  .fbtn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:3px 10px;font-size:10.5px;font-weight:600;color:var(--ink-2);cursor:pointer}
+  .fbtn.save{background:var(--brand-600);border-color:var(--brand-600);color:#fff}
+  .fbtn.saved{background:var(--brand-50);border-color:var(--brand-300);color:var(--brand-700)}
+  .code{background:#101713;color:#c9d6cf;font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:11px;line-height:1.7;padding:10px 14px;overflow-x:auto;white-space:pre}
+  .code .c-k{color:#6ee7b7}
+  .code .c-s{color:#a5b4ac}
+  .code .c-t{color:#f4c76d}
+  .saveall{display:flex;align-items:center;gap:8px;margin-top:8px;background:var(--brand-50);border:1px dashed var(--brand-300);border-radius:var(--r-md);padding:8px 12px;font-size:11.5px;color:var(--brand-800)}
+  .saveall .btn{margin-left:auto;background:var(--brand-600);color:#fff;border:0;border-radius:9px;padding:6px 14px;font-size:11.5px;font-weight:700;cursor:pointer}
+
+  .quick-row{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 10px}
+  .qchip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font-size:11.5px;color:var(--ink-2);cursor:pointer}
+  .qchip.hot{background:var(--brand-600);border-color:var(--brand-600);color:#fff;font-weight:600}
+  .input{margin:0 18px 16px;border:1px solid var(--line);border-radius:14px;padding:8px 10px;display:flex;align-items:flex-end;gap:8px}
+  .input textarea{flex:1;border:0;resize:none;font-family:var(--fu);font-size:13px;padding:6px 8px;outline:none;height:38px;background:transparent}
+  .send{width:34px;height:34px;border-radius:10px;background:var(--brand-600);color:#fff;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px}
+
+  /* 右栏:已加载的比赛资料 */
+  .ctx{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);display:flex;flex-direction:column;overflow-y:auto}
+  .ctx-h{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:2}
+  .ctx-h b{font-size:13.5px}
+  .ctx-b{padding:4px 16px 16px}
+  .sec{margin-top:14px}
+  .sec-h{font-size:10.5px;font-weight:700;color:var(--ink-3);letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+  .sec-h .add{font-size:10.5px;color:var(--brand-700);font-weight:700;cursor:pointer;letter-spacing:0}
+  .r{font-size:11.5px;color:var(--ink-2);line-height:1.8}
+  .ctx-item{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--ink-2);padding:4px 0}
+  .ctx-item i{width:8px;height:8px;border-radius:3px;background:var(--brand-400);flex-shrink:0}
+
+  /* 我的资料模块 */
+  .mydocs{border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden}
+  .dropzone{
+    border:1.5px dashed var(--brand-300);border-radius:10px;background:var(--brand-50/40);
+    padding:14px 10px;text-align:center;cursor:pointer;transition:.15s;background:#fafdfb;
+  }
+  .dropzone:hover{border-color:var(--brand-500);background:var(--brand-50)}
+  .dropzone .ic{width:30px;height:30px;border-radius:9px;background:#fff;border:1px solid var(--brand-200);color:var(--brand-700);display:inline-flex;align-items:center;justify-content:center;font-size:14px}
+  .dropzone p{font-size:11px;color:var(--ink-2);margin-top:6px;font-weight:600}
+  .dropzone span{font-size:9.5px;color:var(--ink-3);display:block;margin-top:2px}
+  .doc{display:flex;align-items:center;gap:9px;padding:9px 11px;border-bottom:1px solid var(--line)}
+  .doc:last-child{border-bottom:0}
+  .doc .fic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;flex-shrink:0}
+  .fic.pdf{background:#fdeceb;color:#e5484d}
+  .fic.md{background:var(--sky-soft,#ecf7fd);color:var(--sky)}
+  .fic.txt{background:#f2f3f1;color:var(--ink-2)}
+  .doc .bd{flex:1;min-width:0}
+  .doc .bd b{display:block;font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .doc .bd span{font-size:9.5px;color:var(--ink-3);font-family:var(--fn)}
+  .doc .read{display:flex;align-items:center;gap:3px;font-size:9.5px;color:var(--brand-700);font-weight:700}
+  .doc .read i{width:5px;height:5px;border-radius:99px;background:var(--brand-500);display:inline-block}
+  .doc .del{width:22px;height:22px;border-radius:7px;border:0;background:transparent;color:var(--ink-3);cursor:pointer;font-size:11px;flex-shrink:0}
+  .doc .del:hover{background:var(--red-soft,#fdeceb);color:var(--red)}
+
+  /* 落库成功横幅 */
+  .saved-banner{margin-top:8px;display:flex;align-items:center;gap:8px;background:var(--brand-50);border:1px solid var(--brand-200);border-radius:var(--r-md);padding:8px 12px;font-size:11.5px;color:var(--brand-800)}
+  .saved-banner .go{margin-left:auto;font-weight:700;color:var(--brand-700);cursor:pointer}
+
+  /* 屏3:项目空间 HTML 预览 */
+  .repo-stage{padding:22px 28px;max-width:1100px;margin:0 auto}
+  .repo-head{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:14px 18px;box-shadow:var(--shadow-sm);margin-bottom:14px}
+  .repo-head .t{flex:1}
+  .repo-head b{font-size:15px}
+  .repo-head span{font-size:11px;color:var(--ink-3);display:block}
+  .tab{display:flex;gap:4px;background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:6px;box-shadow:var(--shadow-sm);margin-bottom:14px}
+  .tab button{border:0;background:transparent;padding:6px 16px;border-radius:9px;font-size:12.5px;font-weight:600;color:var(--ink-3);cursor:pointer;font-family:var(--fu)}
+  .tab button.on{background:var(--brand-600);color:#fff}
+  .preview{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm)}
+  .preview-bar{display:flex;align-items:center;gap:6px;padding:9px 14px;border-bottom:1px solid var(--line);background:#f7f9f6}
+  .pdot{width:10px;height:10px;border-radius:50%}
+  .preview-bar .url{margin-left:10px;flex:1;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 14px;font-size:11px;color:var(--ink-3);font-family:var(--fn)}
+  .preview iframe{border:0;width:100%;height:520px;background:#fff}
+  .preview-note{display:flex;align-items:center;gap:8px;padding:10px 16px;font-size:11px;color:var(--ink-3);border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+
+<div class="viewer">
+  <div class="vbrand"><span class="mk"><i></i><i></i><i></i><i></i></span>AI 助手 · 我的资料上传 + 作品生成 v3</div>
+  <div class="vtabs" id="tabs">
+    <button class="on" data-t="s1">右栏 · 我的资料(空状态)</button>
+    <button data-t="s2">右栏 · 已有文件</button>
+    <button data-t="s3">作品生成 · 文件块落库</button>
+    <button data-t="s4">项目空间 · HTML 预览</button>
+  </div>
+  <div class="vnote">上传资料自动注入助手上下文 · 生成作品一键存入项目空间</div>
+</div>
+
+<!-- ============ 屏1:右栏我的资料(空状态) ============ -->
+<section class="screen on" id="s1">
+  <div class="topbar">
+    <span class="tlogo"><span class="mk"><i></i><i></i><i></i><i></i></span>赛道</span>
+    <nav class="tnav"><a>首页</a><a class="on">AI 助手</a><a>竞赛库</a><a>赛程日历</a><a>论坛</a><a>团队</a><a>项目空间</a><a>我的 ▾</a></nav>
+    <div class="tright"><span class="sel">中国软件杯大学生软件设计大赛 ▾</span><span class="bell">◉<i>3</i></span><span class="avatar">张</span></div>
+  </div>
+  <main class="main">
+    <div class="layout">
+      <div class="sess">
+        <button class="newbtn">＋ 新对话</button>
+        <div class="s on"><b>软件杯选题与计划书</b><span>中国软件杯 · 10 分钟前</span></div>
+        <div class="s"><b>电赛规则解读</b><span>电子设计 · 昨天</span></div>
+      </div>
+
+      <div class="chat">
+        <div class="msgs">
+          <div class="msg user"><span class="avatar-sm">张</span><div class="bubble">帮我生成一个"校园二手书交易"的小程序作品</div></div>
+          <div class="msg ai">
+            <span class="bot-sm">✦</span>
+            <div class="bubble">
+              好的,我先基于软件杯的评审标准(功能完成度 40%)拆出 MVP 文件结构,生成骨架代码。完成后每个文件都可以一键存入项目空间 ↓
+              <div class="fileblock">
+                <div class="filehead"><span class="dot"></span>app.json <span class="act"><span class="fbtn">复制</span><span class="fbtn save">存入项目空间</span></span></div>
+                <div class="code"><span class="c-k">{</span>
+  <span class="c-s">"pages"</span>: [<span class="c-t">"pages/index/index"</span>, <span class="c-t">"pages/publish/publish"</span>],
+  <span class="c-s">"window"</span>: { <span class="c-s">"navigationBarTitleText"</span>: <span class="c-t">"校园二手书"</span> }
+<span class="c-k">}</span></div>
+              </div>
+              <div class="fileblock">
+                <div class="filehead"><span class="dot"></span>pages/index/index.wxml <span class="act"><span class="fbtn">复制</span><span class="fbtn save">存入项目空间</span></span></div>
+                <div class="code"><span class="c-k">&lt;view</span> <span class="c-s">class</span>=<span class="c-t">"feed"</span><span class="c-k">&gt;</span>
+  <span class="c-k">&lt;block</span> <span class="c-s">wx:for</span>=<span class="c-t">"{{books}}"</span><span class="c-k">&gt;</span>
+    <span class="c-k">&lt;view</span> <span class="c-s">class</span>=<span class="c-t">"card"</span><span class="c-k">&gt;</span>…<span class="c-k">&lt;/view&gt;</span>
+  <span class="c-k">&lt;/block&gt;</span>
+<span class="c-k">&lt;/view&gt;</span></div>
+              </div>
+              <div class="saveall">
+                共 6 个文件 · 建议存入新建仓库「校园二手书小程序」
+                <button class="btn">全部存入项目空间</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="quick-row">
+          <span class="qchip hot">🛠 生成小程序/网站</span><span class="qchip">解读赛制规则</span><span class="qchip">备赛方案</span><span class="qchip">答辩 PPT 大纲</span>
+        </div>
+        <div class="input"><textarea placeholder="继续追问,或让助手帮你写材料…"></textarea><button class="send">↑</button></div>
+      </div>
+
+      <div class="ctx">
+        <div class="ctx-h"><b>已加载的比赛资料</b><span style="font-size:10px;color:var(--ink-3)">自动注入上下文</span></div>
+        <div class="ctx-b">
+          <div class="sec">
+            <div class="sec-h">赛制规则</div>
+            <p class="r">命题发布(2-3月)→ 提交作品(5-6月)→ 全国总决赛。评审:功能完成度 40%、创新性 20%、用户体验 20%、技术规范 20%。</p>
+          </div>
+
+          <!-- 我的资料模块(紧挨规则,强调相关性) -->
+          <div class="sec">
+            <div class="sec-h">我的资料 <span class="add">＋ 上传</span></div>
+            <div class="dropzone">
+              <span class="ic">⇪</span>
+              <p>上传规则 / 要求 / 笔记</p>
+              <span>拖入文件或点击选择 · txt / md / pdf · 单个 ≤ 5MB</span>
+            </div>
+            <p style="font-size:9.5px;color:var(--ink-3);margin-top:6px;line-height:1.6">上传后 AI 自动读取内容并纳入对话参考,比如老师发的题目要求、往届评分细则。</p>
+          </div>
+
+          <div class="sec">
+            <div class="sec-h">历年优秀作品(4)</div>
+            <div class="ctx-item"><i></i>「云笺」智能文档协作平台(2025 国一)</div>
+            <div class="ctx-item"><i></i>课堂笔记助手(2024 国二)</div>
+          </div>
+          <div class="sec">
+            <div class="sec-h">我的画像</div>
+            <p class="r">计算机 · 大三 · Python · 目标:保研加分</p>
+          </div>
+          <div class="sec">
+            <div class="sec-h">团队 / 项目 / 备赛</div>
+            <div class="ctx-item"><i></i>团队:星辰算法队(5 人)</div>
+            <div class="ctx-item"><i></i>项目空间:2 个仓库</div>
+            <div class="ctx-item"><i></i>备赛计划:3/8 已完成</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</section>
+
+<!-- ============ 屏2:我的资料(已有文件) ============ -->
+<section class="screen" id="s2">
+  <div class="topbar">
+    <span class="tlogo"><span class="mk"><i></i><i></i><i></i><i></i></span>赛道</span>
+    <nav class="tnav"><a>首页</a><a class="on">AI 助手</a><a>竞赛库</a><a>赛程日历</a><a>论坛</a><a>团队</a><a>项目空间</a><a>我的 ▾</a></nav>
+    <div class="tright"><span class="sel">中国软件杯大学生软件设计大赛 ▾</span><span class="bell">◉<i>3</i></span><span class="avatar">张</span></div>
+  </div>
+  <main class="main">
+    <div class="layout">
+      <div class="sess">
+        <button class="newbtn">＋ 新对话</button>
+        <div class="s on"><b>软件杯选题与计划书</b><span>中国软件杯 · 10 分钟前</span></div>
+      </div>
+      <div class="chat">
+        <div class="msgs">
+          <div class="msg ai">
+            <span class="bot-sm">✦</span>
+            <div class="bubble">我已读取你上传的「软件杯命题要求.pdf」:本年度命题侧重 AI 应用落地。结合评分细则,我建议选题围绕"AI + 校园场景",需要我展开 3 个具体选题吗?</div>
+          </div>
+          <div class="msg user"><span class="avatar-sm">张</span><div class="bubble">展开看看</div></div>
+        </div>
+        <div class="input"><textarea placeholder="继续追问…"></textarea><button class="send">↑</button></div>
+      </div>
+      <div class="ctx">
+        <div class="ctx-h"><b>已加载的比赛资料</b><span style="font-size:10px;color:var(--ink-3)">自动注入上下文</span></div>
+        <div class="ctx-b">
+          <div class="sec">
+            <div class="sec-h">赛制规则</div>
+            <p class="r">命题发布(2-3月)→ 提交作品(5-6月)→ 全国总决赛。评审:功能完成度 40%、创新性 20%、用户体验 20%、技术规范 20%。</p>
+          </div>
+
+          <div class="sec">
+            <div class="sec-h">我的资料 <span class="add">＋ 上传</span></div>
+            <div class="mydocs">
+              <div class="doc">
+                <span class="fic pdf">PDF</span>
+                <div class="bd"><b>软件杯命题要求.pdf</b><span>1.2 MB · 昨天上传</span></div>
+                <span class="read"><i></i>已读取</span>
+                <button class="del">✕</button>
+              </div>
+              <div class="doc">
+                <span class="fic md">MD</span>
+                <div class="bd"><b>导师给的评审细则笔记.md</b><span>8 KB · 昨天上传</span></div>
+                <span class="read"><i></i>已读取</span>
+                <button class="del">✕</button>
+              </div>
+              <div class="doc">
+                <span class="fic txt">TXT</span>
+                <div class="bd"><b>团队分工与时间安排.txt</b><span>2 KB · 今天</span></div>
+                <span class="read"><i></i>已读取</span>
+                <button class="del">✕</button>
+              </div>
+              <div class="dropzone" style="border-style:dashed;border-radius:0;border-left:0;border-right:0;border-bottom:0">
+                <span class="ic" style="width:24px;height:24px">＋</span>
+                <p style="margin-top:4px">继续上传(最多 10 个)</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="sec">
+            <div class="sec-h">历年优秀作品(4)</div>
+            <div class="ctx-item"><i></i>「云笺」智能文档协作平台(2025 国一)</div>
+          </div>
+          <div class="sec">
+            <div class="sec-h">我的画像</div>
+            <p class="r">计算机 · 大三 · Python · 目标:保研加分</p>
+          </div>
+          <div class="sec">
+            <div class="sec-h">团队 / 项目 / 备赛</div>
+            <div class="ctx-item"><i></i>团队:星辰算法队(5 人)</div>
+            <div class="ctx-item"><i></i>项目空间:2 个仓库</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</section>
+
+<!-- ============ 屏3:作品生成 · 文件块落库 ============ -->
+<section class="screen" id="s3">
+  <div class="topbar">
+    <span class="tlogo"><span class="mk"><i></i><i></i><i></i><i></i></span>赛道</span>
+    <nav class="tnav"><a>首页</a><a class="on">AI 助手</a><a>竞赛库</a><a>赛程日历</a><a>论坛</a><a>团队</a><a>项目空间</a><a>我的 ▾</a></nav>
+    <div class="tright"><span class="sel">中国软件杯大学生软件设计大赛 ▾</span><span class="bell">◉<i>3</i></span><span class="avatar">张</span></div>
+  </div>
+  <main class="main">
+    <div class="layout" style="grid-template-columns:200px 1fr 300px">
+      <div class="sess">
+        <button class="newbtn">＋ 新对话</button>
+        <div class="s on"><b>二手书小程序开发</b><span>中国软件杯 · 刚刚</span></div>
+      </div>
+      <div class="chat">
+        <div class="msgs">
+          <div class="msg user"><span class="avatar-sm">张</span><div class="bubble">帮我生成"校园二手书交易"小程序的完整骨架</div></div>
+          <div class="msg ai">
+            <span class="bot-sm">✦</span>
+            <div class="bubble">
+              按 MVP 拆分 6 个文件,已对照命题要求(功能完成度 40%)覆盖:首页信息流 / 发布页 / 详情页。逐个可存入,也可一键全存。
+              <div class="fileblock">
+                <div class="filehead"><span class="dot"></span>app.json <span class="act"><span class="fbtn">复制</span><span class="fbtn save">存入</span></span></div>
+                <div class="code"><span class="c-k">{</span> <span class="c-s">"pages"</span>: [...], <span class="c-s">"window"</span>: {...} <span class="c-k">}</span></div>
+              </div>
+              <div class="fileblock">
+                <div class="filehead"><span class="dot"></span>pages/index/index.js <span class="act"><span class="fbtn">复制</span><span class="fbtn save">存入</span></span></div>
+                <div class="code"><span class="c-k">Page</span>({ <span class="c-s">data</span>: { books: [] }, onLoad() { … } })</div>
+              </div>
+              <div class="fileblock">
+                <div class="filehead"><span class="dot"></span>pages/publish/publish.wxml <span class="act"><span class="fbtn">复制</span><span class="fbtn saved">✓ 已存</span></span></div>
+                <div class="code"><span class="c-k">&lt;form&gt;</span> … <span class="c-k">&lt;/form&gt;</span></div>
+              </div>
+              <div class="fileblock">
+                <div class="filehead"><span class="dot"></span>… 还有 3 个文件</div>
+                <div class="code" style="color:var(--ink-3)">pages/detail/detail.* · project.config.json · README.md</div>
+              </div>
+              <div class="saveall">共 6 个文件 · 目标:仓库「校园二手书小程序」/ main 分支 <button class="btn">全部存入项目空间</button></div>
+              <div class="saved-banner">✓ 已存入 1 个文件(commit: 生成二手书小程序骨架) <span class="go">去项目空间查看 →</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="quick-row">
+          <span class="qchip hot">🛠 生成小程序/网站</span><span class="qchip">继续补充详情页样式</span><span class="qchip">部署说明</span>
+        </div>
+        <div class="input"><textarea placeholder="继续让 AI 改某个文件…"></textarea><button class="send">↑</button></div>
+      </div>
+      <div class="ctx">
+        <div class="ctx-h"><b>已加载的比赛资料</b></div>
+        <div class="ctx-b">
+          <div class="sec">
+            <div class="sec-h">赛制规则</div>
+            <p class="r">评审:功能完成度 40%、创新性 20%、用户体验 20%、技术规范 20%。</p>
+          </div>
+          <div class="sec">
+            <div class="sec-h">我的资料 <span class="add">＋ 上传</span></div>
+            <div class="mydocs">
+              <div class="doc">
+                <span class="fic pdf">PDF</span>
+                <div class="bd"><b>软件杯命题要求.pdf</b><span>1.2 MB</span></div>
+                <span class="read"><i></i>已读取</span>
+                <button class="del">✕</button>
+              </div>
+            </div>
+          </div>
+          <div class="sec">
+            <div class="sec-h">项目空间</div>
+            <div class="ctx-item"><i></i>仓库:校园二手书小程序</div>
+            <div class="ctx-item"><i></i>分支:main · 1 次提交</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</section>
+
+<!-- ============ 屏4:项目空间 HTML 预览 ============ -->
+<section class="screen" id="s4">
+  <div class="topbar">
+    <span class="tlogo"><span class="mk"><i></i><i></i><i></i><i></i></span>赛道</span>
+    <nav class="tnav"><a>首页</a><a>AI 助手</a><a>竞赛库</a><a>赛程日历</a><a>论坛</a><a>团队</a><a class="on">项目空间</a><a>我的 ▾</a></nav>
+    <div class="tright"><span class="sel">校园二手书小程序 ▾</span><span class="bell">◉<i>3</i></span><span class="avatar">张</span></div>
+  </div>
+  <main class="repo-stage">
+    <div class="repo-head">
+      <div class="t"><b>校园二手书小程序</b><span>AI 生成 · main 分支 · 6 个文件 · 1 次提交</span></div>
+      <span class="qchip">＋ 新文件</span><span class="qchip">上传</span><span class="qchip hot">让 AI 改这个仓库</span>
+    </div>
+    <div class="tab">
+      <button>代码</button>
+      <button class="on">预览 (index.html)</button>
+      <button>提交历史</button>
+    </div>
+    <div class="preview">
+      <div class="preview-bar">
+        <span class="pdot" style="background:#f66"></span><span class="pdot" style="background:#fc3"></span><span class="pdot" style="background:#3c5"></span>
+        <span class="url">preview.local/index.html</span>
+        <span class="qchip">↗ 新窗口打开</span>
+      </div>
+      <iframe srcdoc="<div style='font-family:PingFang SC,sans-serif;padding:28px;background:#f4f6f2;min-height:520px'>
+        <h1 style='font-size:24px;color:#059669'>校园二手书</h1>
+        <p style='color:#7a8a80;font-size:13px'>扫码即卖,同校交易,让旧书流动起来</p>
+        <div style='display:flex;gap:12px;margin-top:16px;flex-wrap:wrap'>
+          <div style='width:160px;background:#fff;border-radius:14px;padding:12px;box-shadow:0 1px 6px rgba(0,0,0,.05)'>
+            <div style='height:80px;background:linear-gradient(135deg,#d1fae5,#a7f3d0);border-radius:10px'></div>
+            <b style='font-size:13px;display:block;margin-top:8px'>高等数学(第七版)</b>
+            <span style='font-size:11px;color:#b45309'>¥12</span>
+          </div>
+          <div style='width:160px;background:#fff;border-radius:14px;padding:12px;box-shadow:0 1px 6px rgba(0,0,0,.05)'>
+            <div style='height:80px;background:linear-gradient(135deg,#ecf7fd,#bfdbfe);border-radius:10px'></div>
+            <b style='font-size:13px;display:block;margin-top:8px'>数据结构与算法</b>
+            <span style='font-size:11px;color:#b45309'>¥20</span>
+          </div>
+        </div>
+      </div>"></iframe>
+      <div class="preview-note">⚡ 由 AI 生成的单页作品可直接在浏览器预览;小程序(wxml)文件逐文件查看,或下载后在微信开发者工具中导入运行。</div>
+    </div>
+  </main>
+</section>
+
+<script>
+  const tabs = document.querySelectorAll('#tabs button');
+  const screens = document.querySelectorAll('.screen');
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabs.forEach(b => b.classList.remove('on'));
+      screens.forEach(s => s.classList.remove('on'));
+      btn.classList.add('on');
+      document.getElementById(btn.dataset.t).classList.add('on');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+</script>
+</body>
+</html>

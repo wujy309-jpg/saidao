@@ -19,13 +19,45 @@ public class AuthController {
     
     private final AuthService authService;
     private final JwtUtil jwtUtil;
+    private final com.training.backend.service.TokenService tokenService;
     
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(
             @Valid @RequestBody LoginRequest request,
             HttpServletRequest httpRequest) {
         LoginResponse response = authService.login(request, httpRequest);
+        // 登录发放每日免费额度（按天防重复，不阻塞登录）
+        if (response.getUser() != null && response.getUser().getId() != null) {
+            try {
+                tokenService.grantDailyFree(response.getUser().getId());
+            } catch (Exception e) {
+                log.warn("每日免费额度发放失败: {}", e.getMessage());
+            }
+        }
         return ResponseEntity.ok(ApiResponse.success("登录成功", response));
+    }
+    
+    /** 学生自助注册 */
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse<User>> register(@Valid @RequestBody RegisterRequest request) {
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(request.getPassword());
+        user.setName(request.getName());
+        user.setRole(User.UserRole.STUDENT);
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
+        user.setStudentId(request.getStudentId());
+        user.setDepartment(request.getDiscipline());
+        
+        User registered = authService.registerStudent(user);
+        // 注册赠送体验 Token
+        try {
+            tokenService.grantRegisterBonus(registered.getId());
+        } catch (Exception e) {
+            log.warn("注册赠送 Token 发放失败: {}", e.getMessage());
+        }
+        return ResponseEntity.ok(ApiResponse.success("注册成功", registered));
     }
     
     @PostMapping("/refresh")
@@ -42,19 +74,6 @@ public class AuthController {
         Long userId = jwtUtil.getUserIdFromToken(token.replace("Bearer ", ""));
         authService.logout(userId, refreshToken);
         return ResponseEntity.ok(ApiResponse.success("登出成功", null));
-    }
-    
-    @PostMapping("/register")
-    public ResponseEntity<ApiResponse<User>> register(
-            @Valid @RequestBody User user,
-            @RequestHeader("Authorization") String token) {
-        String role = jwtUtil.getRoleFromToken(token.replace("Bearer ", ""));
-        if (!"ADMIN".equals(role)) {
-            throw new RuntimeException("只有管理员可以创建用户");
-        }
-        Long operatorId = jwtUtil.getUserIdFromToken(token.replace("Bearer ", ""));
-        User registeredUser = authService.register(user, operatorId);
-        return ResponseEntity.ok(ApiResponse.success("用户创建成功", registeredUser));
     }
     
     @PutMapping("/change-password")

@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>「赛道」赛程日历 · 视觉升级设计稿</title>
+<!--
+  赛程日历视觉升级 v2
+  · 三个记忆点:报名窗口进度条 / 议程视图=竖直赛道时间线 / 今天与选中日=实心圆数字
+  · 形状锁:卡片 16px / 控件 12px / 胶囊;数字 Space Grotesk;单强调色翠绿
+  · 语义色:截止红 / 比赛蓝 / 报名开始绿;紧迫度分级:≤3天深红,4-7天琥珀
+  · 静态演示:生产图标用 Phosphor,此处用极简几何占位
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --brand-50:#ecfdf5;--brand-100:#d1fae5;--brand-200:#a7f3d0;--brand-300:#6ee7b7;
+    --brand-400:#34d399;--brand-500:#10b981;--brand-600:#059669;--brand-700:#047857;
+    --brand-800:#065f46;--brand-900:#064e3b;
+    --canvas:#f4f6f2;--card:#ffffff;--line:#e5eae4;
+    --ink:#17211c;--ink-2:#3f4d46;--ink-3:#7a8a80;
+    --red:#e5484d;--red-soft:#fdeceb;--red-line:#f6cdc9;
+    --amber:#b45309;--amber-soft:#fdf3e3;
+    --sky:#0369a1;--sky-soft:#ecf7fd;
+    --shadow-sm:0 1px 2px rgba(23,33,28,.05),0 1px 6px rgba(23,33,28,.04);
+    --shadow-md:0 4px 12px rgba(23,33,28,.06),0 12px 32px rgba(6,78,59,.06);
+    --r-lg:16px;--r-md:12px;--r-pill:999px;
+    --fn:"Space Grotesk","PingFang SC",system-ui,sans-serif;
+    --fu:"PingFang SC","HarmonyOS Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--fu);background:#e9ede7;color:var(--ink);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .num{font-family:var(--fn)}
+  ::selection{background:var(--brand-200)}
+
+  /* 查看器 */
+  .viewer{position:fixed;top:0;left:0;right:0;z-index:200;height:54px;background:rgba(17,26,21,.96);display:flex;align-items:center;gap:16px;padding:0 20px}
+  .vbrand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:800;font-size:14px;letter-spacing:.5px}
+  .vbrand .mk{width:24px;height:24px;border-radius:7px;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;border:1px solid rgba(255,255,255,.35)}
+  .vbrand .mk i{background:var(--brand-500)}
+  .vbrand .mk i:nth-child(1){background:var(--brand-600)}
+  .vbrand .mk i:nth-child(2){background:#fff}
+  .vbrand .mk i:nth-child(3){background:#fff}
+  .vbrand .mk i:nth-child(4){background:var(--brand-600)}
+  .vtabs{display:flex;gap:4px;flex:1}
+  .vtabs button{border:0;background:transparent;color:rgba(255,255,255,.62);font-size:13px;font-family:var(--fu);padding:6px 14px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:.18s}
+  .vtabs button:hover{color:#fff;background:rgba(255,255,255,.08)}
+  .vtabs button.on{background:var(--brand-600);color:#fff;font-weight:600}
+  .vnote{font-size:11px;color:rgba(255,255,255,.45);white-space:nowrap}
+  .screen{display:none;padding-top:54px}
+  .screen.on{display:block;animation:fadein .25s ease}
+  @keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  /* 应用壳(与主设计稿一致的顶部导航,简略版) */
+  .topbar{position:sticky;top:54px;z-index:50;height:58px;background:rgba(244,246,242,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;padding:0 28px}
+  .tlogo{display:flex;align-items:center;gap:8px;font-weight:800;letter-spacing:1px;margin-right:6px}
+  .tlogo .mk{width:30px;height:30px;border-radius:9px;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;box-shadow:var(--shadow-sm)}
+  .tlogo .mk i:nth-child(1){background:var(--brand-600)}
+  .tlogo .mk i:nth-child(2){background:var(--ink)}
+  .tlogo .mk i:nth-child(3){background:var(--ink)}
+  .tlogo .mk i:nth-child(4){background:var(--brand-600)}
+  .tnav{display:flex;gap:2px}
+  .tnav a{position:relative;text-decoration:none;color:var(--ink-2);font-size:13px;padding:7px 12px;border-radius:var(--r-md);white-space:nowrap;transition:.15s}
+  .tnav a:hover{background:var(--brand-50);color:var(--brand-800)}
+  .tnav a.on{color:var(--brand-800);font-weight:700;background:var(--brand-50)}
+  .tnav a.on::after{content:"";position:absolute;left:12px;right:12px;bottom:2px;height:2px;border-radius:2px;background:var(--brand-600)}
+  .tright{margin-left:auto;display:flex;align-items:center;gap:10px}
+  .search{display:flex;align-items:center;gap:8px;width:220px;height:34px;background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:0 12px;color:var(--ink-3);font-size:12px;box-shadow:var(--shadow-sm)}
+  .ddl{display:flex;align-items:center;gap:6px;background:var(--red-soft);color:var(--red);font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;border:1px solid var(--red-line)}
+  .bell{position:relative;width:34px;height:34px;border-radius:var(--r-md);background:#fff;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm)}
+  .bell::before{content:"◉";font-size:13px;color:var(--ink-2)}
+  .bell i{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:9px;font-style:normal;min-width:15px;height:15px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-family:var(--fn)}
+  .avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--brand-600),var(--brand-800));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  .main{padding:24px 28px 60px;max-width:1240px;margin:0 auto}
+
+  /* 页面头 + 赛季概览 */
+  .pagehead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+  .pagehead h1{font-size:22px;font-weight:800;letter-spacing:.3px}
+  .pagehead p{font-size:12.5px;color:var(--ink-3);margin-top:3px}
+  .season{display:flex;gap:8px;flex-wrap:wrap}
+  .season .st{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:8px 14px;box-shadow:var(--shadow-sm)}
+  .season .st b{font-family:var(--fn);font-size:18px;font-weight:700;line-height:1}
+  .season .st span{font-size:11px;color:var(--ink-3);line-height:1.3}
+  .season .st .dot{width:8px;height:8px;border-radius:99px;flex-shrink:0}
+
+  /* 工具栏 */
+  .toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+  .monthnav{display:flex;align-items:center;gap:6px}
+  .iconbtn{width:34px;height:34px;border-radius:var(--r-md);border:1px solid var(--line);background:#fff;box-shadow:var(--shadow-sm);display:flex;align-items:center;justify-content:center;color:var(--ink-2);cursor:pointer;transition:.15s}
+  .iconbtn:hover{color:var(--brand-700);border-color:var(--brand-300)}
+  .monthpick{display:flex;align-items:center;gap:6px;min-width:120px;justify-content:center;background:#fff;border:1px solid var(--line);border-radius:var(--r-md);padding:7px 14px;font-weight:700;font-size:14px;cursor:pointer;box-shadow:var(--shadow-sm)}
+  .monthpick small{color:var(--ink-3);font-size:11px}
+  .btn-today{border:1px solid var(--line);background:#fff;border-radius:var(--r-md);padding:7px 14px;font-size:12.5px;font-weight:600;color:var(--ink-2);cursor:pointer;box-shadow:var(--shadow-sm);transition:.15s}
+  .btn-today:hover{color:var(--brand-700);border-color:var(--brand-300)}
+  .viewswitch{margin-left:8px;display:flex;background:#e8ece6;border-radius:999px;padding:3px}
+  .viewswitch button{border:0;background:transparent;font-size:12.5px;padding:5px 16px;border-radius:999px;cursor:pointer;color:var(--ink-3);font-family:var(--fu);display:flex;align-items:center;gap:6px;font-weight:500}
+  .viewswitch button.on{background:#fff;color:var(--ink);font-weight:700;box-shadow:var(--shadow-sm)}
+  .filters{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+  .fchip{font-size:11.5px;border-radius:999px;padding:4px 12px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink-3);display:inline-flex;align-items:center;gap:6px;font-weight:500;transition:.15s}
+  .fchip i{width:7px;height:7px;border-radius:99px;display:inline-block}
+  .fchip .cnt{font-family:var(--fn);font-size:10.5px;opacity:.7}
+  .fchip.on{font-weight:700}
+  .fchip.g.on{background:var(--brand-100);border-color:var(--brand-300);color:var(--brand-800)}
+  .fchip.r.on{background:var(--red-soft);border-color:var(--red-line);color:var(--red)}
+  .fchip.b.on{background:var(--sky-soft);border-color:#c2e3f4;color:var(--sky)}
+  .fchip.g i{background:var(--brand-500)}
+  .fchip.r i{background:var(--red)}
+  .fchip.b i{background:#0284c7}
+
+  /* 双栏 */
+  .layout{display:grid;grid-template-columns:1fr 330px;gap:16px}
+
+  /* 月历卡 */
+  .calcard{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:18px;box-shadow:var(--shadow-sm)}
+  .weekrow{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:8px}
+  .weekrow span{text-align:center;font-size:11px;color:var(--ink-3);padding:4px 0}
+  .weekrow span.wk{color:#c98a2f}
+  .calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .day{min-height:84px;border-radius:var(--r-md);background:var(--canvas);padding:7px 8px;cursor:pointer;transition:.15s;position:relative;display:flex;flex-direction:column;gap:4px;align-items:stretch}
+  .day:hover{transform:translateY(-1px);box-shadow:var(--shadow-md);background:#eef2eb}
+  .day.dim{opacity:.42}
+  .day.dim:hover{opacity:.7}
+  .day.today{background:#fff;box-shadow:inset 0 0 0 1.5px var(--brand-300)}
+  .day.sel{background:var(--brand-50);box-shadow:inset 0 0 0 2px var(--brand-500)}
+  .dnum{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-family:var(--fn);font-size:12px;color:var(--ink-2);align-self:flex-end}
+  .day.today .dnum{background:var(--brand-600);color:#fff;font-weight:700}
+  .day.sel .dnum{background:var(--brand-600);color:#fff;font-weight:700}
+  .evchip{display:flex;align-items:center;gap:5px;font-size:10.5px;line-height:1;padding:4px 7px;border-radius:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+  .evchip i{width:5px;height:5px;border-radius:99px;flex-shrink:0}
+  .evchip.dl{background:var(--red-soft);color:var(--red)}
+  .evchip.dl i{background:var(--red)}
+  .evchip.dl.urg{background:var(--red);color:#fff}
+  .evchip.dl.urg i{background:#fff}
+  .evchip.ct{background:var(--sky-soft);color:var(--sky)}
+  .evchip.ct i{background:#0284c7}
+  .evchip.rs{background:var(--brand-100);color:var(--brand-800)}
+  .evchip.rs i{background:var(--brand-500)}
+  .more{font-size:10px;color:var(--ink-3);padding-left:3px}
+  .legend{display:flex;gap:16px;margin-top:14px;font-size:11px;color:var(--ink-3);align-items:center}
+  .legend .it{display:flex;align-items:center;gap:6px}
+  .legend .it i{width:8px;height:8px;border-radius:3px}
+
+  /* 右栏卡片 */
+  .rail{display:flex;flex-direction:column;gap:14px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-sm)}
+  .lane-line{height:2px;background-image:linear-gradient(90deg,var(--brand-300) 0 18px,transparent 18px 34px);background-size:34px 2px;opacity:.55}
+
+  /* 截止聚焦卡 */
+  .spot{padding:18px;position:relative;overflow:hidden}
+  .spot::after{content:"";position:absolute;right:-46px;top:-46px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(229,72,77,.10),transparent 65%)}
+  .spot .t{font-size:11px;font-weight:700;color:var(--red);display:flex;align-items:center;gap:6px;letter-spacing:1px}
+  .spot h3{font-size:15px;font-weight:800;margin-top:8px;line-height:1.45}
+  .spot .big{display:flex;align-items:baseline;gap:8px;margin-top:10px}
+  .spot .big b{font-family:var(--fn);font-size:40px;font-weight:700;color:var(--red);line-height:1}
+  .spot .big span{font-size:12px;color:var(--ink-3)}
+  .winbar{margin-top:12px}
+  .winbar .lbl{display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-3);margin-bottom:5px}
+  .winbar .lbl b{font-family:var(--fn);color:var(--ink-2)}
+  .winbar .track{height:6px;background:#e9e6de;border-radius:99px;overflow:hidden;position:relative}
+  .winbar .fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--brand-400),var(--brand-600))}
+  .winbar .mark{position:absolute;top:-2px;width:3px;height:10px;background:var(--red);border-radius:2px}
+  .spot .act{margin-top:14px;display:flex;gap:8px}
+
+  /* 当日议程 */
+  .dayagenda{padding:16px 18px}
+  .dayagenda .h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .dayagenda .h b{font-size:14px}
+  .dayagenda .h span{font-size:11px;color:var(--ink-3);font-family:var(--fn)}
+  .agitem{display:flex;align-items:center;gap:11px;padding:9px 4px;border-bottom:1px dashed var(--line)}
+  .agitem:last-child{border-bottom:0}
+  .agitem .tb{width:38px;height:26px;border-radius:8px;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .tb.dl{background:var(--red-soft);color:var(--red)}
+  .tb.ct{background:var(--sky-soft);color:var(--sky)}
+  .tb.rs{background:var(--brand-100);color:var(--brand-800)}
+  .agitem .bd{flex:1;min-width:0}
+  .agitem h4{font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .agitem p{font-size:10.5px;color:var(--ink-3);margin-top:2px;font-family:var(--fn)}
+  .agitem p b{color:var(--red);font-weight:700}
+  .fav{width:30px;height:30px;border-radius:9px;border:1px solid var(--line);background:#fff;color:var(--ink-3);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.15s;font-size:13px}
+  .fav.on{color:var(--red);border-color:var(--red-line);background:var(--red-soft)}
+  .fav:hover{border-color:var(--brand-300);color:var(--brand-600)}
+
+  /* 未来截止 */
+  .upcoming{padding:16px 18px}
+  .upcoming .h{font-size:14px;font-weight:800;display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .upitem{display:flex;align-items:center;gap:10px;padding:8px 4px;border-radius:10px;cursor:pointer;transition:.15s}
+  .upitem:hover{background:var(--canvas)}
+  .upitem .ds{width:44px;height:44px;border-radius:var(--r-md);background:var(--red-soft);color:var(--red);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+  .upitem .ds b{font-family:var(--fn);font-size:16px;line-height:1}
+  .upitem .ds span{font-size:9px;margin-top:2px}
+  .upitem h5{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .upitem p{font-size:10.5px;color:var(--ink-3);font-family:var(--fn)}
+
+  /* ============ 议程视图:竖直赛道时间线 ============ */
+  .agenda-card{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);padding:8px 26px 26px;max-width:820px}
+  .ag-month{display:flex;align-items:center;gap:12px;margin-top:22px}
+  .ag-month .flag{width:30px;height:18px;border-radius:4px;background:repeating-conic-gradient(var(--ink) 0 25%,#fff 25% 50%) 0 0/10px 9px;border:1px solid #d9ded6;flex-shrink:0}
+  .ag-month b{font-size:13px;color:var(--brand-800)}
+  .ag-month .n{font-size:11px;color:var(--ink-3);font-family:var(--fn)}
+  .timeline{position:relative;margin:12px 0 0 14px;padding-left:26px}
+  .timeline::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:0;border-left:2px dashed var(--brand-300);opacity:.8}
+  .tl-item{position:relative;display:flex;align-items:flex-start;gap:14px;padding:10px 0}
+  .tl-item .node{position:absolute;left:-26px;top:14px;width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--brand-300);flex-shrink:0}
+  .tl-item.dl .node{border-color:var(--red)}
+  .tl-item.ct .node{border-color:#38bdf8}
+  .tl-item.rs .node{border-color:var(--brand-500)}
+  .tl-date{width:56px;flex-shrink:0;text-align:right;font-family:var(--fn);padding-top:2px}
+  .tl-date b{display:block;font-size:15px;font-weight:700;color:var(--ink)}
+  .tl-date span{font-size:10px;color:var(--ink-3)}
+  .tl-body{flex:1;min-width:0;background:var(--canvas);border-radius:var(--r-md);padding:10px 14px;transition:.15s;cursor:pointer}
+  .tl-body:hover{background:#eef2eb;transform:translateX(2px)}
+  .tl-body .row1{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .tl-badge{font-size:10px;font-weight:700;border-radius:6px;padding:2px 8px}
+  .tl-badge.dl{background:var(--red-soft);color:var(--red)}
+  .tl-badge.dl.urg{background:var(--red);color:#fff}
+  .tl-badge.ct{background:var(--sky-soft);color:var(--sky)}
+  .tl-badge.rs{background:var(--brand-100);color:var(--brand-800)}
+  .tl-body h4{font-size:13px;font-weight:700}
+  .tl-body .meta{font-size:11px;color:var(--ink-3);margin-top:3px;font-family:var(--fn);display:flex;gap:10px;flex-wrap:wrap}
+  .tl-body .meta b{color:var(--red);font-weight:700}
+  .tl-body .win{width:100%;max-width:220px;margin-top:8px}
+  .tl-body .win .track{height:5px;background:#e9e6de;border-radius:99px;overflow:hidden}
+  .tl-body .win .fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--brand-400),var(--brand-600))}
+  .tl-body .win .lbl{font-size:10px;color:var(--ink-3);margin-top:4px;display:flex;justify-content:space-between}
+
+  /* 移动端 */
+  .phone-wrap{display:flex;justify-content:center;padding:24px 0 60px}
+  .phone{width:390px;background:var(--canvas);border-radius:40px;box-shadow:0 30px 80px rgba(23,33,28,.25);overflow:hidden;border:10px solid #10140f}
+  .pstatus{background:#10140f;color:#fff;font-size:11px;display:flex;justify-content:space-between;padding:8px 22px 6px;font-family:var(--fn)}
+  .phead{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 8px;background:var(--canvas)}
+  .phead .t{display:flex;align-items:center;gap:8px}
+  .phead .t .mk{width:26px;height:26px;border-radius:8px;display:grid;grid-template-columns:1fr 1fr;overflow:hidden}
+  .phead .t .mk i:nth-child(1){background:var(--brand-600)}
+  .phead .t .mk i:nth-child(2){background:var(--ink)}
+  .phead .t .mk i:nth-child(3){background:var(--ink)}
+  .phead .t .mk i:nth-child(4){background:var(--brand-600)}
+  .phead .t b{font-size:15px;letter-spacing:1px}
+  .phead .bell{position:relative;width:32px;height:32px}
+  .pmonth{display:flex;align-items:center;justify-content:space-between;padding:6px 18px 4px}
+  .pmonth .mn{font-size:16px;font-weight:800}
+  .pmonth .sw{display:flex;background:#e8ece6;border-radius:999px;padding:2px}
+  .pmonth .sw button{border:0;background:transparent;font-size:11.5px;padding:4px 13px;border-radius:999px;color:var(--ink-3);font-family:var(--fu);font-weight:500}
+  .pmonth .sw button.on{background:#fff;font-weight:700;color:var(--ink);box-shadow:var(--shadow-sm)}
+  .pfilters{display:flex;gap:6px;padding:8px 18px 12px;overflow-x:auto;scrollbar-width:none}
+  .pfilters::-webkit-scrollbar{display:none}
+  .pspot{margin:0 16px 12px;background:#fff;border:1px solid var(--red-line);border-radius:14px;padding:13px 15px;box-shadow:var(--shadow-sm)}
+  .pspot .t{font-size:10px;font-weight:700;color:var(--red);letter-spacing:1px}
+  .pspot .r{display:flex;align-items:center;justify-content:space-between;margin-top:4px}
+  .pspot h4{font-size:13.5px;font-weight:800}
+  .pspot .big b{font-family:var(--fn);font-size:26px;font-weight:700;color:var(--red)}
+  .pspot .big span{font-size:10px;color:var(--ink-3)}
+  .ptl{background:#fff;border:1px solid var(--line);border-radius:16px;margin:0 16px;padding:6px 18px 18px;box-shadow:var(--shadow-sm)}
+  .pfoot{position:relative;bottom:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:10px 8px 22px}
+  .pfoot .it{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--ink-3)}
+  .pfoot .it.on{color:var(--brand-700);font-weight:700}
+  .pfoot .it .ic{width:20px;height:20px;border-radius:6px;background:var(--canvas);display:flex;align-items:center;justify-content:center;font-size:10px}
+  .pfoot .it.on .ic{background:var(--brand-100)}
+</style>
+</head>
+<body>
+
+<div class="viewer">
+  <div class="vbrand"><span class="mk"><i></i><i></i><i></i><i></i></span>赛程日历 · 视觉升级 v2</div>
+  <div class="vtabs" id="tabs">
+    <button class="on" data-t="s1">月视图(桌面)</button>
+    <button data-t="s2">议程视图(竖直赛道)</button>
+    <button data-t="s3">移动端</button>
+  </div>
+  <div class="vnote">静态演示 · 点击上方切换</div>
+</div>
+
+<!-- ============ 屏 1:月视图 ============ -->
+<section class="screen on" id="s1">
+  <div class="topbar">
+    <span class="tlogo"><span class="mk"><i></i><i></i><i></i><i></i></span>赛道</span>
+    <nav class="tnav">
+      <a href="#s1">首页</a><a href="#s1">AI 助手</a><a href="#s1">竞赛库</a><a href="#s1" class="on">赛程日历</a><a href="#s1">论坛</a><a href="#s1">团队</a><a href="#s1">项目空间</a><a href="#s1">我的 ▾</a>
+    </nav>
+    <div class="tright">
+      <span class="search">搜索竞赛、帖子、队友</span>
+      <span class="ddl">⏱ 2 场 <b class="num">6</b> 天后截止</span>
+      <span class="bell">◉<i>3</i></span>
+      <span class="avatar">张</span>
+    </div>
+  </div>
+
+  <main class="main">
+    <div class="pagehead">
+      <div>
+        <h1>赛程日历</h1>
+        <p>报名窗口与比赛时间一目了然,点选日期查看当日全部安排</p>
+      </div>
+      <div class="season">
+        <div class="st"><span class="dot" style="background:var(--red)"></span><div><b class="num">3</b><br/><span>本月截止</span></div></div>
+        <div class="st"><span class="dot" style="background:#38bdf8"></span><div><b class="num">2</b><br/><span>本月开赛</span></div></div>
+        <div class="st"><span class="dot" style="background:var(--brand-500)"></span><div><b class="num">1</b><br/><span>报名开始</span></div></div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="monthnav">
+        <button class="iconbtn">‹</button>
+        <span class="monthpick">2026 年 9 月 <small>▾</small></span>
+        <button class="iconbtn">›</button>
+        <button class="btn-today">今天</button>
+      </div>
+      <div class="viewswitch">
+        <button class="on">▦ 月</button>
+        <button>☰ 议程</button>
+      </div>
+      <div class="filters">
+        <span class="fchip g on"><i></i>报名开始 <span class="cnt">2</span></span>
+        <span class="fchip r on"><i></i>报名截止 <span class="cnt">5</span></span>
+        <span class="fchip b on"><i></i>比赛时间 <span class="cnt">4</span></span>
+      </div>
+    </div>
+
+    <div class="layout">
+      <!-- 月历 -->
+      <div class="calcard">
+        <div class="weekrow">
+          <span>周一</span><span>周二</span><span>周三</span><span>周四</span><span>周五</span><span class="wk">周六</span><span class="wk">周日</span>
+        </div>
+        <div class="calgrid">
+          <div class="day dim"><span class="dnum">31</span></div>
+          <div class="day"><span class="dnum">1</span></div>
+          <div class="day"><span class="dnum">2</span></div>
+          <div class="day"><span class="dnum">3</span><span class="evchip rs"><i></i>大广赛 报名</span></div>
+          <div class="day today sel"><span class="dnum">4</span><span class="evchip dl urg"><i></i>信息安全 截止</span><span class="evchip ct"><i></i>电赛国赛 开幕</span></div>
+          <div class="day wk"><span class="dnum">5</span></div>
+          <div class="day wk"><span class="dnum">6</span><span class="evchip dl"><i></i>软件杯 截止</span></div>
+          <div class="day"><span class="dnum">7</span></div>
+          <div class="day"><span class="dnum">8</span><span class="evchip dl"><i></i>蓝桥杯 截止</span></div>
+          <div class="day"><span class="dnum">9</span></div>
+          <div class="day"><span class="dnum">10</span><span class="evchip ct"><i></i>数模国赛 开赛</span></div>
+          <div class="day"><span class="dnum">11</span><span class="evchip ct"><i></i>数模 第2天</span></div>
+          <div class="day"><span class="dnum">12</span><span class="evchip ct"><i></i>数模 提交</span></div>
+          <div class="day"><span class="dnum">13</span></div>
+          <div class="day"><span class="dnum">14</span><span class="evchip rs"><i></i>华为ICT 报名</span></div>
+          <div class="day"><span class="dnum">15</span><span class="evchip dl"><i></i>蓝桥杯 省赛截止</span></div>
+          <div class="day"><span class="dnum">16</span></div>
+          <div class="day"><span class="dnum">17</span></div>
+          <div class="day"><span class="dnum">18</span></div>
+          <div class="day"><span class="dnum">19</span></div>
+          <div class="day"><span class="dnum">20</span></div>
+          <div class="day wk"><span class="dnum">21</span></div>
+          <div class="day wk"><span class="dnum">22</span><span class="evchip ct"><i></i>华为ICT 省赛</span></div>
+          <div class="day"><span class="dnum">23</span></div>
+          <div class="day"><span class="dnum">24</span></div>
+          <div class="day"><span class="dnum">25</span></div>
+          <div class="day"><span class="dnum">26</span></div>
+          <div class="day wk"><span class="dnum">27</span></div>
+          <div class="day wk"><span class="dnum">28</span></div>
+          <div class="day"><span class="dnum">29</span></div>
+          <div class="day"><span class="dnum">30</span></div>
+          <div class="day dim"><span class="dnum">1</span><span class="evchip dl"><i></i>大广赛 截止</span></div>
+          <div class="day dim"><span class="dnum">2</span></div>
+          <div class="day dim"><span class="dnum">3</span></div>
+          <div class="day dim"><span class="dnum">4</span></div>
+        </div>
+        <div class="legend">
+          <span class="it"><i style="background:var(--brand-500)"></i>报名开始</span>
+          <span class="it"><i style="background:var(--red)"></i>报名截止(≤3天深红实底)</span>
+          <span class="it"><i style="background:#38bdf8"></i>比赛时间</span>
+          <span class="it"><i style="background:#fff;border:1.5px solid var(--brand-300)"></i>今天</span>
+          <span class="it"><i style="background:#fff;border:2px solid var(--brand-500)"></i>已选日期</span>
+          <span style="margin-left:auto" class="num">已显示 11 个关注竞赛的赛程</span>
+        </div>
+      </div>
+
+      <!-- 右栏 -->
+      <div class="rail">
+        <!-- 截止聚焦卡 -->
+        <div class="card spot">
+          <p class="t">⏰ 最近截止</p>
+          <h3>全国大学生信息安全竞赛</h3>
+          <div class="big"><b>0</b><span>天后截止 · 今天 23:59</span></div>
+          <div class="winbar">
+            <div class="lbl"><span>报名窗口</span><b class="num">4月1日 → 9月4日</b></div>
+            <div class="track"><div class="fill" style="width:100%"></div><div class="mark" style="left:99%"></div></div>
+            <div class="lbl" style="margin-top:4px"><span>已过 100%</span><span style="color:var(--red);font-weight:700">立即报名</span></div>
+          </div>
+          <div class="act">
+            <button class="btn-today" style="background:var(--red);color:#fff;border-color:var(--red);font-weight:700">去官网报名</button>
+            <button class="btn-today">详情</button>
+          </div>
+        </div>
+
+        <!-- 当日议程 -->
+        <div class="card dayagenda">
+          <div class="h"><b>9月4日 · 周五</b><span class="num">2 项安排</span></div>
+          <div class="agitem">
+            <span class="tb dl">截止</span>
+            <div class="bd"><h4>全国大学生信息安全竞赛</h4><p>今天截止 · 国家级 · 团队赛</p></div>
+            <span class="fav on">♥</span>
+          </div>
+          <div class="agitem">
+            <span class="tb ct">比赛</span>
+            <div class="bd"><h4>全国大学生电子设计竞赛 · 国赛</h4><p>今日开幕 · 4天3夜</p></div>
+            <span class="fav">♥</span>
+          </div>
+        </div>
+
+        <!-- 未来截止 -->
+        <div class="card upcoming">
+          <div class="h">🏁 未来 60 天截止</div>
+          <div class="upitem">
+            <span class="ds"><b>2</b><span>天后</span></span>
+            <div><h5>中国软件杯大学生软件设计大赛</h5><p>9月6日 · 团队赛</p></div>
+          </div>
+          <div class="upitem">
+            <span class="ds"><b>4</b><span>天后</span></span>
+            <div><h5>蓝桥杯省赛报名</h5><p>9月8日 · 个人赛</p></div>
+          </div>
+          <div class="upitem">
+            <span class="ds"><b>18</b><span>天后</span></span>
+            <div><h5>华为 ICT 大赛报名</h5><p>9月22日 · 团队赛</p></div>
+          </div>
+          <div class="lane-line" style="margin:10px 0"></div>
+          <button class="btn-today" style="width:100%">查看全部 →</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</section>
+
+<!-- ============ 屏 2:议程视图(竖直赛道时间线) ============ -->
+<section class="screen" id="s2">
+  <div class="topbar">
+    <span class="tlogo"><span class="mk"><i></i><i></i><i></i><i></i></span>赛道</span>
+    <nav class="tnav">
+      <a href="#s2">首页</a><a href="#s2">AI 助手</a><a href="#s2">竞赛库</a><a href="#s2" class="on">赛程日历</a><a href="#s2">论坛</a><a href="#s2">团队</a><a href="#s2">项目空间</a><a href="#s2">我的 ▾</a>
+    </nav>
+    <div class="tright">
+      <span class="search">搜索竞赛、帖子、队友</span>
+      <span class="ddl">⏱ 2 场 <b class="num">6</b> 天后截止</span>
+      <span class="bell">◉<i>3</i></span>
+      <span class="avatar">张</span>
+    </div>
+  </div>
+
+  <main class="main">
+    <div class="pagehead">
+      <div>
+        <h1>赛程日历 · 议程</h1>
+        <p>未来 90 天按时间轴排列,一屏看清先做什么</p>
+      </div>
+      <div class="season">
+        <div class="st"><span class="dot" style="background:var(--red)"></span><div><b class="num">3</b><br/><span>本月截止</span></div></div>
+        <div class="st"><span class="dot" style="background:#38bdf8"></span><div><b class="num">2</b><br/><span>本月开赛</span></div></div>
+        <div class="st"><span class="dot" style="background:var(--brand-500)"></span><div><b class="num">1</b><br/><span>报名开始</span></div></div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="monthnav">
+        <button class="btn-today">回到今天</button>
+      </div>
+      <div class="viewswitch">
+        <button>▦ 月</button>
+        <button class="on">☰ 议程</button>
+      </div>
+      <div class="filters">
+        <span class="fchip g on"><i></i>报名开始 <span class="cnt">2</span></span>
+        <span class="fchip r on"><i></i>报名截止 <span class="cnt">5</span></span>
+        <span class="fchip b on"><i></i>比赛时间 <span class="cnt">4</span></span>
+      </div>
+    </div>
+
+    <div class="agenda-card">
+      <!-- 9月 -->
+      <div class="ag-month">
+        <span class="flag"></span>
+        <b>2026 年 9 月</b>
+        <span class="n">3 个截止 · 2 场开赛 · 2 个报名开始</span>
+      </div>
+      <div class="timeline">
+        <div class="tl-item dl">
+          <span class="node"></span>
+          <div class="tl-date"><b>4</b><span>周五</span></div>
+          <div class="tl-body">
+            <div class="row1"><span class="tl-badge dl urg">截止 · 今天</span><h4>全国大学生信息安全竞赛</h4></div>
+            <div class="meta"><span>国家级 · 团队赛</span><span>报名窗口 <b>已过 100%</b></span></div>
+            <div class="win"><div class="track"><div class="fill" style="width:100%"></div></div><div class="lbl"><span>4月1日</span><span>9月4日</span></div></div>
+          </div>
+        </div>
+        <div class="tl-item ct">
+          <span class="node"></span>
+          <div class="tl-date"><b>4</b><span>周五</span></div>
+          <div class="tl-body">
+            <div class="row1"><span class="tl-badge ct">比赛</span><h4>全国大学生电子设计竞赛 · 国赛开幕</h4></div>
+            <div class="meta"><span>4天3夜现场赛</span><span>国家级 · 团队赛</span></div>
+          </div>
+        </div>
+        <div class="tl-item dl">
+          <span class="node"></span>
+          <div class="tl-date"><b>6</b><span>周日</span></div>
+          <div class="tl-body">
+            <div class="row1"><span class="tl-badge dl">截止</span><h4>中国软件杯大学生软件设计大赛</h4></div>
+            <div class="meta"><span>还剩 <b>2 天</b></span><span>国家级 · 团队赛</span></div>
+            <div class="win"><div class="track"><div class="fill" style="width:92%"></div></div><div class="lbl"><span>2月1日</span><span>9月6日</span></div></div>
+          </div>
+        </div>
+        <div class="tl-item dl">
+          <span class="node"></span>
+          <div class="tl-date"><b>8</b><span>周二</span></div>
+          <div class="tl-body">
+            <div class="row1"><span class="tl-badge dl">截止</span><h4>蓝桥杯省赛报名</h4></div>
+            <div class="meta"><span>还剩 <b>4 天</b></span><span>省级 · 个人赛</span></div>
+          </div>
+        </div>
+        <div class="tl-item ct">
+          <span class="node"></span>
+          <div class="tl-date"><b>10</b><span>周四</span></div>
+          <div class="tl-body">
+            <div class="row1"><span class="tl-badge ct">比赛</span><h4>全国大学生数学建模竞赛 · 开赛</h4></div>
+            <div class="meta"><span>72 小时 · 3人组</span><span>国家级 · 团队赛</span></div>
+          </div>
+        </div>
+        <div class="tl-item rs">
+          <span class="node"></span>
+          <div class="tl-date"><b>14</b><span>周一</span></div>
+          <div class="tl-body">
+            <div class="row1"><span class="tl-badge rs">报名</span><h4>华为 ICT 大赛 · 报名开始</h4></div>
+            <div class="meta"><span>报名窗口开启</span><span>国家级 · 团队赛</span></div>
+          </div>
+        </div>
+        <div class="tl-item ct">
+          <span class="node"></span>
+          <div class="tl-date"><b>22</b><span>周二</span></div>
+          <div class="tl-body">
+            <div class="row1"><span class="tl-badge ct">比赛</span><h4>华为 ICT 大赛 · 省赛</h4></div>
+            <div class="meta"><span>线上机考</span><span>省级 · 个人赛</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 10月 -->
+      <div class="ag-month">
+        <span class="flag"></span>
+        <b>2026 年 10 月</b>
+        <span class="n">1 个截止 · 1 个报名开始</span>
+      </div>
+      <div class="timeline">
+        <div class="tl-item dl">
+          <span class="node"></span>
+          <div class="tl-date"><b>2</b><span>周五</span></div>
+          <div class="tl-body">
+            <div class="row1"><span class="tl-badge dl">截止</span><h4>全国大学生广告艺术大赛 · 提交截止</h4></div>
+            <div class="meta"><span>还剩 <b>28 天</b></span><span>国家级 · 团队赛</span></div>
+          </div>
+        </div>
+        <div class="tl-item rs">
+          <span class="node"></span>
+          <div class="tl-date"><b>8</b><span>周四</span></div>
+          <div class="tl-body">
+            <div class="row1"><span class="tl-badge rs">报名</span><h4>蓝桥杯全国软件和信息技术专业人才大赛 · 报名开始</h4></div>
+            <div class="meta"><span>报名窗口开启</span><span>国家级 · 个人赛</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</section>
+
+<!-- ============ 屏 3:移动端 ============ -->
+<section class="screen" id="s3">
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="pstatus"><span>9:41</span><span>5G ▮▮▮ ▮▮▮▯ 100%</span></div>
+      <div class="phead">
+        <span class="t"><span class="mk"><i></i><i></i><i></i><i></i></span><b>赛道</b></span>
+        <span class="bell">◉<i>3</i></span>
+      </div>
+      <div class="pmonth">
+        <span class="mn">2026 年 9 月</span>
+        <span class="sw"><button class="on">月</button><button>议程</button></span>
+      </div>
+      <div class="pfilters">
+        <span class="fchip g on"><i></i>报名开始</span>
+        <span class="fchip r on"><i></i>报名截止</span>
+        <span class="fchip b on"><i></i>比赛时间</span>
+      </div>
+
+      <!-- 移动端聚焦卡 -->
+      <div class="pspot">
+        <p class="t">⏰ 最近截止</p>
+        <div class="r">
+          <h4>全国大学生信息安全竞赛</h4>
+          <span class="big"><b>0</b><span>天后</span></span>
+        </div>
+        <div class="winbar" style="margin-top:8px">
+          <div class="track"><div class="fill" style="width:100%"></div></div>
+          <div class="lbl" style="margin-top:4px"><span>报名窗口已过 100%</span><span style="color:var(--red);font-weight:700">立即报名</span></div>
+        </div>
+      </div>
+
+      <!-- 移动端议程 -->
+      <div class="ptl">
+        <div class="ag-month">
+          <span class="flag"></span><b>本周</b>
+        </div>
+        <div class="timeline">
+          <div class="tl-item dl">
+            <span class="node"></span>
+            <div class="tl-date"><b>4</b><span>周五</span></div>
+            <div class="tl-body">
+              <div class="row1"><span class="tl-badge dl urg">截止·今天</span><h4>信息安全竞赛</h4></div>
+              <div class="meta"><span>报名窗口 100%</span></div>
+            </div>
+          </div>
+          <div class="tl-item ct">
+            <span class="node"></span>
+            <div class="tl-date"><b>4</b><span>周五</span></div>
+            <div class="tl-body">
+              <div class="row1"><span class="tl-badge ct">比赛</span><h4>电赛国赛开幕</h4></div>
+              <div class="meta"><span>4天3夜</span></div>
+            </div>
+          </div>
+          <div class="tl-item dl">
+            <span class="node"></span>
+            <div class="tl-date"><b>6</b><span>周日</span></div>
+            <div class="tl-body">
+              <div class="row1"><span class="tl-badge dl">截止</span><h4>软件杯报名</h4></div>
+              <div class="meta"><span>还剩 2 天</span></div>
+            </div>
+          </div>
+          <div class="tl-item dl">
+            <span class="node"></span>
+            <div class="tl-date"><b>8</b><span>周二</span></div>
+            <div class="tl-body">
+              <div class="row1"><span class="tl-badge dl">截止</span><h4>蓝桥杯省赛报名</h4></div>
+              <div class="meta"><span>还剩 4 天</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="ag-month">
+          <span class="flag"></span><b>9 月剩余</b>
+        </div>
+        <div class="timeline">
+          <div class="tl-item ct">
+            <span class="node"></span>
+            <div class="tl-date"><b>10</b><span>周四</span></div>
+            <div class="tl-body"><div class="row1"><span class="tl-badge ct">比赛</span><h4>数模国赛开赛</h4></div><div class="meta"><span>72 小时</span></div></div>
+          </div>
+          <div class="tl-item rs">
+            <span class="node"></span>
+            <div class="tl-date"><b>14</b><span>周一</span></div>
+            <div class="tl-body"><div class="row1"><span class="tl-badge rs">报名</span><h4>华为ICT 报名开始</h4></div><div class="meta"><span>窗口开启</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pfoot">
+        <div class="it"><span class="ic">⌂</span>首页</div>
+        <div class="it on"><span class="ic">▦</span>日历</div>
+        <div class="it"><span class="ic">✦</span>AI助手</div>
+        <div class="it"><span class="ic">◎</span>论坛</div>
+        <div class="it"><span class="ic">◈</span>我的</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const tabs = document.querySelectorAll('#tabs button');
+  const screens = document.querySelectorAll('.screen');
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabs.forEach(b => b.classList.remove('on'));
+      screens.forEach(s => s.classList.remove('on'));
+      btn.classList.add('on');
+      document.getElementById(btn.dataset.t).classList.add('on');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+</script>
+</body>
+</html>

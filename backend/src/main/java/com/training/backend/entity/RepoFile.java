@@ -34,6 +34,10 @@ public class RepoFile {
     @Column(name = "content", columnDefinition = "LONGTEXT")
     private String content;
 
+    /** 磁盘存储路径（二进制/大文件上传时使用，如 PPT/文档/图片），为空表示内容存于 content 字段 */
+    @Column(name = "storage_path", length = 500)
+    private String storagePath;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "file_type")
     private FileType fileType;

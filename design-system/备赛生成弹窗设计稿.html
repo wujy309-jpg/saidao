@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>「赛道」生成备赛计划 · 弹窗优化设计稿</title>
+<!--
+  生成备赛计划弹窗优化 v2
+  · 根因修复:页面外层 animate-rise(transform) 会让 fixed 弹窗错位 → 生产实现用 React Portal 挂 body
+  · 交互升级:桌面=右侧抽屉面板(不打断页面上下文)/ 移动=底部弹层
+  · 三段状态:条件表单(30秒)→ 生成中(叙事+迷你时间线)→ 完成(计划概览+查看计划)
+  · 形状锁 16/12/胶囊;数字 Space Grotesk;单强调色翠绿
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --brand-50:#ecfdf5;--brand-100:#d1fae5;--brand-200:#a7f3d0;--brand-300:#6ee7b7;
+    --brand-400:#34d399;--brand-500:#10b981;--brand-600:#059669;--brand-700:#047857;
+    --brand-800:#065f46;--brand-900:#064e3b;
+    --canvas:#f4f6f2;--card:#fff;--line:#e5eae4;
+    --ink:#17211c;--ink-2:#3f4d46;--ink-3:#7a8a80;
+    --red:#e5484d;--amber:#b45309;--sky:#0369a1;
+    --shadow-sm:0 1px 2px rgba(23,33,28,.05),0 1px 6px rgba(23,33,28,.04);
+    --shadow-lg:0 8px 24px rgba(23,33,28,.10),0 24px 64px rgba(6,78,59,.12);
+    --r-lg:16px;--r-md:12px;--r-pill:999px;
+    --fn:"Space Grotesk","PingFang SC",system-ui,sans-serif;
+    --fu:"PingFang SC","HarmonyOS Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--fu);background:#e9ede7;color:var(--ink);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .num{font-family:var(--fn)}
+
+  /* 查看器 */
+  .viewer{position:fixed;top:0;left:0;right:0;z-index:300;height:54px;background:rgba(17,26,21,.96);display:flex;align-items:center;gap:16px;padding:0 20px}
+  .vbrand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:800;font-size:14px;letter-spacing:.5px}
+  .vbrand .mk{width:24px;height:24px;border-radius:7px;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;border:1px solid rgba(255,255,255,.35)}
+  .vbrand .mk i{background:var(--brand-500)}
+  .vbrand .mk i:nth-child(1){background:var(--brand-600)}
+  .vbrand .mk i:nth-child(2){background:#fff}
+  .vbrand .mk i:nth-child(3){background:#fff}
+  .vbrand .mk i:nth-child(4){background:var(--brand-600)}
+  .vtabs{display:flex;gap:4px;flex:1}
+  .vtabs button{border:0;background:transparent;color:rgba(255,255,255,.62);font-size:13px;font-family:var(--fu);padding:6px 14px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:.18s}
+  .vtabs button:hover{color:#fff;background:rgba(255,255,255,.08)}
+  .vtabs button.on{background:var(--brand-600);color:#fff;font-weight:600}
+  .vnote{font-size:11px;color:rgba(255,255,255,.45);white-space:nowrap}
+  .screen{display:none;padding-top:54px}
+  .screen.on{display:block;animation:fadein .25s ease}
+  @keyframes fadein{from{opacity:0}to{opacity:1}}
+
+  /* 演示舞台:竞赛详情页背景(模糊示意) */
+  .stage{position:relative;min-height:calc(100vh - 54px);background:var(--canvas);overflow:hidden}
+  .fake-page{padding:28px 32px;max-width:900px}
+  .fake-page .crumbs{font-size:12px;color:var(--ink-3)}
+  .fake-head{display:flex;align-items:flex-start;gap:16px;margin-top:14px}
+  .fake-title{flex:1}
+  .fake-title .t{font-size:24px;font-weight:800;margin-top:8px}
+  .fake-title .org{font-size:12.5px;color:var(--ink-3);margin-top:6px}
+  .fb{display:inline-flex;border-radius:999px;padding:3px 10px;font-size:11px;font-weight:600}
+  .fb.eng{background:#eef4fd;color:#1d4ed8}
+  .fb.nat{background:#f2f3f1;color:var(--ink-2)}
+  .fb.baoyan{background:#fdeef0;color:#c2274f}
+  .fake-actions{display:flex;gap:8px}
+  .fbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:var(--r-md);padding:8px 16px;font-size:13px;font-weight:600;color:var(--ink-2);box-shadow:var(--shadow-sm)}
+  .fbtn.primary{background:var(--brand-600);border-color:var(--brand-600);color:#fff;box-shadow:0 2px 8px rgba(5,150,105,.3)}
+  .fake-banner{margin-top:16px;border:1px solid var(--red-line,#f6cdc9);background:#fdeceb;border-radius:var(--r-lg);padding:14px 18px;display:flex;gap:14px;align-items:center}
+  .fake-banner .big{font-family:var(--fn);font-size:26px;font-weight:700;color:var(--red)}
+  .fake-banner .big small{display:block;font-size:11px;font-family:var(--fu)}
+  .fake-banner b{font-size:14px}
+  .fake-banner p{font-size:11.5px;color:var(--ink-3);margin-top:2px}
+  .fake-band{margin-top:14px;border:1px solid var(--brand-200);background:var(--brand-50);border-radius:var(--r-lg);padding:14px 18px;display:flex;gap:14px;align-items:center}
+  .fake-band b{font-size:14px}
+  .fake-band p{font-size:11.5px;color:var(--ink-3);margin-top:2px}
+  .fake-card{margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:18px;box-shadow:var(--shadow-sm);height:220px}
+
+  /* ============ 遮罩 + 右侧抽屉 ============ */
+  .scrim{position:absolute;inset:0;background:rgba(23,33,28,.18);backdrop-filter:blur(1.5px);animation:fadein .2s ease}
+  .drawer{
+    position:absolute;top:0;right:0;bottom:0;width:480px;background:var(--card);
+    box-shadow:var(--shadow-lg);display:flex;flex-direction:column;
+    animation:slidein .32s cubic-bezier(.32,.72,.24,1) both;
+  }
+  @keyframes slidein{from{transform:translateX(60px);opacity:.4}to{transform:none;opacity:1}}
+  .drawer-head{display:flex;align-items:center;gap:10px;padding:18px 22px 14px;border-bottom:1px solid var(--line)}
+  .drawer-head .step{font-size:11px;color:var(--ink-3);font-family:var(--fn)}
+  .drawer-head .step b{color:var(--brand-700)}
+  .drawer-head h2{font-size:17px;font-weight:800}
+  .drawer-head .comp{margin-left:auto;max-width:46%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--brand-700);background:var(--brand-50);border:1px solid var(--brand-200);border-radius:999px;padding:4px 12px;font-weight:600}
+  .xbtn{width:32px;height:32px;border-radius:var(--r-md);border:1px solid var(--line);background:#fff;color:var(--ink-3);cursor:pointer;font-size:13px;flex-shrink:0}
+  .xbtn:hover{color:var(--red);border-color:#f6cdc9}
+  .drawer-body{flex:1;overflow-y:auto;padding:18px 22px 8px;display:flex;flex-direction:column;gap:20px}
+  .sec-h{font-size:13.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:6px}
+  .sec-h .opt{font-weight:400;font-size:11px;color:var(--ink-3)}
+  .goals{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .goal{
+    position:relative;border:1.5px solid var(--line);border-radius:var(--r-md);padding:12px 10px;
+    cursor:pointer;transition:.16s;background:#fff;text-align:left;font-family:var(--fu);
+  }
+  .goal:hover{border-color:var(--brand-300)}
+  .goal.on{border-color:var(--brand-500);background:var(--brand-50);box-shadow:0 2px 10px rgba(5,150,105,.12)}
+  .goal .g-ico{font-size:17px}
+  .goal .g-t{display:block;font-size:13.5px;font-weight:700;margin-top:5px;color:var(--ink)}
+  .goal.on .g-t{color:var(--brand-800)}
+  .goal .g-d{display:block;font-size:10px;color:var(--ink-3);margin-top:3px;line-height:1.5}
+  .goal .g-check{
+    position:absolute;top:8px;right:8px;width:16px;height:16px;border-radius:50%;
+    background:var(--brand-600);color:#fff;font-size:10px;display:none;align-items:center;justify-content:center;
+  }
+  .goal.on .g-check{display:flex}
+  .hours-row{display:flex;align-items:center;gap:14px}
+  .hours-val{
+    width:74px;height:52px;border-radius:var(--r-md);background:var(--brand-50);border:1px solid var(--brand-200);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .hours-val b{font-family:var(--fn);font-size:20px;font-weight:700;color:var(--brand-700);line-height:1}
+  .hours-val span{font-size:9.5px;color:var(--brand-700);margin-top:2px}
+  .slider{flex:1}
+  input[type=range]{width:100%;accent-color:var(--brand-600);height:4px}
+  .slider .scale{display:flex;justify-content:space-between;font-size:10px;color:var(--ink-3);margin-top:4px}
+  .estimate{
+    margin-top:10px;display:flex;align-items:center;gap:10px;border-radius:var(--r-md);
+    background:var(--canvas);border:1px solid var(--line);padding:10px 14px;
+  }
+  .estimate .e-num{font-family:var(--fn);font-size:19px;font-weight:700;color:var(--brand-700);line-height:1}
+  .estimate .e-txt{font-size:11px;color:var(--ink-2);line-height:1.5}
+  .chips{display:flex;flex-wrap:wrap;gap:7px}
+  .chip{
+    display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:6px 13px;font-size:12px;
+    border:1px solid var(--line);background:#fff;color:var(--ink-2);cursor:pointer;font-family:var(--fu);transition:.15s;
+  }
+  .chip:hover{border-color:var(--brand-300)}
+  .chip.on{background:var(--brand-600);border-color:var(--brand-600);color:#fff;font-weight:600}
+  .drawer-foot{display:flex;gap:10px;padding:14px 22px 18px;border-top:1px solid var(--line);background:#fff}
+  .btn{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:7px;border:0;border-radius:var(--r-md);padding:11px 18px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--fu);transition:.15s}
+  .btn:active{transform:translateY(1px)}
+  .btn-ghost{flex:0 0 auto;background:#fff;color:var(--ink-2);border:1px solid var(--line);padding:11px 20px}
+  .btn-ghost:hover{border-color:var(--brand-300);color:var(--brand-700)}
+  .btn-primary{background:var(--brand-600);color:#fff;box-shadow:0 2px 10px rgba(5,150,105,.3)}
+  .btn-primary:hover{background:var(--brand-700)}
+
+  /* ============ 生成中状态 ============ */
+  .mini-timeline{display:flex;align-items:center;gap:0;border-radius:var(--r-md);background:var(--canvas);border:1px solid var(--line);padding:12px 16px}
+  .mini-timeline .node{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
+  .mini-timeline .dot{width:10px;height:10px;border-radius:50%;background:#d8ded6;flex-shrink:0}
+  .mini-timeline .node.now .dot{background:var(--brand-500);box-shadow:0 0 0 4px var(--brand-100);animation:pulse 1.4s infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 3px var(--brand-100)}50%{box-shadow:0 0 0 6px var(--brand-100)}}
+  .mini-timeline .lbl{font-size:9.5px;color:var(--ink-3);text-align:center}
+  .mini-timeline .node.now .lbl{color:var(--brand-700);font-weight:700}
+  .mini-timeline .seg{flex:1;height:2px;background:#e2e7e0;margin:0 -2px;border-radius:2px}
+  .mini-timeline .seg.done{background:var(--brand-400)}
+  .steps{display:flex;flex-direction:column;gap:8px}
+  .stp{display:flex;align-items:flex-start;gap:10px;font-size:12.5px;color:var(--ink-2);padding:10px 12px;border-radius:var(--r-md);background:var(--canvas);border:1px solid var(--line)}
+  .stp.done{background:#fff;color:var(--ink-3)}
+  .stp.done .txt{text-decoration:none}
+  .stp .mk{width:16px;height:16px;border-radius:50%;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:9px}
+  .stp.done .mk{background:var(--brand-600);color:#fff}
+  .stp.now .mk{background:var(--brand-100);border:2px solid var(--brand-500);color:var(--brand-700);font-size:7px}
+  .stp .txt b{font-weight:700;color:var(--ink)}
+
+  /* ============ 完成状态 ============ */
+  .done-hero{display:flex;flex-direction:column;align-items:center;text-align:center;padding:10px 0 4px}
+  .flag-circle{width:64px;height:64px;border-radius:50%;background:var(--brand-50);border:2px dashed var(--brand-300);display:flex;align-items:center;justify-content:center;font-size:26px}
+  .done-hero h3{font-size:17px;font-weight:800;margin-top:12px}
+  .done-hero p{font-size:12px;color:var(--ink-3);margin-top:4px}
+  .overview{margin-top:14px;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+  .ov-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+  .ov-row:last-child{border-bottom:0}
+  .ov-ico{width:34px;height:34px;border-radius:var(--r-md);background:var(--brand-50);color:var(--brand-700);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+  .ov-row .ov-t{flex:1}
+  .ov-row b{font-size:13px;font-weight:700}
+  .ov-row p{font-size:11px;color:var(--ink-3)}
+  .ov-row .ov-v{font-family:var(--fn);font-size:14px;font-weight:700;color:var(--brand-700)}
+
+  /* ============ 移动端底部弹层 ============ */
+  .phone-wrap{display:flex;justify-content:center;padding:24px 0 60px}
+  .phone{width:390px;background:var(--canvas);border-radius:40px;box-shadow:0 30px 80px rgba(23,33,28,.25);overflow:hidden;border:10px solid #10140f;position:relative;height:720px}
+  .pstatus{background:#10140f;color:#fff;font-size:11px;display:flex;justify-content:space-between;padding:8px 22px 6px;font-family:var(--fn)}
+  .sheet{
+    position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:22px 22px 0 0;
+    box-shadow:0 -12px 40px rgba(23,33,28,.16);padding:10px 18px 20px;animation:upin .3s cubic-bezier(.32,.72,.24,1) both;
+  }
+  @keyframes upin{from{transform:translateY(60px);opacity:.4}to{transform:none;opacity:1}}
+  .sheet .grab{width:36px;height:4px;border-radius:99px;background:#e2e7e0;margin:2px auto 12px}
+  .sheet-head{display:flex;align-items:center;gap:8px}
+  .sheet-head h2{font-size:16px;font-weight:800}
+  .sheet-head .comp{font-size:11px;color:var(--brand-700);background:var(--brand-50);border:1px solid var(--brand-200);border-radius:999px;padding:3px 10px;font-weight:600;max-width:50%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sheet .goals{grid-template-columns:repeat(3,1fr);margin-top:14px}
+  .sheet .sec{margin-top:16px}
+</style>
+</head>
+<body>
+
+<div class="viewer">
+  <div class="vbrand"><span class="mk"><i></i><i></i><i></i><i></i></span>生成备赛计划 · 弹窗优化 v2</div>
+  <div class="vtabs" id="tabs">
+    <button class="on" data-t="s1">桌面 · 右侧抽屉(条件)</button>
+    <button data-t="s2">桌面 · 生成中</button>
+    <button data-t="s3">桌面 · 完成</button>
+    <button data-t="s4">移动 · 底部弹层</button>
+  </div>
+  <div class="vnote">生产实现:React Portal 挂 body,根治 transform 定位错位</div>
+</div>
+
+<!-- ============ 屏1:桌面右侧抽屉·条件表单 ============ -->
+<section class="screen on" id="s1">
+  <div class="stage">
+    <!-- 背景:竞赛详情页(保持可见) -->
+    <div class="fake-page">
+      <p class="crumbs">竞赛库 / 全国大学生电子设计竞赛</p>
+      <div class="fake-head">
+        <div class="fake-title">
+          <span class="fb eng">工科</span> <span class="fb nat">国家级</span> <span class="fb baoyan">🏅 保研加分</span>
+          <h1 class="t">全国大学生电子设计竞赛</h1>
+          <p class="org">主办:教育部高等教育司、工业和信息化部人事教育司</p>
+        </div>
+        <div class="fake-actions"><span class="fbtn">♥ 收藏</span><span class="fbtn">分享经验</span><span class="fbtn primary">✍ 生成备赛计划</span></div>
+      </div>
+      <div class="fake-banner">
+        <span class="big">12<small>天后截止</small></span>
+        <div><b>报名窗口:2027年6月1日 - 7月10日 · 比赛时间:2027-08</b><p>团队赛 · 最多 3 人 · 难度 ●●●● · 含金量 ●●●●●</p></div>
+      </div>
+      <div class="fake-band"><span style="font-size:20px">✦</span><div><b>AI 竞赛助手已加载</b><p>官网规则 + 历年优秀作品 + 你的画像,帮你写计划书与备赛方案。</p></div></div>
+      <div class="fake-card"></div>
+    </div>
+
+    <!-- 遮罩(轻) -->
+    <div class="scrim"></div>
+
+    <!-- 右侧抽屉:条件表单 -->
+    <div class="drawer">
+      <div class="drawer-head">
+        <div>
+          <p class="step">第 <b>1</b> / 2 步 · 约 30 秒</p>
+          <h2>生成备赛计划</h2>
+        </div>
+        <span class="comp">全国大学生电子设计竞赛</span>
+        <button class="xbtn">✕</button>
+      </div>
+
+      <div class="drawer-body">
+        <div>
+          <p class="sec-h">参赛目标</p>
+          <div class="goals">
+            <button class="goal"><span class="g-check">✓</span><span class="g-ico">🏁</span><span class="g-t">冲奖</span><span class="g-d">任务更深更密,对标国奖</span></button>
+            <button class="goal on"><span class="g-check">✓</span><span class="g-ico">🎯</span><span class="g-t">稳完赛</span><span class="g-d">节奏均衡,保质量完赛</span></button>
+            <button class="goal"><span class="g-check">✓</span><span class="g-ico">🌱</span><span class="g-t">体验为主</span><span class="g-d">轻量任务,重在参与</span></button>
+          </div>
+        </div>
+
+        <div>
+          <p class="sec-h">每周可投入时间</p>
+          <div class="hours-row">
+            <div class="hours-val"><b>8</b><span>小时/周</span></div>
+            <div class="slider">
+              <input type="range" min="3" max="20" value="8" />
+              <div class="scale"><span>3h 轻松</span><span>20h 冲刺</span></div>
+            </div>
+          </div>
+          <div class="estimate">
+            <span class="e-num">≈3 周</span>
+            <span class="e-txt">完成全部训练<br/>10 个任务 · 共约 20 小时</span>
+          </div>
+        </div>
+
+        <div>
+          <p class="sec-h">已完成盘点 <span class="opt">(选填,AI 会跳过这些)</span></p>
+          <div class="chips">
+            <button class="chip on">✓ 组队完成</button>
+            <button class="chip">选题确定</button>
+            <button class="chip">基础复习完成</button>
+            <button class="chip">真题已刷</button>
+            <button class="chip">器材/资料备齐</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="drawer-foot">
+        <button class="btn btn-ghost">取消</button>
+        <button class="btn btn-primary">⚡ 开始生成</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 屏2:生成中 ============ -->
+<section class="screen" id="s2">
+  <div class="stage">
+    <div class="fake-page"><p class="crumbs">竞赛库 / 全国大学生电子设计竞赛</p><div class="fake-card" style="height:400px"></div></div>
+    <div class="scrim"></div>
+    <div class="drawer">
+      <div class="drawer-head">
+        <div>
+          <p class="step">第 <b>2</b> / 2 步 · 正在编排</p>
+          <h2>生成备赛计划</h2>
+        </div>
+        <span class="comp">全国大学生电子设计竞赛</span>
+        <button class="xbtn">✕</button>
+      </div>
+
+      <div class="drawer-body">
+        <!-- 迷你时间线 -->
+        <div class="mini-timeline">
+          <div class="node"><span class="dot"></span><span class="lbl">了解与准备</span></div>
+          <div class="seg done"></div>
+          <div class="node now"><span class="dot"></span><span class="lbl">专项突破</span></div>
+          <div class="seg"></div>
+          <div class="node"><span class="dot"></span><span class="lbl">实战演练</span></div>
+          <div class="seg"></div>
+          <div class="node"><span class="dot"></span><span class="lbl">赛前冲刺</span></div>
+        </div>
+
+        <!-- 叙事步骤 -->
+        <div class="steps">
+          <div class="stp done"><span class="mk">✓</span><span class="txt">读取<b>比赛时间线</b>与赛制规则…</span></div>
+          <div class="stp done"><span class="mk">✓</span><span class="txt">距比赛还有 <b class="num">336 天</b>,按 <b class="num">4</b> 个阶段倒排…</span></div>
+          <div class="stp now"><span class="mk"></span><span class="txt">结合目标<b>「稳完赛」</b>与每周 <b class="num">8</b> 小时,分配任务强度…</span></div>
+          <div class="stp"><span class="mk"></span><span class="txt">对照评审标准与历年优秀作品,优化任务细节…</span></div>
+        </div>
+
+        <p style="text-align:center;font-size:11px;color:var(--ink-3);padding:6px 0">预计还需 10-20 秒,AI 正在认真编排…</p>
+      </div>
+
+      <div class="drawer-foot"><button class="btn btn-ghost" style="flex:1">取消</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 屏3:完成 ============ -->
+<section class="screen" id="s3">
+  <div class="stage">
+    <div class="fake-page"><p class="crumbs">竞赛库 / 全国大学生电子设计竞赛</p><div class="fake-card" style="height:400px"></div></div>
+    <div class="scrim"></div>
+    <div class="drawer">
+      <div class="drawer-head">
+        <div>
+          <p class="step">完成</p>
+          <h2>生成备赛计划</h2>
+        </div>
+        <span class="comp">全国大学生电子设计竞赛</span>
+        <button class="xbtn">✕</button>
+      </div>
+
+      <div class="drawer-body">
+        <div class="done-hero">
+          <span class="flag-circle">🏁</span>
+          <h3>计划已就绪</h3>
+          <p>按比赛日期倒排完成,去看看你的备赛路线</p>
+        </div>
+
+        <div class="overview">
+          <div class="ov-row">
+            <span class="ov-ico">▦</span>
+            <div class="ov-t"><b>4 个阶段</b><p>了解与准备 → 专项突破 → 实战演练 → 赛前冲刺</p></div>
+          </div>
+          <div class="ov-row">
+            <span class="ov-ico">✓</span>
+            <div class="ov-t"><b>10 个任务 · 约 20 小时</b><p>每任务带建议截止日与预估时长</p></div>
+          </div>
+          <div class="ov-row">
+            <span class="ov-ico">◷</span>
+            <div class="ov-t"><b>时间范围</b><p>9月5日 - 2027年8月1日 · 已跳过:组队完成</p></div>
+            <span class="ov-v">336 天</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="drawer-foot">
+        <button class="btn btn-ghost">留在本页</button>
+        <button class="btn btn-primary">查看计划 →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 屏4:移动端底部弹层 ============ -->
+<section class="screen" id="s4">
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="pstatus"><span>9:41</span><span>5G ▮▮▮ ▮▮▮▯ 100%</span></div>
+      <!-- 背景详情页(模糊示意) -->
+      <div style="padding:18px">
+        <p style="font-size:11px;color:var(--ink-3)">竞赛库 / 全国大学生电子设计竞赛</p>
+        <h1 style="font-size:20px;font-weight:800;margin-top:8px">全国大学生电子设计竞赛</h1>
+        <div style="display:flex;gap:6px;margin-top:10px"><span class="fb eng">工科</span><span class="fb nat">国家级</span><span class="fb baoyan">🏅 保研加分</span></div>
+        <div class="fake-banner" style="margin-top:14px"><span class="big">12<small>天后截止</small></span><div><b>报名窗口 6月1日-7月10日</b><p>团队赛 · 最多 3 人</p></div></div>
+        <div class="fake-band" style="margin-top:12px"><span style="font-size:18px">✦</span><div><b>AI 竞赛助手已加载</b><p>帮你写计划书与备赛方案</p></div></div>
+      </div>
+
+      <!-- 底部弹层 -->
+      <div class="sheet">
+        <div class="grab"></div>
+        <div class="sheet-head">
+          <h2>生成备赛计划</h2>
+          <span class="comp">全国大学生电子设计竞赛</span>
+        </div>
+        <div class="sec">
+          <p class="sec-h">参赛目标</p>
+          <div class="goals">
+            <button class="goal"><span class="g-check">✓</span><span class="g-ico">🏁</span><span class="g-t">冲奖</span><span class="g-d">对标国奖</span></button>
+            <button class="goal on"><span class="g-check">✓</span><span class="g-ico">🎯</span><span class="g-t">稳完赛</span><span class="g-d">保质量完赛</span></button>
+            <button class="goal"><span class="g-check">✓</span><span class="g-ico">🌱</span><span class="g-t">体验</span><span class="g-d">重在参与</span></button>
+          </div>
+        </div>
+        <div class="sec">
+          <p class="sec-h">每周可投入时间</p>
+          <div class="hours-row">
+            <div class="hours-val"><b>8</b><span>小时/周</span></div>
+            <div class="slider"><input type="range" min="3" max="20" value="8" /></div>
+          </div>
+          <div class="estimate"><span class="e-num">≈3 周</span><span class="e-txt">10 个任务 · 共约 20 小时</span></div>
+        </div>
+        <div class="sec">
+          <p class="sec-h">已完成盘点 <span class="opt">(选填)</span></p>
+          <div class="chips">
+            <button class="chip on">✓ 组队完成</button>
+            <button class="chip">选题确定</button>
+            <button class="chip">真题已刷</button>
+          </div>
+        </div>
+        <div class="drawer-foot" style="margin:14px -18px -20px;padding:12px 18px 20px">
+          <button class="btn btn-primary">⚡ 开始生成</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const tabs = document.querySelectorAll('#tabs button');
+  const screens = document.querySelectorAll('.screen');
+  tabs.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabs.forEach(b => b.classList.remove('on'));
+      screens.forEach(s => s.classList.remove('on'));
+      btn.classList.add('on');
+      document.getElementById(btn.dataset.t).classList.add('on');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+</script>
+</body>
+</html>

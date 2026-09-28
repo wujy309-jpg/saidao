@@ -121,18 +121,20 @@ public class AuthService {
     }
     
     @Transactional
-    public User register(User user, Long operatorId) {
+    public User registerStudent(User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new RuntimeException("用户名已存在");
         }
         
+        // 自助注册仅允许学生角色
+        user.setRole(User.UserRole.STUDENT);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         User savedUser = userRepository.save(user);
         
-        auditService.logCreate(operatorId, "admin", "USER", savedUser.getId(), 
-                "创建用户: " + savedUser.getUsername());
+        auditService.logCreate(savedUser.getId(), "student", "USER", savedUser.getId(), 
+                "学生自助注册: " + savedUser.getUsername());
         
-        log.info("用户 {} 注册成功", savedUser.getUsername());
+        log.info("学生 {} 注册成功", savedUser.getUsername());
         return savedUser;
     }
     

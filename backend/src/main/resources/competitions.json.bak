@@ -1,0 +1,1852 @@
+{
+  "competitions": [
+    {
+      "name": "全国大学生电子设计竞赛",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "电子",
+        "电气",
+        "自动化",
+        "信息"
+      ],
+      "level": "NATIONAL",
+      "organizer": "教育部高等教育司、工业和信息化部人事教育司",
+      "registrationStart": "2027-06-01",
+      "registrationEnd": "2027-07-10",
+      "competitionDate": "2027-08",
+      "format": "TEAM",
+      "teamSizeMax": 3,
+      "difficulty": 4,
+      "prestige": 5,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "电子设计",
+        "嵌入式",
+        "硬件",
+        "自动化"
+      ],
+      "description": "教育部主办的工科顶级赛事，3人组队，4天3夜现场完成给定题目的电子系统设计制作与测试，分省赛和国赛。适合电子信息、自动化、电气类专业学生，含金量高，是电子类最权威的学科竞赛之一。",
+      "officialUrl": "http://nuedc.xjtu.edu.cn/"
+    },
+    {
+      "name": "ACM-ICPC 国际大学生程序设计竞赛",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "计算机",
+        "软件"
+      ],
+      "level": "INTERNATIONAL",
+      "organizer": "ACM 国际计算机协会（ICPC Foundation）",
+      "registrationStart": "2026-09-01",
+      "registrationEnd": "2026-11-30",
+      "competitionDate": "2026-12",
+      "format": "TEAM",
+      "teamSizeMax": 3,
+      "difficulty": 5,
+      "prestige": 5,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "编程",
+        "算法",
+        "数据结构",
+        "竞赛"
+      ],
+      "description": "全球最权威的大学生程序设计竞赛，3人一队共用一台电脑，限时解算法题，分网络赛、区域赛和世界总决赛。适合算法与编程功底扎实的学生，含金量极高，深受互联网大厂认可。",
+      "officialUrl": "https://icpc.global"
+    },
+    {
+      "name": "中国大学生程序设计竞赛（CCPC）",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "计算机",
+        "软件"
+      ],
+      "level": "NATIONAL",
+      "organizer": "中国大学生程序设计竞赛组委会",
+      "registrationStart": "2026-09-01",
+      "registrationEnd": "2026-10-15",
+      "competitionDate": "2026-11",
+      "format": "TEAM",
+      "teamSizeMax": 3,
+      "difficulty": 5,
+      "prestige": 4,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "编程",
+        "算法",
+        "竞赛"
+      ],
+      "description": "国内最具影响力的程序设计竞赛之一，3人组队限时解算法题，设网络赛、分站赛和总决赛，成绩优异者可晋级 ICPC。适合编程能力强、志在算法竞赛的学生，含金量高。",
+      "officialUrl": "https://ccpc.io/"
+    },
+    {
+      "name": "蓝桥杯全国软件和信息技术专业人才大赛",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "计算机",
+        "软件",
+        "电子信息"
+      ],
+      "level": "NATIONAL",
+      "organizer": "工业和信息化部人才交流中心",
+      "registrationStart": "2026-10-01",
+      "registrationEnd": "2026-12-15",
+      "competitionDate": "2027-04",
+      "format": "INDIVIDUAL",
+      "teamSizeMax": 1,
+      "difficulty": 2,
+      "prestige": 4,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "编程",
+        "算法",
+        "软件",
+        "竞赛"
+      ],
+      "description": "由工信部人才交流中心主办，以个人赛为主，覆盖 C/C++、Java、Python 等多语言，设省赛与国赛。门槛相对友好、获奖面较大，适合大一到大四学生以赛促学、积累履历。",
+      "officialUrl": "https://dasai.lanqiao.cn"
+    },
+    {
+      "name": "全国大学生机器人大赛 RoboMaster 机甲大师超级对抗赛",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "机械",
+        "电子",
+        "计算机",
+        "自动化"
+      ],
+      "level": "NATIONAL",
+      "organizer": "大疆创新（DJI）",
+      "registrationStart": "2026-09-15",
+      "registrationEnd": "2026-12-31",
+      "competitionDate": "2027-05",
+      "format": "TEAM",
+      "teamSizeMax": 10,
+      "difficulty": 5,
+      "prestige": 5,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "机器人",
+        "机械",
+        "嵌入式",
+        "团队协作"
+      ],
+      "description": "大疆主办的机器人对抗赛，多专业组队自主设计制作步兵、工程等机器人进行对抗，赛程横跨近一年。适合机械、电子、视觉、算法等跨专业学生，投入大但含金量与知名度极高。",
+      "officialUrl": "https://www.robomaster.com"
+    },
+    {
+      "name": "全国大学生智能汽车竞赛",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "自动化",
+        "电子",
+        "计算机"
+      ],
+      "level": "NATIONAL",
+      "organizer": "教育部高等学校自动化类专业教学指导委员会",
+      "registrationStart": "2026-12-01",
+      "registrationEnd": "2027-03-31",
+      "competitionDate": "2027-07",
+      "format": "TEAM",
+      "teamSizeMax": 3,
+      "difficulty": 4,
+      "prestige": 4,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "智能车",
+        "嵌入式",
+        "控制",
+        "传感器"
+      ],
+      "description": "参赛队自主设计制作智能车并完成赛道竞速任务，分竞速组、创意组等，需掌握控制、传感器、图像处理等知识。适合自动化、电子、计算机类学生，是硬件实战型高含金量赛事。",
+      "officialUrl": "http://www.smartcarrace.com/"
+    },
+    {
+      "name": "中国大学生计算机设计大赛",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "计算机",
+        "软件",
+        "设计"
+      ],
+      "level": "NATIONAL",
+      "organizer": "教育部高等学校计算机类专业教学指导委员会等",
+      "registrationStart": "2026-12-01",
+      "registrationEnd": "2027-03-31",
+      "competitionDate": "2027-07",
+      "format": "TEAM",
+      "teamSizeMax": 5,
+      "difficulty": 2,
+      "prestige": 3,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "软件开发",
+        "数媒",
+        "作品赛",
+        "创新"
+      ],
+      "description": "面向全国高校的综合性计算机作品赛，设软件应用、人工智能、数媒设计等赛道，提交作品参加校赛、省赛和国赛。适合各年级学生按兴趣组队参赛，门槛适中、参与面广。",
+      "officialUrl": "https://jsjds.blcu.edu.cn/"
+    },
+    {
+      "name": "全国大学生机械创新设计大赛",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "机械",
+        "设计"
+      ],
+      "level": "NATIONAL",
+      "organizer": "教育部高等学校机械学科教学指导委员会",
+      "registrationStart": "2026-10-01",
+      "registrationEnd": "2027-03-31",
+      "competitionDate": "2027-07",
+      "format": "TEAM",
+      "teamSizeMax": 5,
+      "difficulty": 4,
+      "prestige": 4,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "机械设计",
+        "创新",
+        "建模",
+        "工程实践"
+      ],
+      "description": "面向机械类学生的全国性设计赛事，两年一届，围绕主题完成机械装置的创新设计与样机制作，需提交作品并答辩。适合机械、车辆类专业学生，是机械学科最具分量的竞赛之一。",
+      "officialUrl": "https://www.saikr.com/vse/umic"
+    },
+    {
+      "name": "全国大学生结构设计竞赛",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "土木",
+        "力学",
+        "建筑"
+      ],
+      "level": "NATIONAL",
+      "organizer": "全国大学生结构设计竞赛委员会（中国土木工程学会等）",
+      "registrationStart": "2026-12-01",
+      "registrationEnd": "2027-05-31",
+      "competitionDate": "2027-08",
+      "format": "TEAM",
+      "teamSizeMax": 3,
+      "difficulty": 4,
+      "prestige": 4,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "结构设计",
+        "土木",
+        "力学",
+        "模型制作"
+      ],
+      "description": "土木类权威赛事，3人组队用给定材料现场设计制作结构模型并进行加载试验，考核承载能力与重量。适合土木、力学、建筑类专业学生，是土建类含金量最高的学科竞赛之一。",
+      "officialUrl": "https://ccea.zju.edu.cn/"
+    },
+    {
+      "name": "华为 ICT 大赛",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "计算机",
+        "通信",
+        "网络"
+      ],
+      "level": "NATIONAL",
+      "organizer": "华为技术有限公司",
+      "registrationStart": "2026-09-15",
+      "registrationEnd": "2026-11-30",
+      "competitionDate": "2027-03",
+      "format": "TEAM",
+      "teamSizeMax": 3,
+      "difficulty": 3,
+      "prestige": 4,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "网络",
+        "云计算",
+        "ICT",
+        "认证"
+      ],
+      "description": "华为主办的 ICT 技术竞赛，设实践赛、创新赛等赛道，考核网络、云计算、大数据等方向，分省赛、国赛和全球赛。适合计算机、通信类专业学生，企业认可度高，还有认证与实习机会。",
+      "officialUrl": "https://www.huawei.com/minisite/ict-competition-2025-2026-global/cn/index.html"
+    },
+    {
+      "name": "中国软件杯大学生软件设计大赛",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "软件",
+        "计算机"
+      ],
+      "level": "NATIONAL",
+      "organizer": "工业和信息化部、教育部",
+      "registrationStart": "2027-03-01",
+      "registrationEnd": "2027-06-15",
+      "competitionDate": "2027-08",
+      "format": "TEAM",
+      "teamSizeMax": 5,
+      "difficulty": 3,
+      "prestige": 4,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "软件开发",
+        "项目实战",
+        "创新",
+        "团队"
+      ],
+      "description": "由工信部、教育部主办的软件设计赛事，企业出题、学生组队开发软件作品，经初赛评审和现场答辩决出奖项。适合软件工程、计算机专业学生，项目实战性强、与就业衔接紧密。",
+      "officialUrl": "https://www.cnsoftbei.com/"
+    },
+    {
+      "name": "全国大学生信息安全竞赛",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "信息安全",
+        "计算机",
+        "网络"
+      ],
+      "level": "NATIONAL",
+      "organizer": "教育部高等学校网络空间安全专业教学指导委员会",
+      "registrationStart": "2027-03-01",
+      "registrationEnd": "2027-05-31",
+      "competitionDate": "2027-08",
+      "format": "TEAM",
+      "teamSizeMax": 4,
+      "difficulty": 4,
+      "prestige": 4,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "网络安全",
+        "CTF",
+        "攻防",
+        "密码学"
+      ],
+      "description": "网络空间安全类权威赛事，设作品赛与创新实践能力赛（含 CTF 攻防），组队完成安全作品或攻防对抗。适合信息安全、计算机专业学生，安全方向认可度高，是保研求职的重要加分项。",
+      "officialUrl": "http://www.ciscn.cn/"
+    },
+    {
+      "name": "Kaggle 数据科学竞赛",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "计算机",
+        "数据科学",
+        "人工智能"
+      ],
+      "level": "INTERNATIONAL",
+      "organizer": "Kaggle（Google 旗下）",
+      "registrationStart": "2026-09-01",
+      "registrationEnd": "2027-08-31",
+      "competitionDate": "2026-09",
+      "format": "TEAM",
+      "teamSizeMax": 5,
+      "difficulty": 4,
+      "prestige": 4,
+      "suitableGrades": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "tags": [
+        "机器学习",
+        "数据挖掘",
+        "Python",
+        "竞赛"
+      ],
+      "description": "全球最大的数据科学竞赛平台，随时参加各类机器学习和数据分析赛题，个人或组队提交预测结果排名。适合计算机、数据、统计等专业学生，锻炼实战能力，优秀成绩在国际上广受认可。",
+      "officialUrl": "https://www.kaggle.com"
+    },
+    {
+      "name": "全国大学生嵌入式芯片与系统设计竞赛",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "嵌入式",
+        "电子",
+        "计算机"
+      ],
+      "level": "NATIONAL",
+      "organizer": "全国大学生嵌入式芯片与系统设计竞赛组委会",
+      "registrationStart": "2027-02-01",
+      "registrationEnd": "2027-04-30",
+      "competitionDate": "2027-07",
+      "format": "TEAM",
+      "teamSizeMax": 3,
+      "difficulty": 3,
+      "prestige": 3,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "嵌入式",
+        "芯片",
+        "系统设计",
+        "开发板"
+      ],
+      "description": "围绕国产芯片和嵌入式系统展开的作品赛，学生在指定平台完成软硬件系统设计并答辩。适合电子、计算机、自动化等专业学生，实战性强，能积累嵌入式开发项目经验。",
+      "officialUrl": "https://www.socchina.net/"
+    },
+    {
+      "name": "全国大学生光电设计竞赛",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "光学",
+        "电子",
+        "物理"
+      ],
+      "level": "NATIONAL",
+      "organizer": "中国光学学会、教育部高等学校光电信息科学与工程专业教学指导分委员会",
+      "registrationStart": "2027-01-01",
+      "registrationEnd": "2027-04-30",
+      "competitionDate": "2027-08",
+      "format": "TEAM",
+      "teamSizeMax": 3,
+      "difficulty": 3,
+      "prestige": 3,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "光电",
+        "光学设计",
+        "硬件",
+        "创新"
+      ],
+      "description": "面向光电信息类专业的全国性赛事，围绕光学与光电系统设计完成创新作品或赛题任务。适合光电、物理、电子类专业学生，是光电方向重要的学科竞赛之一。",
+      "officialUrl": "https://gd.moocollege.com/"
+    },
+    {
+      "name": "全国大学生集成电路创新创业大赛",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "集成电路",
+        "微电子",
+        "电子"
+      ],
+      "level": "NATIONAL",
+      "organizer": "工业和信息化部人才交流中心",
+      "registrationStart": "2027-01-01",
+      "registrationEnd": "2027-03-31",
+      "competitionDate": "2027-08",
+      "format": "TEAM",
+      "teamSizeMax": 3,
+      "difficulty": 4,
+      "prestige": 4,
+      "suitableGrades": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "tags": [
+        "芯片",
+        "集成电路",
+        "微电子",
+        "设计"
+      ],
+      "description": "面向集成电路和微电子方向的权威赛事，围绕芯片设计、制造等方向组队完成作品。适合微电子、电子科学与技术等专业学生，与半导体产业紧密对接，含金量逐年提升。",
+      "officialUrl": "https://univ.ciciec.com/"
+    },
+    {
+      "name": "全国大学生物联网设计竞赛",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "物联网",
+        "计算机",
+        "电子"
+      ],
+      "level": "NATIONAL",
+      "organizer": "教育部高等学校计算机类专业教学指导委员会",
+      "registrationStart": "2027-01-01",
+      "registrationEnd": "2027-04-30",
+      "competitionDate": "2027-08",
+      "format": "TEAM",
+      "teamSizeMax": 4,
+      "difficulty": 3,
+      "prestige": 3,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "物联网",
+        "嵌入式",
+        "传感器",
+        "作品赛"
+      ],
+      "description": "围绕物联网感知、传输与应用展开的作品赛，学生在指定平台完成智能系统设计并演示答辩。适合物联网、计算机、电子类专业学生，实战项目导向，能锻炼软硬件综合能力。",
+      "officialUrl": "https://iot.sjtu.edu.cn/"
+    },
+    {
+      "name": "全国大学生工程训练综合能力竞赛",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "机械",
+        "电子",
+        "工程"
+      ],
+      "level": "NATIONAL",
+      "organizer": "教育部工程训练教学指导委员会",
+      "registrationStart": "2026-10-01",
+      "registrationEnd": "2027-03-31",
+      "competitionDate": "2027-05",
+      "format": "TEAM",
+      "teamSizeMax": 3,
+      "difficulty": 3,
+      "prestige": 4,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "工程训练",
+        "机械",
+        "制作",
+        "实践"
+      ],
+      "description": "面向工科学生的综合性实践赛事，设势能驱动车、智能物流小车等赛项，现场加工制作并完成任务。适合机械、电子等工科专业学生，强调动手能力与工程素养，含金量较高。",
+      "officialUrl": "http://www.gcxl.edu.cn/"
+    },
+    {
+      "name": "全国大学生化工设计竞赛",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "化学工程",
+        "化工",
+        "材料"
+      ],
+      "level": "NATIONAL",
+      "organizer": "中国化工学会、中国化工教育协会、教育部高等学校化工类专业教学指导委员会",
+      "registrationStart": "2026-12-01",
+      "registrationEnd": "2027-04-30",
+      "competitionDate": "2027-08",
+      "format": "TEAM",
+      "teamSizeMax": 5,
+      "difficulty": 4,
+      "prestige": 4,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "化工设计",
+        "流程模拟",
+        "工艺",
+        "团队"
+      ],
+      "description": "化工类权威赛事，组队针对给定产品完成全流程化工工艺设计与模拟，提交设计报告并答辩。适合化学工程与工艺、能源化工等专业学生，是化工方向最具分量的学科竞赛。",
+      "officialUrl": "https://iche.zju.edu.cn/"
+    },
+    {
+      "name": "全国大学生交通科技大赛",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "交通工程",
+        "土木",
+        "计算机"
+      ],
+      "level": "NATIONAL",
+      "organizer": "教育部高等学校交通运输类专业教学指导委员会",
+      "registrationStart": "2026-10-01",
+      "registrationEnd": "2027-03-31",
+      "competitionDate": "2027-05",
+      "format": "TEAM",
+      "teamSizeMax": 5,
+      "difficulty": 3,
+      "prestige": 3,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "交通",
+        "智能交通",
+        "创新",
+        "作品赛"
+      ],
+      "description": "交通运输领域的全国性科技竞赛，围绕智能交通、交通规划、交通安全等方向完成创新作品或研究报告。适合交通工程、交通运输、计算机等专业学生，是交通类重要学科竞赛。",
+      "officialUrl": "http://www.nactrans.com.cn/"
+    },
+    {
+      "name": "全国大学生软件测试大赛",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "软件",
+        "计算机"
+      ],
+      "level": "NATIONAL",
+      "organizer": "全国大学生软件测试大赛组委会",
+      "registrationStart": "2027-03-01",
+      "registrationEnd": "2027-05-31",
+      "competitionDate": "2027-06",
+      "format": "INDIVIDUAL",
+      "teamSizeMax": 1,
+      "difficulty": 2,
+      "prestige": 3,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "软件测试",
+        "质量保障",
+        "工程"
+      ],
+      "description": "面向软件工程方向的全国性赛事，以个人赛为主，考核功能测试、性能测试与自动化测试等能力。适合软件、计算机专业学生，聚焦软件质量保障，门槛适中、实用性强。",
+      "officialUrl": "https://www.mooctest.net/"
+    },
+    {
+      "name": "中国大学生方程式汽车大赛（FSC）",
+      "category": "ENGINEERING",
+      "disciplines": [
+        "车辆工程",
+        "机械",
+        "电子"
+      ],
+      "level": "NATIONAL",
+      "organizer": "中国汽车工程学会",
+      "registrationStart": "2026-10-01",
+      "registrationEnd": "2027-03-31",
+      "competitionDate": "2027-10",
+      "format": "TEAM",
+      "teamSizeMax": 20,
+      "difficulty": 5,
+      "prestige": 5,
+      "suitableGrades": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "tags": [
+        "汽车",
+        "赛车",
+        "机械制造",
+        "工程实践"
+      ],
+      "description": "学生车队自主设计制造方程式赛车并参赛，涵盖设计报告、成本、营销及动态性能等多个环节。适合车辆、机械、电子等专业学生，投入大、周期长，是汽车工程领域含金量极高的赛事。",
+      "officialUrl": "http://www.formulastudent.com.cn/"
+    },
+    {
+      "name": "全国大学生数学建模竞赛",
+      "category": "SCIENCE",
+      "disciplines": [
+        "数学",
+        "计算机",
+        "统计"
+      ],
+      "level": "NATIONAL",
+      "organizer": "中国工业与应用数学学会",
+      "registrationStart": "2027-06-01",
+      "registrationEnd": "2027-09-05",
+      "competitionDate": "2027-09",
+      "format": "TEAM",
+      "teamSizeMax": 3,
+      "difficulty": 4,
+      "prestige": 5,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "数学建模",
+        "数据分析",
+        "算法",
+        "团队"
+      ],
+      "description": "国内规模最大、最具影响力的学科竞赛之一，3人组队，3天内针对实际问题建立数学模型并撰写论文。适合理工经管等各专业学生，获奖含金量高，是保研、求职的重要加分项。",
+      "officialUrl": "https://www.mcm.edu.cn"
+    },
+    {
+      "name": "美国大学生数学建模竞赛（MCM/ICM）",
+      "category": "SCIENCE",
+      "disciplines": [
+        "数学",
+        "计算机",
+        "统计"
+      ],
+      "level": "INTERNATIONAL",
+      "organizer": "美国数学及其应用联合会（COMAP）",
+      "registrationStart": "2026-11-01",
+      "registrationEnd": "2027-01-25",
+      "competitionDate": "2027-02",
+      "format": "TEAM",
+      "teamSizeMax": 3,
+      "difficulty": 4,
+      "prestige": 4,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "tags": [
+        "数学建模",
+        "英语",
+        "论文",
+        "国际"
+      ],
+      "description": "国际性数学建模竞赛，3人组队，4天完成连续或离散赛题建模并用英文撰写论文。适合数学、工科、经管等专业学生，获奖比例较高、国际认可度好，是出国和保研的加分项。",
+      "officialUrl": "https://www.comap.com"
+    },
+    {
+      "name": "全国大学生数学竞赛",
+      "category": "SCIENCE",
+      "disciplines": [
+        "数学"
+      ],
+      "level": "NATIONAL",
+      "organizer": "中国数学会",
+      "registrationStart": "2026-09-01",
+      "registrationEnd": "2026-10-15",
+      "competitionDate": "2026-11",
+      "format": "INDIVIDUAL",
+      "teamSizeMax": 1,
+      "difficulty": 4,
+      "prestige": 4,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "数学",
+        "微积分",
+        "线性代数",
+        "竞赛"
+      ],
+      "description": "中国数学会主办的全国性数学赛事，分数学类与非数学类，以笔试考核高等数学与数学分析等内容。适合数学基础扎实的各专业学生，是数学方向最有含金量的个人竞赛之一。",
+      "officialUrl": "http://www.cmathc.cn"
+    },
+    {
+      "name": "丘成桐大学生数学竞赛",
+      "category": "SCIENCE",
+      "disciplines": [
+        "数学"
+      ],
+      "level": "INTERNATIONAL",
+      "organizer": "清华大学、丘成桐数学科学中心",
+      "registrationStart": "2027-04-01",
+      "registrationEnd": "2027-06-30",
+      "competitionDate": "2027-07",
+      "format": "INDIVIDUAL",
+      "teamSizeMax": 1,
+      "difficulty": 5,
+      "prestige": 5,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "数学",
+        "高等数学",
+        "科研",
+        "竞赛"
+      ],
+      "description": "面向大学生的国际性数学竞赛，覆盖分析与微分方程、几何与拓扑、代数、概率统计等方向，分个人赛与团体赛。难度极高，适合数学拔尖学生，是数学领域含金量顶尖的赛事。",
+      "officialUrl": "https://www.yau-contest.com"
+    },
+    {
+      "name": "全国大学生统计建模大赛",
+      "category": "SCIENCE",
+      "disciplines": [
+        "统计学",
+        "数学",
+        "经济"
+      ],
+      "level": "NATIONAL",
+      "organizer": "中国统计教育学会",
+      "registrationStart": "2027-01-01",
+      "registrationEnd": "2027-03-31",
+      "competitionDate": "2027-06",
+      "format": "TEAM",
+      "teamSizeMax": 3,
+      "difficulty": 3,
+      "prestige": 4,
+      "suitableGrades": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "tags": [
+        "统计建模",
+        "数据分析",
+        "实证研究",
+        "论文"
+      ],
+      "description": "统计领域全国性赛事，组队围绕经济社会实际问题进行统计建模与实证分析并撰写论文。适合统计学、数学、经济金融等专业学生，是统计方向含金量较高的竞赛。",
+      "officialUrl": "http://tjjmds.ai-learning.net/"
+    },
+    {
+      "name": "全国大学生物理实验竞赛",
+      "category": "SCIENCE",
+      "disciplines": [
+        "物理",
+        "实验"
+      ],
+      "level": "NATIONAL",
+      "organizer": "教育部高等学校大学物理课程教学指导委员会",
+      "registrationStart": "2027-03-01",
+      "registrationEnd": "2027-06-30",
+      "competitionDate": "2027-07",
+      "format": "INDIVIDUAL",
+      "teamSizeMax": 1,
+      "difficulty": 3,
+      "prestige": 4,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "物理实验",
+        "实验操作",
+        "动手能力"
+      ],
+      "description": "面向高校学生的物理实验赛事，分实验操作与实验创新等类别，考核实验设计、操作与数据分析能力。适合理工科各专业学生，是物理实验教学领域权威的全国性竞赛。",
+      "officialUrl": "https://wlsycx.moocollege.com/"
+    },
+    {
+      "name": "中国大学生物理学术竞赛（CUPT）",
+      "category": "SCIENCE",
+      "disciplines": [
+        "物理",
+        "研究"
+      ],
+      "level": "NATIONAL",
+      "organizer": "中国大学生物理学术竞赛组委会",
+      "registrationStart": "2027-03-01",
+      "registrationEnd": "2027-06-30",
+      "competitionDate": "2027-08",
+      "format": "TEAM",
+      "teamSizeMax": 5,
+      "difficulty": 4,
+      "prestige": 4,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "物理",
+        "科研",
+        "辩论",
+        "创新"
+      ],
+      "description": "仿照国际青年物理学家锦标赛的学术赛事，队伍针对开放性物理问题开展研究并进行学术辩论对抗。适合物理及相关专业学生，锻炼科研与表达能力，含金量较高。",
+      "officialUrl": "https://cupt-iypt.com/"
+    },
+    {
+      "name": "全国大学生化学实验创新设计大赛",
+      "category": "SCIENCE",
+      "disciplines": [
+        "化学",
+        "实验"
+      ],
+      "level": "NATIONAL",
+      "organizer": "教育部高等学校化学类专业教学指导委员会",
+      "registrationStart": "2027-03-01",
+      "registrationEnd": "2027-06-30",
+      "competitionDate": "2027-08",
+      "format": "TEAM",
+      "teamSizeMax": 3,
+      "difficulty": 3,
+      "prestige": 3,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "化学",
+        "实验设计",
+        "创新",
+        "论文"
+      ],
+      "description": "化学类全国性赛事，围绕实验改进、新实验设计与科普实验等方向提交作品并答辩。适合化学、化工、材料等专业学生，是化学实验教学领域的重要竞赛。",
+      "officialUrl": "http://www.chem.zju.edu.cn/"
+    },
+    {
+      "name": "全国大学生化学实验邀请赛",
+      "category": "SCIENCE",
+      "disciplines": [
+        "化学",
+        "实验"
+      ],
+      "level": "NATIONAL",
+      "organizer": "中国化学会、教育部高等学校化学类专业教学指导委员会",
+      "registrationStart": "2026-10-01",
+      "registrationEnd": "2027-03-31",
+      "competitionDate": "2027-07",
+      "format": "INDIVIDUAL",
+      "teamSizeMax": 1,
+      "difficulty": 3,
+      "prestige": 3,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "化学",
+        "实验操作",
+        "实验技能"
+      ],
+      "description": "以化学实验基本操作技能为核心的全国性赛事，参赛学生现场完成指定实验并考核规范与结果。适合化学类各专业学生，是检验化学实验基本功的重要竞赛。",
+      "officialUrl": "https://www.chemsoc.org.cn/"
+    },
+    {
+      "name": "全国大学生生命科学竞赛",
+      "category": "SCIENCE",
+      "disciplines": [
+        "生物",
+        "生命科学",
+        "医学"
+      ],
+      "level": "NATIONAL",
+      "organizer": "全国大学生生命科学竞赛委员会",
+      "registrationStart": "2027-01-01",
+      "registrationEnd": "2027-04-30",
+      "competitionDate": "2027-07",
+      "format": "TEAM",
+      "teamSizeMax": 5,
+      "difficulty": 3,
+      "prestige": 4,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "生物学",
+        "实验研究",
+        "科研",
+        "论文"
+      ],
+      "description": "面向生命科学领域的全国性赛事，设科学探究类和创新创业类，队伍开展课题研究并提交论文或作品。适合生物、医学、农林等专业学生，是生科方向参与面广、含金量较高的竞赛。",
+      "officialUrl": "https://www.culsc.cn/"
+    },
+    {
+      "name": "全国周培源大学生力学竞赛",
+      "category": "SCIENCE",
+      "disciplines": [
+        "力学",
+        "物理",
+        "土木"
+      ],
+      "level": "NATIONAL",
+      "organizer": "中国力学学会",
+      "registrationStart": "2026-12-01",
+      "registrationEnd": "2027-03-31",
+      "competitionDate": "2027-05",
+      "format": "INDIVIDUAL",
+      "teamSizeMax": 1,
+      "difficulty": 4,
+      "prestige": 4,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "力学",
+        "理论力学",
+        "材料力学",
+        "竞赛"
+      ],
+      "description": "由中国力学学会主办的全国性力学赛事，个人赛笔试理论力学与材料力学等内容，并设团队赛环节。适合力学、土木、机械、航空航天等专业学生，是力学方向权威竞赛。",
+      "officialUrl": "http://zpy.cstam.org.cn/"
+    },
+    {
+      "name": "外研社·国才杯全国大学生英语系列赛",
+      "category": "LIBERAL_ARTS",
+      "disciplines": [
+        "英语",
+        "外语"
+      ],
+      "level": "NATIONAL",
+      "organizer": "外语教学与研究出版社、北京外国语大学",
+      "registrationStart": "2026-09-01",
+      "registrationEnd": "2026-10-31",
+      "competitionDate": "2026-12",
+      "format": "INDIVIDUAL",
+      "teamSizeMax": 1,
+      "difficulty": 3,
+      "prestige": 4,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "英语",
+        "演讲",
+        "写作",
+        "阅读"
+      ],
+      "description": "国内最具影响力的英语赛事系列，含演讲、写作、阅读、短视频等赛道，经校赛、省赛到全国决赛。适合各专业英语能力突出的学生，获奖含金量高，是保研和求职的重要加分项。",
+      "officialUrl": "https://uchallenge.unipus.cn/"
+    },
+    {
+      "name": "全国大学生英语竞赛（NECCS）",
+      "category": "LIBERAL_ARTS",
+      "disciplines": [
+        "英语",
+        "外语"
+      ],
+      "level": "NATIONAL",
+      "organizer": "高等学校大学外语教学研究会",
+      "registrationStart": "2026-11-01",
+      "registrationEnd": "2027-03-15",
+      "competitionDate": "2027-04",
+      "format": "INDIVIDUAL",
+      "teamSizeMax": 1,
+      "difficulty": 2,
+      "prestige": 3,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "tags": [
+        "英语",
+        "笔试",
+        "竞赛",
+        "综合能力"
+      ],
+      "description": "全国规模最大的英语综合能力竞赛，以笔试为主，分初赛和决赛，覆盖听力、阅读、写作等题型。适合各专业学生参加，获奖比例相对友好，是英语能力证明的常见选择。",
+      "officialUrl": "https://www.chinaneccs.cn"
+    },
+    {
+      "name": "21世纪杯全国英语演讲比赛",
+      "category": "LIBERAL_ARTS",
+      "disciplines": [
+        "英语",
+        "演讲"
+      ],
+      "level": "NATIONAL",
+      "organizer": "中国日报社（China Daily）",
+      "registrationStart": "2026-09-15",
+      "registrationEnd": "2026-11-30",
+      "competitionDate": "2027-05",
+      "format": "INDIVIDUAL",
+      "teamSizeMax": 1,
+      "difficulty": 3,
+      "prestige": 4,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "英语演讲",
+        "表达",
+        "口才"
+      ],
+      "description": "中国日报社主办的全国性英语演讲赛事，分已备演讲、即席演讲和问答环节，经校园赛、地区赛到全国总决赛。适合口语表达突出的学生，历史久、知名度高、含金量足。",
+      "officialUrl": "https://contest.i21st.cn"
+    },
+    {
+      "name": "外研社·国才杯全国大学生英语辩论赛",
+      "category": "LIBERAL_ARTS",
+      "disciplines": [
+        "英语",
+        "辩论"
+      ],
+      "level": "NATIONAL",
+      "organizer": "外语教学与研究出版社",
+      "registrationStart": "2026-09-01",
+      "registrationEnd": "2026-12-31",
+      "competitionDate": "2027-05",
+      "format": "TEAM",
+      "teamSizeMax": 2,
+      "difficulty": 4,
+      "prestige": 4,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "英语辩论",
+        "思辨",
+        "表达",
+        "团队"
+      ],
+      "description": "采用英国议会制辩论的英语赛事，2人组队就社会热点即席辩论，经校园赛、区域赛到全国决赛。适合英语与逻辑思辨能力俱佳的学生，对表达和批判性思维锻炼极大。",
+      "officialUrl": "https://uchallenge.unipus.cn/"
+    },
+    {
+      "name": "韩素音国际翻译大赛",
+      "category": "LIBERAL_ARTS",
+      "disciplines": [
+        "翻译",
+        "英语",
+        "外语"
+      ],
+      "level": "INTERNATIONAL",
+      "organizer": "中国翻译协会",
+      "registrationStart": "2027-01-01",
+      "registrationEnd": "2027-05-31",
+      "competitionDate": "2027-08",
+      "format": "INDIVIDUAL",
+      "teamSizeMax": 1,
+      "difficulty": 4,
+      "prestige": 3,
+      "suitableGrades": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "tags": [
+        "翻译",
+        "笔译",
+        "语言能力"
+      ],
+      "description": "历史悠久的国际性翻译赛事，设英汉、汉英等多语种双向笔译，参赛者线上提交译稿经专家评审。适合翻译、外语及相关专业学生，是翻译界认可度较高的专业赛事。",
+      "officialUrl": "https://www.tac-online.org.cn/"
+    },
+    {
+      "name": "全国大学生广告艺术大赛",
+      "category": "LIBERAL_ARTS",
+      "disciplines": [
+        "广告学",
+        "设计",
+        "传播",
+        "新闻"
+      ],
+      "level": "NATIONAL",
+      "organizer": "全国大学生广告艺术大赛组委会",
+      "registrationStart": "2027-01-01",
+      "registrationEnd": "2027-06-15",
+      "competitionDate": "2027-08",
+      "format": "TEAM",
+      "teamSizeMax": 5,
+      "difficulty": 2,
+      "prestige": 3,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "广告创意",
+        "平面设计",
+        "视频",
+        "营销"
+      ],
+      "description": "全国规模最大的广告艺术类赛事，企业命题发布后学生创作平面、视频、策划案等作品参赛。适合广告、设计、新闻传播等专业学生，参与面广、以赛促练，是传媒类重要竞赛。",
+      "officialUrl": "https://www.sun-ada.net"
+    },
+    {
+      "name": "中国大学生广告艺术节学院奖",
+      "category": "LIBERAL_ARTS",
+      "disciplines": [
+        "广告学",
+        "设计",
+        "传播"
+      ],
+      "level": "NATIONAL",
+      "organizer": "中国广告协会",
+      "registrationStart": "2026-09-01",
+      "registrationEnd": "2026-11-30",
+      "competitionDate": "2026-12",
+      "format": "TEAM",
+      "teamSizeMax": 5,
+      "difficulty": 2,
+      "prestige": 3,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "广告创意",
+        "设计",
+        "品牌",
+        "作品赛"
+      ],
+      "description": "面向高校学生的广告创意赛事，每年分春秋两季征集品牌命题作品，涵盖平面、视频、文案等类别。适合广告、设计、营销类专业学生，命题贴近实战、参与门槛低。",
+      "officialUrl": "https://www.5iidea.com/"
+    },
+    {
+      "name": "全国大学生市场调查与分析大赛",
+      "category": "LIBERAL_ARTS",
+      "disciplines": [
+        "市场营销",
+        "统计学",
+        "经济"
+      ],
+      "level": "NATIONAL",
+      "organizer": "中国商业统计学会",
+      "registrationStart": "2027-01-01",
+      "registrationEnd": "2027-03-31",
+      "competitionDate": "2027-05",
+      "format": "TEAM",
+      "teamSizeMax": 5,
+      "difficulty": 3,
+      "prestige": 4,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "市场调查",
+        "数据分析",
+        "报告",
+        "营销"
+      ],
+      "description": "经管类全国性赛事，队伍围绕真实商业问题开展市场调查、数据分析并撰写报告、答辩。适合市场营销、统计、经管等专业学生，实践性强、含金量较高，是经管方向重要竞赛。",
+      "officialUrl": "http://www.china-cssc.org/"
+    },
+    {
+      "name": "全国高校商业精英挑战赛",
+      "category": "LIBERAL_ARTS",
+      "disciplines": [
+        "国际贸易",
+        "商务",
+        "会展",
+        "物流"
+      ],
+      "level": "NATIONAL",
+      "organizer": "中国国际贸易促进委员会商业行业委员会",
+      "registrationStart": "2026-09-01",
+      "registrationEnd": "2027-03-31",
+      "competitionDate": "2027-05",
+      "format": "TEAM",
+      "teamSizeMax": 5,
+      "difficulty": 3,
+      "prestige": 3,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "国际贸易",
+        "商务策划",
+        "会展",
+        "创新创业"
+      ],
+      "description": "设国际贸易、商务策划、会展、跨境电商等多个赛道的综合性商科赛事，组队完成策划与模拟实战。适合国贸、商务、市场营销等专业学生，赛道丰富、与商科实践结合紧密。",
+      "officialUrl": "https://www.ccpitcsc.org/"
+    },
+    {
+      "name": "全国大学生模拟法庭竞赛（理律杯）",
+      "category": "LIBERAL_ARTS",
+      "disciplines": [
+        "法学",
+        "法律"
+      ],
+      "level": "NATIONAL",
+      "organizer": "清华大学法学院",
+      "registrationStart": "2026-09-01",
+      "registrationEnd": "2026-10-15",
+      "competitionDate": "2026-12",
+      "format": "TEAM",
+      "teamSizeMax": 5,
+      "difficulty": 4,
+      "prestige": 4,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "法学",
+        "模拟法庭",
+        "辩论",
+        "法律实务"
+      ],
+      "description": "国内最具影响力的模拟法庭赛事之一，队伍围绕给定案例撰写书状并进行庭审辩论对抗。适合法学专业学生，锻炼法律文书与庭辩能力，是法学方向含金量最高的竞赛之一。",
+      "officialUrl": "http://lilvbei.law.tsinghua.edu.cn/"
+    },
+    {
+      "name": "全国大学生新闻评论大赛",
+      "category": "LIBERAL_ARTS",
+      "disciplines": [
+        "新闻",
+        "传播"
+      ],
+      "level": "NATIONAL",
+      "organizer": "华中科技大学新闻与信息传播学院",
+      "registrationStart": "2026-09-01",
+      "registrationEnd": "2026-12-31",
+      "competitionDate": "2027-01",
+      "format": "INDIVIDUAL",
+      "teamSizeMax": 1,
+      "difficulty": 2,
+      "prestige": 2,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "新闻评论",
+        "写作",
+        "时评"
+      ],
+      "description": "面向高校学生的新闻评论写作赛事，参赛者就社会热点撰写评论文章参与评审。适合新闻传播及文科类专业学生，锻炼时评写作能力，是新闻评论方向的代表性赛事。",
+      "officialUrl": "http://sjic.hust.edu.cn/"
+    },
+    {
+      "name": "全国大学生网络评论大赛",
+      "category": "LIBERAL_ARTS",
+      "disciplines": [
+        "新闻",
+        "传播",
+        "文学"
+      ],
+      "level": "NATIONAL",
+      "organizer": "红网（湖南红网新媒体集团）",
+      "registrationStart": "2026-09-01",
+      "registrationEnd": "2026-12-31",
+      "competitionDate": "2027-01",
+      "format": "INDIVIDUAL",
+      "teamSizeMax": 1,
+      "difficulty": 2,
+      "prestige": 2,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "网络评论",
+        "写作",
+        "新媒体"
+      ],
+      "description": "红网主办的全国大学生网络评论赛事（评论之星），围绕时事热点撰写网络评论作品参赛。适合新闻、文学等文科学生，是新媒体评论方向较有影响力的赛事之一。",
+      "officialUrl": "https://www.rednet.cn/"
+    },
+    {
+      "name": "全国大学生文学作品大赛",
+      "category": "LIBERAL_ARTS",
+      "disciplines": [
+        "文学",
+        "中文",
+        "写作"
+      ],
+      "level": "NATIONAL",
+      "organizer": "全国大学生文学作品大赛组委会",
+      "registrationStart": "2026-09-01",
+      "registrationEnd": "2027-03-31",
+      "competitionDate": "2027-05",
+      "format": "INDIVIDUAL",
+      "teamSizeMax": 1,
+      "difficulty": 2,
+      "prestige": 2,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "文学创作",
+        "写作",
+        "散文",
+        "诗歌"
+      ],
+      "description": "面向全国大学生的文学创作赛事，征集散文、诗歌、小说等原创文学作品参与评审。适合中文、文学及爱好写作的学生，门槛较低，是锻炼文字表达能力的常见选择。",
+      "officialUrl": "http://www.zgdsw.com/"
+    },
+    {
+      "name": "中华经典诵写讲大赛",
+      "category": "LIBERAL_ARTS",
+      "disciplines": [
+        "中文",
+        "文学",
+        "语言"
+      ],
+      "level": "NATIONAL",
+      "organizer": "教育部、国家语言文字工作委员会",
+      "registrationStart": "2026-10-01",
+      "registrationEnd": "2027-04-30",
+      "competitionDate": "2027-06",
+      "format": "INDIVIDUAL",
+      "teamSizeMax": 1,
+      "difficulty": 2,
+      "prestige": 3,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "诵读",
+        "讲解",
+        "书法",
+        "文化"
+      ],
+      "description": "教育部、国家语委主办的传统文化赛事，设经典诵读、讲解、书写、篆刻等赛项。适合各专业学生参与，弘扬中华优秀传统文化，权威性强、参与面广。",
+      "officialUrl": "https://jdsxj.eduyun.cn/"
+    },
+    {
+      "name": "全国大学生网络文化节",
+      "category": "LIBERAL_ARTS",
+      "disciplines": [
+        "传播",
+        "设计",
+        "文学",
+        "新媒体"
+      ],
+      "level": "NATIONAL",
+      "organizer": "教育部思想政治工作司",
+      "registrationStart": "2026-09-01",
+      "registrationEnd": "2026-12-31",
+      "competitionDate": "2027-03",
+      "format": "INDIVIDUAL",
+      "teamSizeMax": 1,
+      "difficulty": 2,
+      "prestige": 3,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "新媒体",
+        "微视频",
+        "摄影",
+        "网络文化"
+      ],
+      "description": "教育部主办的全国性网络文化作品征集活动，设微视频、摄影、网文、动漫等多个类别。适合各专业学生展示创意与才华，门槛低、覆盖面广，是新媒体创作方向的重要展示平台。",
+      "officialUrl": "https://www.univs.cn/"
+    },
+    {
+      "name": "中国国际大学生创新大赛（原互联网+）",
+      "category": "COMPREHENSIVE",
+      "disciplines": [
+        "创新创业",
+        "综合",
+        "商业"
+      ],
+      "level": "NATIONAL",
+      "organizer": "教育部等多部委",
+      "registrationStart": "2027-04-01",
+      "registrationEnd": "2027-07-31",
+      "competitionDate": "2027-09",
+      "format": "TEAM",
+      "teamSizeMax": 15,
+      "difficulty": 4,
+      "prestige": 5,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "tags": [
+        "创新创业",
+        "商业计划",
+        "路演",
+        "综合"
+      ],
+      "description": "全国规格最高、参与最广的创新创业大赛，覆盖高教主赛道、红旅赛道等，需提交商业计划并路演答辩。适合有创新项目或创业想法的各专业学生，含金量顶尖，是保研评优重要依据。",
+      "officialUrl": "https://cy.ncss.cn"
+    },
+    {
+      "name": "挑战杯全国大学生课外学术科技作品竞赛",
+      "category": "COMPREHENSIVE",
+      "disciplines": [
+        "综合",
+        "学术",
+        "理工",
+        "社科"
+      ],
+      "level": "NATIONAL",
+      "organizer": "共青团中央、中国科协、教育部、全国学联",
+      "registrationStart": "2026-11-01",
+      "registrationEnd": "2027-03-31",
+      "competitionDate": "2027-10",
+      "format": "TEAM",
+      "teamSizeMax": 8,
+      "difficulty": 4,
+      "prestige": 5,
+      "suitableGrades": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "tags": [
+        "学术科技",
+        "科研",
+        "创新",
+        "综合"
+      ],
+      "description": "被誉为大学生科技创新的奥林匹克盛会，两年一届，征集自然科学、科技发明与社科调研等课外学术作品。适合有科研成果的各专业学生，与互联网+并列为含金量最高的综合赛事。",
+      "officialUrl": "https://www.tiaozhanbei.net"
+    },
+    {
+      "name": "挑战杯中国大学生创业计划竞赛",
+      "category": "COMPREHENSIVE",
+      "disciplines": [
+        "创新创业",
+        "商业",
+        "综合"
+      ],
+      "level": "NATIONAL",
+      "organizer": "共青团中央、中国科协、教育部、全国学联",
+      "registrationStart": "2026-09-01",
+      "registrationEnd": "2026-11-30",
+      "competitionDate": "2026-11",
+      "format": "TEAM",
+      "teamSizeMax": 10,
+      "difficulty": 4,
+      "prestige": 5,
+      "suitableGrades": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "tags": [
+        "创业计划",
+        "商业策划",
+        "路演",
+        "综合"
+      ],
+      "description": "挑战杯系列中的创业计划竞赛，聚焦商业计划撰写与路演答辩，与课外学术作品竞赛隔年举办。适合有创业项目的学生，含金量极高，是创新创业类顶级赛事之一。",
+      "officialUrl": "https://www.tiaozhanbei.net"
+    },
+    {
+      "name": "全国大学生电子商务创新、创意及创业挑战赛",
+      "category": "COMPREHENSIVE",
+      "disciplines": [
+        "电子商务",
+        "创新创业",
+        "经管"
+      ],
+      "level": "NATIONAL",
+      "organizer": "全国大学生电子商务创新、创意及创业挑战赛组委会",
+      "registrationStart": "2026-09-01",
+      "registrationEnd": "2026-12-31",
+      "competitionDate": "2027-07",
+      "format": "TEAM",
+      "teamSizeMax": 5,
+      "difficulty": 3,
+      "prestige": 4,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "电子商务",
+        "创新创业",
+        "商业计划",
+        "路演"
+      ],
+      "description": "电商领域最具影响的创新创业赛事，队伍围绕电商创新创意完成项目策划并路演，分常规赛与实战赛。适合电商、经管及各专业有想法的学生，参与面广、含金量较高。",
+      "officialUrl": "https://www.3chuang.net"
+    },
+    {
+      "name": "全国大学生职业规划大赛",
+      "category": "COMPREHENSIVE",
+      "disciplines": [
+        "职业规划",
+        "综合",
+        "就业"
+      ],
+      "level": "NATIONAL",
+      "organizer": "教育部",
+      "registrationStart": "2026-09-01",
+      "registrationEnd": "2026-12-31",
+      "competitionDate": "2027-05",
+      "format": "INDIVIDUAL",
+      "teamSizeMax": 1,
+      "difficulty": 2,
+      "prestige": 4,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "tags": [
+        "职业规划",
+        "就业",
+        "生涯发展",
+        "路演"
+      ],
+      "description": "教育部主办的全国性生涯规划赛事，设成长赛道与就业赛道，提交生涯报告或求职展示并现场答辩。适合各年级学生明确职业方向，权威性强，是提升就业竞争力的重要平台。",
+      "officialUrl": "https://www.ncss.cn/"
+    },
+    {
+      "name": "iCAN 大学生创新创业大赛",
+      "category": "COMPREHENSIVE",
+      "disciplines": [
+        "创新创业",
+        "科技",
+        "综合"
+      ],
+      "level": "NATIONAL",
+      "organizer": "国际大学生 iCAN 创新创业大赛组委会",
+      "registrationStart": "2027-01-01",
+      "registrationEnd": "2027-06-30",
+      "competitionDate": "2027-11",
+      "format": "TEAM",
+      "teamSizeMax": 5,
+      "difficulty": 3,
+      "prestige": 3,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "创新创业",
+        "科技作品",
+        "路演",
+        "物联网"
+      ],
+      "description": "面向科技创新与创业的全国性赛事，征集智能硬件、物联网等创新作品并路演答辩。适合有科技作品或创业想法的学生，覆盖专业广，是创新创业类较有影响力的赛事之一。",
+      "officialUrl": "http://www.ican-contest.org/"
+    },
+    {
+      "name": "全国大学生节能减排社会实践与科技竞赛",
+      "category": "COMPREHENSIVE",
+      "disciplines": [
+        "能源",
+        "环境",
+        "工程",
+        "综合"
+      ],
+      "level": "NATIONAL",
+      "organizer": "教育部高等教育司",
+      "registrationStart": "2027-01-01",
+      "registrationEnd": "2027-04-30",
+      "competitionDate": "2027-08",
+      "format": "TEAM",
+      "teamSizeMax": 5,
+      "difficulty": 3,
+      "prestige": 4,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "节能减排",
+        "能源",
+        "环保",
+        "社会实践"
+      ],
+      "description": "教育部主办的全国性赛事，围绕节能减排征集科技创新作品与社会实践调研报告。适合能源、环境、化工及工科各专业学生，主题契合双碳战略，含金量较高。",
+      "officialUrl": "https://www.jienengjianpai.org/"
+    },
+    {
+      "name": "全国大学生服务外包创新创业大赛",
+      "category": "COMPREHENSIVE",
+      "disciplines": [
+        "创新创业",
+        "软件",
+        "经管"
+      ],
+      "level": "NATIONAL",
+      "organizer": "教育部、商务部、无锡市人民政府",
+      "registrationStart": "2027-01-01",
+      "registrationEnd": "2027-04-30",
+      "competitionDate": "2027-07",
+      "format": "TEAM",
+      "teamSizeMax": 5,
+      "difficulty": 3,
+      "prestige": 3,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "服务外包",
+        "创新创业",
+        "软件开发",
+        "路演"
+      ],
+      "description": "面向服务外包与软件产业的全国性赛事，设企业命题与自由命题，组队完成项目开发或商业方案并答辩。适合软件、经管等专业学生，贴近产业需求、实践性强。",
+      "officialUrl": "https://www.fwwb.org.cn/"
+    },
+    {
+      "name": "中美青年创客大赛",
+      "category": "COMPREHENSIVE",
+      "disciplines": [
+        "创新创业",
+        "科技",
+        "设计"
+      ],
+      "level": "NATIONAL",
+      "organizer": "教育部、英特尔公司",
+      "registrationStart": "2027-03-01",
+      "registrationEnd": "2027-06-30",
+      "competitionDate": "2027-08",
+      "format": "TEAM",
+      "teamSizeMax": 5,
+      "difficulty": 3,
+      "prestige": 3,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "创客",
+        "创新",
+        "科技作品",
+        "国际交流"
+      ],
+      "description": "教育部与英特尔联合主办的创客赛事，围绕技术与人文关怀主题完成创意作品原型并答辩。适合有动手创新想法的各专业学生，注重跨界协作与国际交流。",
+      "officialUrl": "https://chinaus-maker.cscse.edu.cn/"
+    },
+    {
+      "name": "学创杯全国大学生创业综合模拟大赛",
+      "category": "COMPREHENSIVE",
+      "disciplines": [
+        "创新创业",
+        "经管",
+        "商业"
+      ],
+      "level": "NATIONAL",
+      "organizer": "全国大学生创业综合模拟大赛组委会",
+      "registrationStart": "2027-03-01",
+      "registrationEnd": "2027-06-30",
+      "competitionDate": "2027-10",
+      "format": "TEAM",
+      "teamSizeMax": 3,
+      "difficulty": 2,
+      "prestige": 2,
+      "suitableGrades": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "创业模拟",
+        "企业经营",
+        "决策",
+        "竞赛"
+      ],
+      "description": "以企业经营模拟软件为核心的赛事，队伍在模拟环境中进行创业决策与经营对抗。适合经管及对创业感兴趣的学生，门槛较低、上手快，是体验企业运营的入门竞赛。",
+      "officialUrl": "http://www.xcbds.com/"
+    },
+    {
+      "name": "全国大学生乡村振兴创意大赛",
+      "category": "COMPREHENSIVE",
+      "disciplines": [
+        "创新创业",
+        "设计",
+        "规划",
+        "综合"
+      ],
+      "level": "NATIONAL",
+      "organizer": "浙江大学（联合地方政府）",
+      "registrationStart": "2027-03-01",
+      "registrationEnd": "2027-06-30",
+      "competitionDate": "2027-10",
+      "format": "TEAM",
+      "teamSizeMax": 5,
+      "difficulty": 3,
+      "prestige": 3,
+      "suitableGrades": [
+        2,
+        3,
+        4
+      ],
+      "tags": [
+        "乡村振兴",
+        "创意设计",
+        "规划",
+        "社会调研"
+      ],
+      "description": "围绕乡村振兴主题的创意赛事，征集乡村空间设计、产业策划、文创等方案并落地实践。适合设计、规划、经管等专业学生，服务国家战略、实践导向强。",
+      "officialUrl": "https://xczx.moocollege.com/"
+    }
+  ]
+}
