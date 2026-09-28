@@ -40,6 +40,11 @@ backend/src/main/resources/application.yml
 .aliyun-call.py
 .env
 
+# 已清理的历史遗留文件（防止误加回）
+ngrok.exe
+.sisyphus/
+SKILL(1).md
+
 # Temp files
 *.pyc
 __pycache__/
