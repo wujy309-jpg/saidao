@@ -1,0 +1,24 @@
+package com.saidao.backend.repository;
+
+import com.saidao.backend.entity.RepoMember;
+import com.saidao.backend.entity.RepoMember.MemberRole;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface RepoMemberRepository extends JpaRepository<RepoMember, Long> {
+
+    List<RepoMember> findByRepositoryId(Long repositoryId);
+
+    Optional<RepoMember> findByRepositoryIdAndUserId(Long repositoryId, Long userId);
+
+    boolean existsByRepositoryIdAndUserId(Long repositoryId, Long userId);
+
+    List<RepoMember> findByRepositoryIdAndRole(Long repositoryId, MemberRole role);
+
+    void deleteByRepositoryIdAndUserId(Long repositoryId, Long userId);
+
+    void deleteByRepositoryId(Long repositoryId);
+}

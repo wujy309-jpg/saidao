@@ -9,7 +9,7 @@ version: '3.8'
 services:
   mysql:
     image: mysql:8.0
-    container_name: training-mysql
+    container_name: saidao-mysql
     restart: always
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
@@ -27,12 +27,12 @@ services:
       retries: 10
       start_period: 30s
     networks:
-      - training-network
+      - saidao-network
 
   backend:
     build:
       context: ./stage
-    container_name: training-backend
+    container_name: saidao-backend
     ports:
       - "8080:8080"
     environment:
@@ -60,7 +60,7 @@ services:
       retries: 3
       start_period: 40s
     networks:
-      - training-network
+      - saidao-network
 
 volumes:
   mysql-data:
@@ -68,5 +68,5 @@ volumes:
   backend-logs:
 
 networks:
-  training-network:
+  saidao-network:
     driver: bridge

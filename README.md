@@ -208,7 +208,7 @@ P20/
 │       ├── components/# Layout 与通用 UI
 │       └── lib/       # API 封装、认证上下文、类型
 ├── backend/           # Spring Boot 后端
-│   └── src/main/java/com/training/backend/
+│   └── src/main/java/com/saidao/backend/
 │       ├── entity/    # User/UserProfile/Competition/RecommendationRecord/Favorite/项目空间实体
 │       ├── service/   # 推荐/竞赛库/画像/项目空间/认证服务
 │       ├── controller/# REST 接口

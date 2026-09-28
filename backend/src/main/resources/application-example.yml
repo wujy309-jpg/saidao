@@ -5,10 +5,10 @@
 
 spring:
   application:
-    name: training-backend
+    name: saidao-backend
   
   datasource:
-    url: jdbc:h2:mem:trainingdb
+    url: jdbc:h2:mem:saidaodb
     driver-class-name: org.h2.Driver
     username: sa
     password: 
@@ -72,7 +72,7 @@ deepseek:
 
 logging:
   level:
-    com.training.backend: DEBUG
+    com.saidao.backend: DEBUG
     org.springframework.web: INFO
     org.springframework.security: DEBUG
     org.hibernate.SQL: DEBUG

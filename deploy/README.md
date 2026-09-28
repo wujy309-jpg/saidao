@@ -9,8 +9,8 @@
         http://8.133.220.133:8080/api/admin/    ← 运营管理后台（独立 SPA，同域名）
             │
             ▼
-docker: training-backend（Spring Boot jar + 主站/后台两个 React 静态产物，单容器）
-docker: training-mysql（MySQL 8.0，数据卷 mysql-data 持久化）
+docker: saidao-backend（Spring Boot jar + 主站/后台两个 React 静态产物，单容器）
+docker: saidao-mysql（MySQL 8.0，数据卷 mysql-data 持久化）
 ```
 
 - 主站静态产物打进运行镜像的 `/app/static`，后台管理平台在 `/app/admin-static`（`/api/admin/`），由 Spring 直接服务；
@@ -34,14 +34,14 @@ cd /opt/app/deploy
 docker compose -f docker-compose.server.yml ps                      # 状态
 docker compose -f docker-compose.server.yml logs -f backend         # 后端日志
 docker compose -f docker-compose.server.yml restart backend         # 重启后端
-docker logs training-mysql                                         # MySQL 日志
+docker logs saidao-mysql                                         # MySQL 日志
 ```
 
 备份（数据都在卷里）：
 
 ```bash
 cd /opt/app
-docker exec training-mysql sh -c 'mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" training_system' > backup-$(date +%Y%m%d).sql
+docker exec saidao-mysql sh -c 'mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" training_system' > backup-$(date +%Y%m%d).sql
 docker run --rm -v deploy_backend-uploads:/uploads -v $(pwd):/backup alpine tar czf /backup/uploads-$(date +%Y%m%d).tar.gz /uploads
 ```
 

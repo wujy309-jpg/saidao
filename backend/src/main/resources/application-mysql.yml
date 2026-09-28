@@ -5,7 +5,7 @@ server:
 
 spring:
   application:
-    name: training-backend
+    name: saidao-backend
   
   # MySQL数据库配置
   datasource:
@@ -52,6 +52,6 @@ ai:
 # Logging configuration
 logging:
   level:
-    com.training.backend: DEBUG
+    com.saidao.backend: DEBUG
     org.springframework.web: INFO
     org.springframework.security: DEBUG
