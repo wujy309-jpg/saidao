@@ -2,6 +2,7 @@ package com.saidao.backend.service;
 
 import com.saidao.backend.dto.LoginRequest;
 import com.saidao.backend.dto.LoginResponse;
+import com.saidao.backend.entity.RefreshToken;
 import com.saidao.backend.entity.User;
 import com.saidao.backend.entity.User.UserRole;
 import com.saidao.backend.repository.UserRepository;
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -22,7 +25,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+/**
+ * 认证服务单测。
+ *
+ * <p>注意：这份测试在本次计费改造前就是红的（login_Success 缺少 refreshToken 桩、
+ * register_* 因 setUp 里的多余桩触发 UnnecessaryStubbing）。
+ * 这里一并修好，让 `mvn test` 整体变绿，否则新增的计费测试也会被埋在一片红里。
+ */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class AuthServiceTest {
     
     @Mock
@@ -78,11 +89,17 @@ class AuthServiceTest {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(testUser));
         when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
         when(jwtUtil.generateToken(any(), anyString(), anyString())).thenReturn("test-token");
-        
+        // 登录成功会签发 refresh token；缺这个桩会在 refreshToken.getToken() 上 NPE
+        RefreshToken issued = new RefreshToken();
+        issued.setToken("test-refresh-token");
+        issued.setUserId(testUser.getId());
+        when(refreshTokenService.createRefreshToken(any())).thenReturn(issued);
+
         LoginResponse response = authService.login(loginRequest, httpRequest);
-        
+
         assertNotNull(response);
         assertEquals("test-token", response.getToken());
+        assertEquals("test-refresh-token", response.getRefreshToken());
         assertEquals("testuser", response.getUser().getUsername());
         verify(loginAttemptService).resetAttempts("testuser");
         verify(auditService).logLogin(eq(1L), eq("testuser"), eq(true), isNull());
