@@ -40,6 +40,7 @@ const ORDER_STATUS: Record<string, { label: string; cls: string }> = {
   PENDING: { label: '待确认', cls: 'bg-amber-50 text-amber-700 ring-amber-200' },
   PAID: { label: '已到账', cls: 'bg-brand-50 text-brand-700 ring-brand-200' },
   CANCELLED: { label: '已取消', cls: 'bg-zinc-100 text-zinc-500 ring-zinc-200' },
+  REFUNDED: { label: '已退款', cls: 'bg-red-50 text-red-600 ring-red-200' },
 };
 
 function fmtTime(iso?: string) {

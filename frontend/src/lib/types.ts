@@ -466,7 +466,7 @@ export interface TokenPackage {
   sortOrder: number;
 }
 
-export type OrderStatus = 'PENDING' | 'PAID' | 'CANCELLED';
+export type OrderStatus = 'PENDING' | 'PAID' | 'CANCELLED' | 'REFUNDED';
 
 export interface RechargeOrder {
   id: number;
