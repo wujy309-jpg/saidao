@@ -5,8 +5,10 @@ import {
   GearSix,
   Package,
   Receipt,
+  ShieldCheck,
   SignOut,
   Ticket,
+  TrendUp,
   Trophy,
   Users,
 } from '@phosphor-icons/react';
@@ -22,6 +24,8 @@ const NAV = [
   { to: '/cards', label: '卡密管理', icon: Ticket },
   { to: '/orders', label: '订单管理', icon: CreditCard },
   { to: '/scenes', label: '场景定价', icon: Coin },
+  { to: '/ai-usage', label: 'AI 成本与可观测', icon: TrendUp },
+  { to: '/audit-logs', label: '资金操作审计', icon: ShieldCheck },
   { to: '/settings', label: '平台设置', icon: GearSix },
   { to: '/competitions', label: '竞赛管理', icon: Trophy },
 ];

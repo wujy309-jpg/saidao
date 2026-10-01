@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import { fmtNum, fmtTime, request, SCENE_META, TX_TYPE_META } from '../lib/api';
+import { DownloadSimple } from '@phosphor-icons/react';
+import { download, fmtNum, fmtTime, request, SCENE_META, toast, TX_TYPE_META } from '../lib/api';
 import type { PageResponse, TokenTransaction, TxType } from '../lib/types';
 import { Badge, Button, Card, Empty, Pagination, Select, Table, TextInput } from '../components/ui';
 
 const PAGE_SIZE = 25;
-const TYPES: TxType[] = ['RECHARGE', 'CARD', 'CONSUME', 'REFUND', 'GRANT', 'ADJUST'];
+const TYPES: TxType[] = ['RECHARGE', 'CARD', 'CONSUME', 'REFUND', 'ORDER_REFUND', 'GRANT', 'ADJUST'];
 const SCENES = Object.keys(SCENE_META);
 
 export default function TransactionsPage() {
@@ -99,13 +100,27 @@ export default function TransactionsPage() {
         >
           重置
         </Button>
+        <Button
+          variant="ghost"
+          onClick={async () => {
+            try {
+              await download('/api/admin-api/billing/export/transactions.csv', applied, 'token-transactions.csv');
+              toast('导出已开始下载', 'success');
+            } catch (e) {
+              toast(e instanceof Error ? e.message : '导出失败', 'error');
+            }
+          }}
+        >
+          <DownloadSimple size={15} />
+          导出 CSV
+        </Button>
       </div>
 
       <Card>
-        <Table head={['ID', '用户', '类型', '场景', '数量', '交易后余额', '关联/备注', '时间']}>
+        <Table head={['ID', '用户', '类型', '场景', '数量', '交易后余额', '关联 refId', '备注', '时间']}>
           {(data?.content ?? []).length === 0 && (
             <tr>
-              <td colSpan={8}>
+              <td colSpan={9}>
                 <Empty text="没有符合条件的流水" />
               </td>
             </tr>
@@ -125,9 +140,10 @@ export default function TransactionsPage() {
                 {fmtNum(tx.amount)}
               </td>
               <td className="num px-4 py-2.5 text-xs text-zinc-500">{fmtNum(tx.balanceAfter)}</td>
-              <td className="max-w-56 truncate px-4 py-2.5 text-xs text-zinc-500">
-                {tx.remark ?? tx.refId ?? '-'}
+              <td className="num max-w-40 truncate px-4 py-2.5 text-[11px] text-zinc-400" title={tx.refId}>
+                {tx.refId ?? '-'}
               </td>
+              <td className="max-w-56 truncate px-4 py-2.5 text-xs text-zinc-500">{tx.remark ?? '-'}</td>
               <td className="px-4 py-2.5 text-xs text-zinc-400">{fmtTime(tx.createdAt)}</td>
             </tr>
           ))}

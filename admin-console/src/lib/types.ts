@@ -30,7 +30,7 @@ export interface UserBalanceView {
   totalGranted: number;
 }
 
-export type TxType = 'RECHARGE' | 'CARD' | 'CONSUME' | 'REFUND' | 'GRANT' | 'ADJUST';
+export type TxType = 'RECHARGE' | 'CARD' | 'CONSUME' | 'REFUND' | 'ORDER_REFUND' | 'GRANT' | 'ADJUST';
 
 export interface TokenTransaction {
   id: number;
@@ -55,7 +55,7 @@ export interface TokenPackage {
   sortOrder: number;
 }
 
-export type OrderStatus = 'PENDING' | 'PAID' | 'CANCELLED';
+export type OrderStatus = 'PENDING' | 'PAID' | 'CANCELLED' | 'REFUNDED';
 export type PayChannel = 'WECHAT' | 'ALIPAY' | 'BANK_TRANSFER' | 'OTHER';
 
 export interface RechargeOrder {
@@ -72,6 +72,9 @@ export interface RechargeOrder {
   createdAt: string;
   paidAt?: string;
   paidBy?: string;
+  refundedAt?: string;
+  refundedBy?: string;
+  refundReason?: string;
 }
 
 export interface CardKey {
@@ -105,12 +108,129 @@ export interface BillingSetting {
   paymentNote?: string;
   wechatQrUrl?: string;
   alipayQrUrl?: string;
+  /** 上游 LLM 单价（元 / 百万 token），用于成本核算 */
+  llmInputPricePerMTok: number;
+  llmOutputPricePerMTok: number;
+  /** 待确认订单超时提醒阈值（小时） */
+  pendingOrderAlertHours: number;
 }
 
 export interface SceneStat {
   scene: string;
   count: number;
-  tokens: number;
+  settledCount: number;
+  releasedCount: number;
+}
+
+/** 待确认订单超时提醒 */
+export interface PendingAlert {
+  thresholdHours: number;
+  overdueCount: number;
+  orders: {
+    id: number;
+    orderNo: string;
+    userId: number;
+    packageName?: string;
+    priceYuan: number;
+    createdAt: string;
+    ageMinutes: number;
+  }[];
+}
+
+/* ============ AI 成本与可观测 ============ */
+
+export type AiCallStatus = 'SUCCESS' | 'DEGRADED' | 'FAILED';
+
+export interface AiCallLog {
+  id: number;
+  refId: string;
+  userId: number;
+  scene: string;
+  status: AiCallStatus;
+  llmCalls: number;
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+  latencyMs: number;
+  estimatedCostYuan: number | string;
+  chargedTokens: number;
+  model?: string;
+  errorType?: string;
+  createdAt: string;
+}
+
+export interface AiSceneStat {
+  scene: string;
+  label: string;
+  calls: number;
+  llmCalls: number;
+  success: number;
+  degraded: number;
+  failed: number;
+  successRate: number;
+  degradedRate: number;
+  failureRate: number;
+  promptTokens: number;
+  completionTokens: number;
+  totalTokens: number;
+  avgTokensPerCall: number;
+  estimatedCostYuan: number;
+  chargedTokens: number;
+  revenueYuan: number;
+  grossProfitYuan: number;
+  grossMargin: number;
+  avgLatencyMs: number;
+  p95LatencyMs: number;
+}
+
+export interface AiStats {
+  start: string;
+  end: string;
+  summary: {
+    calls: number;
+    llmCalls: number;
+    success: number;
+    degraded: number;
+    failed: number;
+    successRate: number;
+    degradedRate: number;
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+    estimatedCostYuan: number;
+    chargedTokens: number;
+    revenueYuan: number;
+    grossProfitYuan: number;
+    grossMargin: number;
+    avgLatencyMs: number;
+    p95LatencyMs: number;
+    inputPricePerMTok: number;
+    outputPricePerMTok: number;
+  };
+  scenes: AiSceneStat[];
+  trend: {
+    date: string;
+    calls: number;
+    totalTokens: number;
+    estimatedCostYuan: number;
+    chargedTokens: number;
+  }[];
+}
+
+/* ============ 审计日志 ============ */
+
+export interface AuditLog {
+  id: number;
+  userId: number;
+  username: string;
+  action: string;
+  resourceType?: string;
+  resourceId?: number;
+  details?: string;
+  ipAddress?: string;
+  success: boolean;
+  errorMessage?: string;
+  createdAt: string;
 }
 
 export interface OverviewData {
@@ -119,20 +239,27 @@ export interface OverviewData {
     rechargeCount: number;
     rechargedTokens: number;
     consumedTokens: number;
+    refundedTokens: number;
     activeUsers: number;
     pendingOrders: number;
+    aiCalls: number;
+    aiCostYuan: number | string;
   };
   total: {
     rechargeAmount: number;
     rechargedTokens: number;
     consumedTokens: number;
     grantedTokens: number;
+    refundedAmount: number;
+    refundedTokens: number;
     paidUsers: number;
     registeredUsers: number;
   };
   sceneStatsToday: SceneStat[];
   sceneStatsTotal: SceneStat[];
   recentOrders: RechargeOrder[];
+  aiStatsToday: AiStats['summary'];
+  pendingAlert: PendingAlert;
 }
 
 /* ============ 竞赛管理（从主站后台迁入） ============ */

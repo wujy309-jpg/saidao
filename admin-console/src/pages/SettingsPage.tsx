@@ -119,6 +119,51 @@ export default function SettingsPage() {
             )}
           </div>
         </div>
+        {/* 成本核算 */}
+        <div className="p-5">
+          <h2 className="text-sm font-semibold text-zinc-800">上游成本单价（用于后台成本核算）</h2>
+          <p className="mt-1 text-xs text-zinc-400">
+            按 DeepSeek 官方账单口径填写「元 / 百万 token」，后台「AI 成本与可观测」会据此回算毛利
+          </p>
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label="输入单价（元 / 百万 token）" hint="deepseek-chat 参考值 2">
+              <TextInput
+                type="number"
+                step="0.01"
+                value={form.llmInputPricePerMTok}
+                onChange={(e) =>
+                  setForm((f) => f && { ...f, llmInputPricePerMTok: Math.max(0, Number(e.target.value)) })
+                }
+              />
+            </Field>
+            <Field label="输出单价（元 / 百万 token）" hint="deepseek-chat 参考值 8">
+              <TextInput
+                type="number"
+                step="0.01"
+                value={form.llmOutputPricePerMTok}
+                onChange={(e) =>
+                  setForm((f) => f && { ...f, llmOutputPricePerMTok: Math.max(0, Number(e.target.value)) })
+                }
+              />
+            </Field>
+          </div>
+        </div>
+
+        {/* 运营提醒 */}
+        <div className="p-5">
+          <h2 className="text-sm font-semibold text-zinc-800">运营提醒</h2>
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label="待确认订单超时提醒（小时）" hint="超过该时长仍未确认收款的订单会在总览页红条提示">
+              <TextInput
+                type="number"
+                value={form.pendingOrderAlertHours}
+                onChange={(e) =>
+                  setForm((f) => f && { ...f, pendingOrderAlertHours: Math.max(1, Number(e.target.value)) })
+                }
+              />
+            </Field>
+          </div>
+        </div>
       </Card>
 
       <div className="flex justify-end">

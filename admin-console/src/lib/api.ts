@@ -154,6 +154,7 @@ export const TX_TYPE_META: Record<string, { label: string; cls: string }> = {
   CARD: { label: '卡密兑换', cls: 'bg-brand-50 text-brand-700 ring-brand-200' },
   CONSUME: { label: 'AI 扣费', cls: 'bg-amber-50 text-amber-700 ring-amber-200' },
   REFUND: { label: '失败退款', cls: 'bg-sky-50 text-sky-700 ring-sky-200' },
+  ORDER_REFUND: { label: '订单退款', cls: 'bg-red-50 text-red-600 ring-red-200' },
   GRANT: { label: '免费赠送', cls: 'bg-violet-50 text-violet-700 ring-violet-200' },
   ADJUST: { label: '手动调整', cls: 'bg-zinc-100 text-zinc-600 ring-zinc-200' },
 };
@@ -174,7 +175,76 @@ export const ORDER_STATUS_META: Record<string, { label: string; cls: string }> =
   PENDING: { label: '待确认', cls: 'bg-amber-50 text-amber-700 ring-amber-200' },
   PAID: { label: '已到账', cls: 'bg-brand-50 text-brand-700 ring-brand-200' },
   CANCELLED: { label: '已取消', cls: 'bg-zinc-100 text-zinc-500 ring-zinc-200' },
+  REFUNDED: { label: '已退款', cls: 'bg-red-50 text-red-600 ring-red-200' },
 };
+
+export const AI_STATUS_META: Record<string, { label: string; cls: string }> = {
+  SUCCESS: { label: '成功', cls: 'bg-brand-50 text-brand-700 ring-brand-200' },
+  DEGRADED: { label: '降级免扣', cls: 'bg-amber-50 text-amber-700 ring-amber-200' },
+  FAILED: { label: '失败免扣', cls: 'bg-red-50 text-red-600 ring-red-200' },
+};
+
+export const AUDIT_ACTION_META: Record<string, string> = {
+  BILLING_ADJUST: '手动加减币',
+  BILLING_ORDER_CONFIRM: '确认收款',
+  BILLING_ORDER_CANCEL: '取消订单',
+  BILLING_ORDER_REFUND: '订单退款',
+  BILLING_SCENE_UPDATE: '调整场景单价',
+  BILLING_SETTINGS_UPDATE: '修改平台设置',
+  BILLING_PACKAGE_CREATE: '新建套餐',
+  BILLING_PACKAGE_UPDATE: '修改套餐',
+  BILLING_PACKAGE_DELETE: '删除套餐',
+  BILLING_CARD_GENERATE: '生成卡密',
+  BILLING_CARD_EXPORT: '导出卡密',
+};
+
+/**
+ * 带鉴权的文件下载。原先卡密导出直接裸 fetch + 手写 Authorization，
+ * 401 时不会走统一登录跳转；这里收敛成同一个封装。
+ */
+export async function download(
+  path: string,
+  params?: Record<string, string>,
+  fallbackName = 'export.csv'
+) {
+  let url = path;
+  if (params) {
+    const qs = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v) qs.set(k, v);
+    });
+    const s = qs.toString();
+    if (s) url += `?${s}`;
+  }
+
+  const headers: Record<string, string> = {};
+  const token = getToken();
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const resp = await fetch(url, { headers });
+  if (resp.status === 401 || resp.status === 403) {
+    forceLogin();
+    throw new ApiError('登录已失效，请重新登录', resp.status);
+  }
+  if (!resp.ok) throw new ApiError(`导出失败 (${resp.status})`, resp.status);
+
+  const blob = await resp.blob();
+  let name = fallbackName;
+  const cd = resp.headers.get('Content-Disposition') ?? '';
+  const star = /filename\*=UTF-8''([^;]+)/i.exec(cd);
+  const plain = /filename="?([^";]+)"?/i.exec(cd);
+  if (star) name = decodeURIComponent(star[1]);
+  else if (plain) name = plain[1];
+
+  const href = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = href;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(href);
+}
 
 export const CHANNEL_META: Record<string, string> = {
   WECHAT: '微信',

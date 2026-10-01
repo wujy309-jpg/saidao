@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { DownloadSimple, Ticket } from '@phosphor-icons/react';
-import { fmtNum, fmtTime, getToken, request, toast } from '../lib/api';
+import { download, fmtNum, fmtTime, request, toast } from '../lib/api';
 import type { CardKey, PageResponse, TokenPackage } from '../lib/types';
 import { Badge, Button, Card, Empty, Field, Modal, Pagination, Select, Table, TextInput, Textarea } from '../components/ui';
 
@@ -33,21 +33,12 @@ export default function CardsPage() {
 
   const exportBatch = async (batch: string) => {
     try {
-      const resp = await fetch(`/api/admin-api/billing/cards/export?batchNo=${encodeURIComponent(batch)}`, {
-        headers: { Authorization: `Bearer ${getToken()}` },
-      });
-      if (!resp.ok) {
-        const p = await resp.json().catch(() => null);
-        throw new Error(p?.message ?? '导出失败');
-      }
-      const text = await resp.text();
-      const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `cards-${batch}.txt`;
-      a.click();
-      URL.revokeObjectURL(url);
+      // 统一走 download()：401 会触发登录跳转，文件名从 Content-Disposition 解析
+      await download(
+        '/api/admin-api/billing/cards/export',
+        { batchNo: batch },
+        `cards-${batch}.txt`
+      );
       toast('已导出', 'success');
     } catch (e) {
       toast(e instanceof Error ? e.message : '导出失败', 'error');

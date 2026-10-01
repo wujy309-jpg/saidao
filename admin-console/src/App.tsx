@@ -11,6 +11,8 @@ import OrdersPage from './pages/OrdersPage';
 import ScenesPage from './pages/ScenesPage';
 import SettingsPage from './pages/SettingsPage';
 import CompetitionsPage from './pages/CompetitionsPage';
+import AiUsagePage from './pages/AiUsagePage';
+import AuditLogsPage from './pages/AuditLogsPage';
 import type { ReactNode } from 'react';
 
 /** 生产挂载 /api/admin/，开发默认 /admin */
@@ -55,6 +57,8 @@ export default function App() {
             <Route path="/cards" element={<CardsPage />} />
             <Route path="/orders" element={<OrdersPage />} />
             <Route path="/scenes" element={<ScenesPage />} />
+            <Route path="/ai-usage" element={<AiUsagePage />} />
+            <Route path="/audit-logs" element={<AuditLogsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/competitions" element={<CompetitionsPage />} />
           </Route>
