@@ -405,7 +405,12 @@ public class ForumService {
                 ? "请润色下面这段帖子内容(修正错别字、优化表达,不改原意):\n\n" + content
                 : "请把下面这段帖子内容扩写得更完整、更有条理(补充背景、步骤与细节,控制在原文3倍以内):\n\n" + content;
         String result = deepSeekService.chat(POLISH_SYSTEM, instruction);
-        return (result == null || result.isBlank()) ? content : result;
+        if (result == null || result.isBlank()) {
+            // 原样返回 = 用户没拿到 AI 产出 → 本次免扣
+            com.saidao.backend.billing.BillingContext.markDegraded("POLISH_LLM_EMPTY");
+            return content;
+        }
+        return result;
     }
 
     public Map<String, Object> aiSuggest(String title, String content) {
@@ -435,6 +440,8 @@ public class ForumService {
         }
         // 板块回退规则
         if (board == null || board.isBlank()) {
+            // AI 没给出结论、走了关键词兜底 → 本次免扣
+            com.saidao.backend.billing.BillingContext.markDegraded("SUGGEST_RULE_FALLBACK");
             String t = (title + content).toLowerCase();
             if (t.contains("队友") || t.contains("组队") || t.contains("招募") || t.contains("求带")) {
                 board = "TEAM_FIND";

@@ -26,8 +26,10 @@ public class TokenTransaction {
         CARD,
         /** AI 场景扣费 */
         CONSUME,
-        /** 失败自动退款 */
+        /** 失败自动退款 / 降级免扣冲回 */
         REFUND,
+        /** 充值订单退款（管理员冲正，金额为负） */
+        ORDER_REFUND,
         /** 免费赠送（注册赠送/每日赠送） */
         GRANT,
         /** 管理员手动调整（正加负减） */

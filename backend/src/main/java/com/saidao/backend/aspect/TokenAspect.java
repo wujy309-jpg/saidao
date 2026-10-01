@@ -1,7 +1,9 @@
 package com.saidao.backend.aspect;
 
 import com.saidao.backend.annotation.CostTokens;
-import com.saidao.backend.service.TokenService;
+import com.saidao.backend.billing.BillingContext;
+import com.saidao.backend.billing.BillingContext.BillingSession;
+import com.saidao.backend.service.AiBillingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -12,7 +14,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 /**
- * AI 扣费切面：@CostTokens 标注的方法，进入前按场景扣 Token，抛异常自动退款。
+ * AI 扣费切面：@CostTokens 标注的方法进入前「预留」Token，结束后按产出质量结算或释放。
+ *
+ * <p>与 v1 的差别：不再只看「有没有抛异常」。上游降级（返回空 / 不可用 / HTTP 非 200）会把
+ * 计费上下文标记为 degraded，切面据此<b>免扣</b>；抛出异常则释放预留（退款幂等）。
  */
 @Slf4j
 @Aspect
@@ -20,7 +25,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TokenAspect {
 
-    private final TokenService tokenService;
+    private final AiBillingService aiBillingService;
 
     @Around("@annotation(costTokens)")
     public Object around(ProceedingJoinPoint pjp, CostTokens costTokens) throws Throwable {
@@ -30,19 +35,16 @@ public class TokenAspect {
             return pjp.proceed();
         }
 
-        long amount = tokenService.consume(userId, costTokens.value(), null);
+        BillingSession session = aiBillingService.begin(userId, costTokens.value());
         try {
-            return pjp.proceed();
+            Object result = pjp.proceed();
+            aiBillingService.complete(session);
+            return result;
         } catch (Throwable t) {
-            if (amount > 0) {
-                try {
-                    tokenService.refund(userId, costTokens.value(), null, amount);
-                } catch (Exception refundError) {
-                    log.error("Token 退款失败 userId={} scene={} amount={}",
-                            userId, costTokens.value(), amount, refundError);
-                }
-            }
+            aiBillingService.fail(session, t.getClass().getSimpleName());
             throw t;
+        } finally {
+            BillingContext.clear();
         }
     }
 }

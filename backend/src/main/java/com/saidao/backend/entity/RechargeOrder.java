@@ -19,7 +19,13 @@ import java.time.LocalDateTime;
 })
 public class RechargeOrder {
 
-    public enum OrderStatus { PENDING, PAID, CANCELLED }
+    public enum OrderStatus {
+        PENDING,
+        PAID,
+        CANCELLED,
+        /** 已退款：Token 已冲正，订单关闭 */
+        REFUNDED
+    }
 
     public enum PayChannel { WECHAT, ALIPAY, BANK_TRANSFER, OTHER }
 
@@ -68,6 +74,16 @@ public class RechargeOrder {
     /** 确认收款的管理员用户名 */
     @Column(name = "paid_by", length = 50)
     private String paidBy;
+
+    @Column(name = "refunded_at")
+    private LocalDateTime refundedAt;
+
+    /** 执行退款的管理员用户名 */
+    @Column(name = "refunded_by", length = 50)
+    private String refundedBy;
+
+    @Column(name = "refund_reason", length = 200)
+    private String refundReason;
 
     @PrePersist
     protected void onCreate() {

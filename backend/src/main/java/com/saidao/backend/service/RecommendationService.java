@@ -42,6 +42,21 @@ public class RecommendationService {
     private static final int RESULT_COUNT = 8;
     
     /**
+     * 前置校验：这些检查是确定性的、且零成本，必须在扣费之前做。
+     * 否则「新用户还没填问卷就点 AI 推荐」会白扣一次 Token。
+     */
+    public void precheck(Long userId) {
+        if (profileRepository.findByUserId(userId).isEmpty()) {
+            throw new IllegalStateException("请先完成画像问卷");
+        }
+        boolean hasActive = competitionRepository.findAll().stream()
+                .anyMatch(c -> c.getStatus() == Competition.CompetitionStatus.ACTIVE);
+        if (!hasActive) {
+            throw new IllegalStateException("竞赛库为空，请联系管理员");
+        }
+    }
+
+    /**
      * 生成推荐
      */
     @Transactional
@@ -81,13 +96,20 @@ public class RecommendationService {
         // 2. 大模型精排
         Map<Long, Integer> llmScores = new HashMap<>();
         Map<Long, String> llmReasons = new HashMap<>();
+        String degradeReason = null;
         try {
             callLlm(profile, ranked, llmScores, llmReasons, dislikedIds);
         } catch (Exception e) {
             log.warn("大模型推荐失败，使用规则推荐兜底: {}", e.getMessage());
+            degradeReason = "LLM_ERROR:" + e.getClass().getSimpleName();
         }
-        
+
         boolean llmOk = !llmScores.isEmpty();
+        if (!llmOk) {
+            // 走规则兜底 = 本次没有真正买到 AI 服务 → 计费层据此免扣
+            com.saidao.backend.billing.BillingContext.markDegraded(
+                    degradeReason == null ? "LLM_FALLBACK_RULE" : degradeReason);
+        }
         
         // 3. 组装结果：LLM 结果优先，规则兜底
         List<Map.Entry<Competition, Integer>> finalList = new ArrayList<>();

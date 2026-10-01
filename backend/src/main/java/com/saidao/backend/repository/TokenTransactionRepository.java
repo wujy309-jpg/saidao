@@ -59,4 +59,28 @@ public interface TokenTransactionRepository extends JpaRepository<TokenTransacti
         group by t.scene
         """)
     List<Object[]> countBySceneSince(@Param("type") TokenTransaction.TxType type, @Param("start") LocalDateTime start);
+
+    /** 导出用：按过滤条件取全量流水（不分页） */
+    @Query("""
+        select t from TokenTransaction t
+        where (:userId is null or t.userId = :userId)
+          and (:type is null or t.type = :type)
+          and (:scene is null or t.scene = :scene)
+          and (:start is null or t.createdAt >= :start)
+          and (:end is null or t.createdAt < :end)
+        order by t.id desc
+        """)
+    List<TokenTransaction> findForExport(@Param("userId") Long userId,
+                                         @Param("type") TokenTransaction.TxType type,
+                                         @Param("scene") String scene,
+                                         @Param("start") LocalDateTime start,
+                                         @Param("end") LocalDateTime end,
+                                         Pageable pageable);
+
+    /** 带符号合计（订单退款冲正为负） */
+    @Query("select coalesce(sum(t.amount), 0) from TokenTransaction t where t.type = :type and t.createdAt >= :start")
+    long sumSignedSince(@Param("type") TokenTransaction.TxType type, @Param("start") LocalDateTime start);
+
+    @Query("select coalesce(sum(t.amount), 0) from TokenTransaction t where t.type = :type")
+    long sumSignedTotal(@Param("type") TokenTransaction.TxType type);
 }

@@ -31,6 +31,9 @@ public interface RechargeOrderRepository extends JpaRepository<RechargeOrder, Lo
     @Query("select coalesce(sum(o.priceYuan), 0) from RechargeOrder o where o.status = :status")
     BigDecimal sumPaidTotal(@Param("status") RechargeOrder.OrderStatus status);
 
+    @Query("select coalesce(sum(o.priceYuan), 0) from RechargeOrder o where o.status = :status")
+    BigDecimal sumRefundedTotal(@Param("status") RechargeOrder.OrderStatus status);
+
     @Query("select coalesce(sum(o.priceYuan), 0) from RechargeOrder o where o.status = :status and o.paidAt >= :start")
     BigDecimal sumPaidSince(@Param("status") RechargeOrder.OrderStatus status, @Param("start") LocalDateTime start);
 
@@ -42,6 +45,28 @@ public interface RechargeOrderRepository extends JpaRepository<RechargeOrder, Lo
 
     @Query("select count(o) from RechargeOrder o where o.status = :status")
     long countPending(@Param("status") RechargeOrder.OrderStatus status);
+
+    /** 待确认且已超时的订单（按创建时间升序，最早的在最前） */
+    @Query("""
+        select o from RechargeOrder o
+        where o.status = :status and o.createdAt < :before
+        order by o.createdAt asc
+        """)
+    List<RechargeOrder> findPendingCreatedBefore(@Param("status") RechargeOrder.OrderStatus status,
+                                                 @Param("before") LocalDateTime before);
+
+    /** 导出用：按状态 + 时间范围取全量（不分页） */
+    @Query("""
+        select o from RechargeOrder o
+        where (:status is null or o.status = :status)
+          and (:start is null or o.createdAt >= :start)
+          and (:end is null or o.createdAt < :end)
+        order by o.id desc
+        """)
+    List<RechargeOrder> findForExport(@Param("status") RechargeOrder.OrderStatus status,
+                                      @Param("start") LocalDateTime start,
+                                      @Param("end") LocalDateTime end,
+                                      Pageable pageable);
 
     List<RechargeOrder> findTop8ByOrderByIdDesc();
 }

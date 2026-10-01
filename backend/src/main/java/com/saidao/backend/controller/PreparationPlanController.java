@@ -1,11 +1,16 @@
 package com.saidao.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.saidao.backend.billing.BillingContext;
+import com.saidao.backend.billing.BillingContext.BillingSession;
+import com.saidao.backend.billing.BillingContext.ChargeTicket;
 import com.saidao.backend.dto.ApiResponse;
 import com.saidao.backend.entity.Competition;
 import com.saidao.backend.entity.PreparationPlan;
 import com.saidao.backend.entity.PreparationTask;
+import com.saidao.backend.entity.TokenScene;
 import com.saidao.backend.repository.CompetitionRepository;
+import com.saidao.backend.service.AiBillingService;
 import com.saidao.backend.service.PreparationPlanService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +38,7 @@ public class PreparationPlanController {
     
     private final PreparationPlanService planService;
     private final CompetitionRepository competitionRepository;
-    private final com.saidao.backend.service.TokenService tokenService;
+    private final AiBillingService aiBillingService;
     private final ObjectMapper objectMapper = new ObjectMapper();
     
     /** 生成备赛计划(非流式,兼容旧调用) */
@@ -49,68 +54,88 @@ public class PreparationPlanController {
     
     /**
      * 流式生成:先叙事(读取时间线/倒排/分配/优化),完成事件携带 planId
-     * 事件: step {text} / done {planId}
-     * 扣费:SSE 异步执行,在控制器内显式扣费,失败自动退款
+     * 事件: step {text} / degraded {…} / done {planId} / error {…}
+     * 扣费:SSE 异步执行，在控制器内显式「预留 → 成功结算 / 降级或失败释放」
      */
     @PostMapping(value = "/generate-stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter generateStream(@RequestBody Map<String, Object> body) {
         Long userId = currentUserId();
-        Long competitionId = Long.valueOf(body.get("competitionId").toString());
+        Object rawCompetitionId = body.get("competitionId");
+        if (rawCompetitionId == null) {
+            SseEmitter emitter = new SseEmitter(3 * 60 * 1000L);
+            send(emitter, "error", Map.of("message", "缺少竞赛"));
+            emitter.complete();
+            return emitter;
+        }
+        Long competitionId = Long.valueOf(rawCompetitionId.toString());
         String goal = str(body.get("goal"));
         Integer weeklyHours = intOf(body.get("weeklyHours"));
         List<String> completed = strList(body.get("completed"));
-        
+
         SseEmitter emitter = new SseEmitter(3 * 60 * 1000L);
-        long cost = tokenService.consume(userId, com.saidao.backend.entity.TokenScene.PLAN_STREAM, null);
-        CompletableFuture.runAsync(() -> {
-            try {
-                Competition c = competitionRepository.findById(competitionId).orElse(null);
-                long days = daysUntilTarget(c);
-                String goalText = goal == null || goal.isBlank() ? "稳完赛" : goal;
-                
-                send(emitter, "step", Map.of("text",
-                        "读取「" + (c == null ? "比赛" : c.getName()) + "」的时间线与赛制规则…"));
-                send(emitter, "step", Map.of("text",
-                        days > 0 ? "距比赛还有 " + days + " 天,按阶段倒排…" : "按比赛时间倒排阶段…"));
-                send(emitter, "step", Map.of("text",
-                        "结合目标「" + goalText + "」与每周 " + (weeklyHours == null ? "常规" : weeklyHours + " 小时") + ",分配任务强度…"));
-                send(emitter, "step", Map.of("text", "对照评审标准与历年优秀作品,优化任务细节…"));
-                
-                PreparationPlan plan = planService.generate(userId, competitionId, goal, weeklyHours, completed);
-                
-                send(emitter, "step", Map.of("text",
-                        "计划就绪:共 " + plan.getTaskCount() + " 个任务,已为你倒排好日期"));
-                Map<String, Object> done = new java.util.HashMap<>();
-                done.put("planId", plan.getId());
-                done.put("title", plan.getTitle());
-                done.put("goal", plan.getGoal());
-                done.put("weeklyHours", plan.getWeeklyHours());
-                done.put("taskCount", plan.getTaskCount());
-                done.put("startDate", plan.getStartDate() == null ? null : plan.getStartDate().toString());
-                done.put("endDate", plan.getEndDate() == null ? null : plan.getEndDate().toString());
-                done.put("baseline", plan.getBaseline());
-                int phaseCount = 0;
-                try {
-                    phaseCount = objectMapper.readTree(plan.getPhaseInfo() == null ? "[]" : plan.getPhaseInfo()).size();
-                } catch (Exception ignored) {
-                }
-                done.put("phaseCount", phaseCount);
-                send(emitter, "done", done);
-                emitter.complete();
-            } catch (Exception e) {
-                log.error("流式生成备赛计划失败", e);
-                if (cost > 0) {
-                    try {
-                        tokenService.refund(userId, com.saidao.backend.entity.TokenScene.PLAN_STREAM, null, cost);
-                    } catch (Exception refundError) {
-                        log.error("备赛计划退款失败 userId={}", userId, refundError);
-                    }
-                }
-                send(emitter, "error", Map.of("message", e.getMessage()));
-                emitter.complete();
-            }
-        });
+        ChargeTicket ticket = aiBillingService.charge(userId, TokenScene.PLAN_STREAM);
+        CompletableFuture.runAsync(() ->
+                runGenerateStream(ticket, userId, competitionId, goal, weeklyHours, completed, emitter));
         return emitter;
+    }
+
+    /** 流式生成的异步主体（独立方法便于测试：失败必须退款） */
+    public void runGenerateStream(ChargeTicket ticket, Long userId, Long competitionId, String goal,
+                           Integer weeklyHours, List<String> completed, SseEmitter emitter) {
+        BillingSession session = aiBillingService.attach(ticket);
+        try {
+            Competition c = competitionRepository.findById(competitionId).orElse(null);
+            long days = daysUntilTarget(c);
+            String goalText = goal == null || goal.isBlank() ? "稳完赛" : goal;
+
+            send(emitter, "step", Map.of("text",
+                    "读取「" + (c == null ? "比赛" : c.getName()) + "」的时间线与赛制规则…"));
+            send(emitter, "step", Map.of("text",
+                    days > 0 ? "距比赛还有 " + days + " 天,按阶段倒排…" : "按比赛时间倒排阶段…"));
+            send(emitter, "step", Map.of("text",
+                    "结合目标「" + goalText + "」与每周 " + (weeklyHours == null ? "常规" : weeklyHours + " 小时") + ",分配任务强度…"));
+            send(emitter, "step", Map.of("text", "对照评审标准与历年优秀作品,优化任务细节…"));
+
+            PreparationPlan plan = planService.generate(userId, competitionId, goal, weeklyHours, completed);
+
+            aiBillingService.complete(session);
+            if (session.degraded()) {
+                // 模板兜底：计划仍然可用，但不是 AI 生成的 → 本次免扣
+                send(emitter, "degraded", Map.of(
+                        "message", "AI 暂不可用，已按模板生成完整计划，本次未扣费",
+                        "scene", TokenScene.PLAN_STREAM.name(),
+                        "reason", session.degradedReason() == null ? "" : session.degradedReason()));
+            }
+
+            send(emitter, "step", Map.of("text",
+                    "计划就绪:共 " + plan.getTaskCount() + " 个任务,已为你倒排好日期"));
+            Map<String, Object> done = new java.util.HashMap<>();
+            done.put("planId", plan.getId());
+            done.put("title", plan.getTitle());
+            done.put("goal", plan.getGoal());
+            done.put("weeklyHours", plan.getWeeklyHours());
+            done.put("taskCount", plan.getTaskCount());
+            done.put("startDate", plan.getStartDate() == null ? null : plan.getStartDate().toString());
+            done.put("endDate", plan.getEndDate() == null ? null : plan.getEndDate().toString());
+            done.put("baseline", plan.getBaseline());
+            done.put("degraded", session.degraded());
+            done.put("charged", session.degraded() ? 0 : session.ticket().amount());
+            int phaseCount = 0;
+            try {
+                phaseCount = objectMapper.readTree(plan.getPhaseInfo() == null ? "[]" : plan.getPhaseInfo()).size();
+            } catch (Exception ignored) {
+            }
+            done.put("phaseCount", phaseCount);
+            send(emitter, "done", done);
+            emitter.complete();
+        } catch (Exception e) {
+            log.error("流式生成备赛计划失败", e);
+            aiBillingService.fail(session, e.getClass().getSimpleName());
+            send(emitter, "error", Map.of("message", e.getMessage(), "charged", 0, "refunded", true));
+            emitter.complete();
+        } finally {
+            BillingContext.clear();
+        }
     }
     
     /** 我的计划列表 */

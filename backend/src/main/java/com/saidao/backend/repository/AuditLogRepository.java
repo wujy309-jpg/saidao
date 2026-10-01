@@ -28,4 +28,19 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
     
     @Query("SELECT a FROM AuditLog a WHERE a.success = false AND a.createdAt >= :since ORDER BY a.createdAt DESC")
     List<AuditLog> findFailedActions(@Param("since") LocalDateTime since);
+
+    /** 后台审计检索（资金类操作）：按 action / 操作人 / 时间范围过滤 */
+    @Query("""
+        SELECT a FROM AuditLog a
+        WHERE (:action IS NULL OR a.action = :action)
+          AND (:username IS NULL OR a.username = :username)
+          AND (:start IS NULL OR a.createdAt >= :start)
+          AND (:end IS NULL OR a.createdAt < :end)
+        ORDER BY a.id DESC
+        """)
+    Page<AuditLog> search(@Param("action") String action,
+                          @Param("username") String username,
+                          @Param("start") LocalDateTime start,
+                          @Param("end") LocalDateTime end,
+                          Pageable pageable);
 }

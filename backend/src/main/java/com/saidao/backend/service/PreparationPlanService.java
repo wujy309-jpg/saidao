@@ -276,13 +276,18 @@ public class PreparationPlanService {
         PreparationPlan plan = ownPlan(planId, userId);
         PreparationTask task = ownTask(planId, taskId);
         Competition c = competitionRepository.findById(plan.getCompetitionId()).orElse(null);
-        
+
+        String originalTitle = task.getTitle();
         String alternative = trySwapAlternative(plan, c, task);
+        boolean swapped = false;
         if (alternative != null) {
             try {
                 Map<String, Object> parsed = objectMapper.readValue(alternative, new TypeReference<>() {});
                 String title = String.valueOf(parsed.getOrDefault("title", task.getTitle()));
-                if (!title.isBlank() && title.length() <= 200) task.setTitle(title);
+                if (!title.isBlank() && title.length() <= 200) {
+                    task.setTitle(title);
+                    swapped = !title.equals(originalTitle);
+                }
                 Object desc = parsed.get("description");
                 if (desc != null) task.setDescription(String.valueOf(desc));
                 Object hours = parsed.get("hours");
@@ -296,6 +301,11 @@ public class PreparationPlanService {
             } catch (Exception e) {
                 log.warn("换任务解析失败,保持原标题: {}", e.getMessage());
             }
+        }
+        if (!swapped) {
+            // 没换掉 = 用户没拿到 AI 产出 → 计费层据此免扣（原先照扣 5 Token）
+            com.saidao.backend.billing.BillingContext.markDegraded(
+                    alternative == null ? "SWAP_NO_ALTERNATIVE" : "SWAP_UNCHANGED");
         }
         return taskRepository.save(task);
     }
@@ -550,18 +560,30 @@ public class PreparationPlanService {
                     completed == null || completed.isEmpty() ? "无(从零开始)" : String.join("、", completed));
             
             String content = deepSeekService.chat(systemPrompt, userMessage);
-            if (content == null || content.isBlank()) return null;
-            
+            if (content == null || content.isBlank()) {
+                com.saidao.backend.billing.BillingContext.markDegraded("PLAN_LLM_EMPTY");
+                return null;
+            }
+
             int start = content.indexOf('{');
             int end = content.lastIndexOf('}');
-            if (start < 0 || end <= start) return null;
-            
+            if (start < 0 || end <= start) {
+                com.saidao.backend.billing.BillingContext.markDegraded("PLAN_LLM_NOT_JSON");
+                return null;
+            }
+
             Map<String, Object> parsed = objectMapper.readValue(
                     content.substring(start, end + 1), new TypeReference<>() {});
             PlanContent result = parsePlanContent(parsed);
-            return result.phases.isEmpty() ? null : result;
+            if (result.phases.isEmpty()) {
+                com.saidao.backend.billing.BillingContext.markDegraded("PLAN_LLM_EMPTY_PHASES");
+                return null;
+            }
+            return result;
         } catch (Exception e) {
             log.warn("LLM 备赛计划生成失败，使用模板兜底: {}", e.getMessage());
+            // 模板兜底 = 用户拿到的不是 AI 生成的计划 → 计费层据此免扣
+            com.saidao.backend.billing.BillingContext.markDegraded("PLAN_LLM_ERROR:" + e.getClass().getSimpleName());
             return null;
         }
     }

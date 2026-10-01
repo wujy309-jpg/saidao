@@ -82,6 +82,29 @@ public class AuditService {
     public void logAccess(Long userId, String username, String resourceType, Long resourceId) {
         logAction(userId, username, "ACCESS", resourceType, resourceId, null, true, null);
     }
+
+    /* ==================== 资金类操作审计 ==================== */
+
+    /**
+     * 资金/计费类操作留痕：加币、扣币、改价、确认收款、退款、生成与导出卡密、改平台设置。
+     * 这些动作此前一条审计都没记，出了争议无法回溯。
+     */
+    public void logMoney(Long operatorId, String operator, String action, String resourceType,
+                         Long resourceId, String details) {
+        logAction(operatorId, operator, action, resourceType, resourceId, details, true, null);
+    }
+
+    /** 资金类操作失败也要留痕（例如余额不足以冲正导致退款被拒） */
+    public void logMoneyFailure(Long operatorId, String operator, String action, String resourceType,
+                                Long resourceId, String errorMessage) {
+        logAction(operatorId, operator, action, resourceType, resourceId, null, false, errorMessage);
+    }
+
+    /** 后台审计检索 */
+    public Page<AuditLog> search(String action, String username, LocalDateTime start, LocalDateTime end,
+                                 Pageable pageable) {
+        return auditLogRepository.search(action, username, start, end, pageable);
+    }
     
     public Page<AuditLog> getUserAuditLogs(Long userId, Pageable pageable) {
         return auditLogRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);

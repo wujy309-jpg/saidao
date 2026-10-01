@@ -41,6 +41,18 @@ public class BillingSetting {
     @Column(name = "alipay_qr_url", length = 500)
     private String alipayQrUrl;
 
+    /** 上游 LLM 输入单价（元 / 百万 token），后台成本核算用 */
+    @Column(name = "llm_input_price_per_mtok", nullable = false, precision = 10, scale = 4)
+    private java.math.BigDecimal llmInputPricePerMTok = new java.math.BigDecimal("2.0000");
+
+    /** 上游 LLM 输出单价（元 / 百万 token） */
+    @Column(name = "llm_output_price_per_mtok", nullable = false, precision = 10, scale = 4)
+    private java.math.BigDecimal llmOutputPricePerMTok = new java.math.BigDecimal("8.0000");
+
+    /** 待确认订单超过多少小时算超时（后台提醒阈值，默认 24） */
+    @Column(name = "pending_order_alert_hours", nullable = false)
+    private int pendingOrderAlertHours = 24;
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
