@@ -122,22 +122,33 @@ controller/ TokenController（用户端 /token/**）
 ### 4.3 扣费机制（关键设计）
 
 1. **标注即计费**：AI 接口方法上加 `@CostTokens(TokenScene.ASSISTANT_CHAT)`，AOP 切面统一处理——不改动业务代码；
-2. **先扣后用，失败自动退**：进入方法前校验并扣减（悲观锁 `SELECT ... FOR UPDATE` 保证并发下余额不为负）；方法抛异常自动原路退回（记 REFUND 流水）；SSE 流式接口在控制器内显式扣费/失败退款（异步任务异常不经过 AOP）。注：LLM 返回空而走**降级模板**（非异常）时按次正常计费，如用户投诉可在后台手动调整补偿；
-3. **扣费前置校验免费**：`DEEPSEEK_API_KEY` 未配置（开发/降级环境）时自动免扣，保证开发体验与「降级兜底」不被收费；
-4. **余额不足**：返回 HTTP 402 + `Token 余额不足，请前往充值中心充值`，前端引导充值；
-5. **流水留痕**：每笔扣费/退款/充值/赠送/调整都写 `TokenTransaction`（含场景、金额、余额快照、关联 ID），可对账。
+2. **先预留、产出有效才结算**（v2，2026-10 修订）：进入方法前只做「预留」（写 `token_charge` 预留单 + `CONSUME` 流水 + 悲观锁扣余额），
+   方法正常返回后才**结算**（计入累计消耗）；抛异常、SSE 早退、上游降级（返回空 / 不可用 / 走模板兜底）一律**释放**并原路退回（写 `REFUND` 流水）。
+   - 释放靠预留单状态机（`CHARGED → SETTLED | RELEASED`，`ref_id` 唯一）保证**幂等**，重复释放不会重复退款；
+   - 进程被杀 / 异步任务丢失留下的「扣了没退」由定时补偿任务（默认 30 分钟阈值）自动退回；
+   - 累计消耗只在结算时增加，因此不存在「消费-退款」序列造成的统计漂移；
+3. **前置校验前移**：画像是否完整、竞赛库是否为空、会话/断点是否存在等零成本校验一律放在扣费之前，校验失败不产生任何计费记录；
+4. **降级即免扣**：`DeepSeekService` 返回结构化的 `LlmResult`（内容 / 是否降级 / usage / 耗时），业务服务的模板兜底分支也会显式标记降级；
+   降级时响应或 SSE 会带 `degraded` 与 `charged: 0`，UI 据此提示「本次未扣费」；
+5. **扣费前置校验免费**：`DEEPSEEK_API_KEY` 未配置（开发/降级环境）时自动免扣，保证开发体验；
+6. **余额不足**：返回 HTTP 402 + `Token 余额不足，请前往充值中心充值`，前端引导充值；
+7. **流水留痕**：每笔扣费/退款/充值/赠送/调整都写 `TokenTransaction`（含场景、金额、余额快照、**ref_id**），可对账；
+8. **成本可核算**：采集上游真实 `usage`（含流式的 `stream_options.include_usage`）落 `ai_call_log`，
+   按后台可配单价回算每个场景的 token 消耗、成本、毛利与成功率/降级率/P95 延迟。
 
 ### 4.4 数据库表（JPA ddl-auto=update 自动建表，MySQL/H2 均可用）
 
 | 表 | 关键字段 | 说明 |
 |------|------|------|
 | token_account | user_id 唯一、balance、total_recharged、total_consumed、last_free_grant_date | 用户账户 |
-| token_transaction | user_id、type(RECHARGE/CARD/CONSUME/REFUND/GRANT/ADJUST)、scene、amount(带符号)、balance_after、ref_id、remark | 全量流水 |
+| token_transaction | user_id、type(RECHARGE/CARD/CONSUME/REFUND/ORDER_REFUND/GRANT/ADJUST)、scene、amount(带符号)、balance_after、ref_id、remark | 全量流水 |
+| token_charge | ref_id 唯一、user_id、scene、amount、status(CHARGED/SETTLED/RELEASED)、finished_at、remark | 计费预留单（幂等释放 + 超时补偿） |
+| ai_call_log | ref_id 唯一、user_id、scene、status(SUCCESS/DEGRADED/FAILED)、llm_calls、prompt/completion/total_tokens、latency_ms、estimated_cost_yuan、charged_tokens、model、error_type | AI 调用日志（成本核算与可观测） |
 | token_package | name、price_yuan、tokens、bonus_tokens、enabled、sort_order | 充值套餐 |
-| recharge_order | order_no 唯一、user_id、package 快照、amount、status(PENDING/PAID/CANCELLED)、channel、paid_at、paid_by | 充值订单 |
+| recharge_order | order_no 唯一、user_id、package 快照、amount、status(PENDING/PAID/CANCELLED/REFUNDED)、channel、paid_at、paid_by、refunded_at、refunded_by、refund_reason | 充值订单 |
 | card_key | code 唯一、batch_no、tokens、status(UNUSED/USED)、used_by、used_at | 卡密 |
 | token_scene_config | scene 唯一、label、price、enabled、sort_order | 场景单价（后台可调） |
-| billing_setting | 单行：daily_free_tokens、register_bonus_tokens、free_quota_enabled、payment_note、wechat_qr_url、alipay_qr_url | 全局计费设置 |
+| billing_setting | 单行：daily_free_tokens、register_bonus_tokens、free_quota_enabled、payment_note、wechat_qr_url、alipay_qr_url、llm_input/output_price_per_mtok、pending_order_alert_hours | 全局计费设置 |
 
 ### 4.5 充值/卡密/订单流程
 
@@ -152,6 +163,8 @@ controller/ TokenController（用户端 /token/**）
 ```
 
 人工确认收款是 MVP 首选：无支付牌照、无手续费、当天可上线；订单模型已预留支付宝/微信官方支付回调的扩展位（二期）。
+已到账订单支持后台**退款冲正**（`PAID → REFUNDED`，扣回已到账 Token 并写 `ORDER_REFUND` 流水 + 审计日志）：
+若这些 Token 已被消费（用户余额不足），退款会被拒绝并提示差额，避免把余额扣成负数。
 
 ---
 
@@ -161,14 +174,16 @@ controller/ TokenController（用户端 /token/**）
 
 | 模块 | 功能 |
 |------|------|
-| **总览** | 今日/累计：充值金额、充值笔数、发放/消耗 Token、AI 调用次数（按场景）、活跃付费用户、待确认订单提醒、最近订单 |
-| **用户与余额** | 用户列表（带余额/累计充值/消耗）、手动加币/扣币（ADJUST 流水留痕）、查看该用户全部流水；沿用旧后台的认证/重置密码/删除 |
-| **Token 流水** | 全量流水检索（用户/类型/场景/时间），分页导出 |
-| **充值套餐** | 套餐增删改、上下架、排序 |
-| **卡密管理** | 按套餐+数量批量生成卡密、批次查询、导出 TXT、使用状态追踪 |
-| **订单管理** | 全部订单、按状态筛选、确认收款（入账）/取消，防重复入账 |
-| **场景定价** | 9 个 AI 场景单价实时调整、启停 |
-| **平台设置** | 每日免费额度、注册赠送、免费开关、收款说明、微信/支付宝收款码图片地址 |
+| **总览** | 今日/累计：充值金额、充值笔数、发放/**净消耗** Token（只算已结算的 AI 预留）、退回 Token、AI 调用次数与今日成本、活跃付费用户、**待确认订单超时红条**、**今日降级率**、最近订单 |
+| **用户与余额** | 用户列表（带余额/累计充值/消耗）、手动加币/扣币（ADJUST 流水留痕 + 审计日志）、查看该用户全部流水；沿用旧后台的认证/重置密码/删除 |
+| **Token 流水** | 全量流水检索（用户/类型/场景/时间），分页 + **导出 CSV**（含 refId，可与 AI 调用日志对齐） |
+| **充值套餐** | 套餐增删改、上下架、排序（变更写审计） |
+| **卡密管理** | 按套餐+数量批量生成卡密、批次查询、导出 TXT、使用状态追踪（生成/导出写审计） |
+| **订单管理** | 全部订单、按状态筛选、确认收款（入账）/取消/**退款冲正**，防重复入账与重复冲正，导出 CSV |
+| **场景定价** | 9 个 AI 场景单价实时调整、启停（改价写审计） |
+| **AI 成本与可观测** | 场景 × 次数 × token × 成本、成功率 / 降级率 / P95 延迟、日趋势、调用明细（refId/usage/耗时/估算成本/实收 Token），导出 CSV |
+| **资金操作审计** | 加币、改价、确认收款、取消、退款、套餐增删改、生成/导出卡密、改平台设置的完整留痕（含失败），按类型/操作人/日期检索 |
+| **平台设置** | 每日免费额度、注册赠送、免费开关、收款说明、微信/支付宝收款码图片地址、**上游成本单价**、**待确认订单超时阈值**（真·部分更新：只传要改的字段） |
 | **竞赛管理** | 原主站后台的竞赛 CRUD 迁入（功能对等） |
 
 ---
@@ -209,15 +224,18 @@ controller/ TokenController（用户端 /token/**）
 | 阶段 | 内容 | 状态 |
 |------|------|------|
 | 一期（本次交付） | 后端计费核心 + 后台管理平台 + 充值中心 + 场景扣费 + 卡密/人工收款 + 部署脚本 | ✅ 完成 |
+| 一期补强（2026-10） | 计费改「预留-结算-释放」+ 降级免扣 + 后台设置真·部分更新 + 订单退款冲正 + 流水/订单/AI 用量导出 + 资金操作审计 + AI 成本与可观测面板 + 19 个计费测试 | ✅ 完成（见 `docs/计费闭环交付报告.md`） |
 | 二期（可选） | 支付宝/微信官方支付回调、订阅卡、短信/邮件通知、充值活动/优惠券 | 待定 |
 | 三期（可选） | 机构版（学校批量采购、教师账号、用量报表）、开放 API 计费 | 待定 |
 
 ---
 
-## 附录 A：接口清单（一期）
+## 附录 A：接口清单（一期 + 补强）
 
 **用户端 `/api/token/**`**
 - `GET /api/token/balance` — 我的余额/账户
+- `GET /api/token/scenes` — 场景单价（前端展示「本次约消耗 X Token」）
+- `GET /api/token/settings` — 收款说明/收款码
 - `GET /api/token/packages` — 上架套餐
 - `POST /api/token/orders` — 创建充值订单（返回收款码/说明）
 - `GET /api/token/orders` — 我的订单
@@ -225,11 +243,15 @@ controller/ TokenController（用户端 /token/**）
 - `GET /api/token/transactions` — 我的流水（分页）
 
 **后台端 `/api/admin-api/billing/**`（仅 ADMIN）**
-- `GET /overview` — 总览统计
+- `GET /overview` — 总览统计（含净消耗、退回、AI 成本、待确认超时提醒）
 - `GET /users` · `POST /users/{id}/adjust` · `GET /users/{id}/transactions` — 用户余额管理
 - `GET /transactions` — 全量流水检索
+- `GET /export/transactions.csv` — 流水导出
 - `GET/POST/PUT/DELETE /packages` — 套餐管理
 - `POST /cards/generate` · `GET /cards` · `GET /cards/export` — 卡密
-- `GET /orders` · `POST /orders/{id}/confirm` · `POST /orders/{id}/cancel` — 订单
+- `GET /orders` · `POST /orders/{id}/confirm` · `POST /orders/{id}/cancel` · `POST /orders/{id}/refund` — 订单（含退款冲正）
+- `GET /export/orders.csv` — 订单导出
 - `GET /scenes` · `PUT /scenes/{scene}` — 场景定价
-- `GET /settings` · `PUT /settings` — 平台设置
+- `GET /settings` · `PUT /settings` — 平台设置（真·部分更新）
+- `GET /ai-stats` · `GET /ai-logs` · `GET /export/ai-usage.csv` — AI 成本与可观测
+- `GET /audit-logs` — 资金类操作审计检索

@@ -75,24 +75,35 @@
 
 - **免费额度获客**：注册送 50 Token，每日登录送 5 Token（后台可调、可一键关闭）；
 - **按量付费**：每个 AI 场景按次扣 Token（默认 5-30 Token/次，场景单价后台实时可调），余额不足返回 402 并引导充值；
-- **先扣后用、失败自动退**：`@CostTokens` AOP 统一扣费，接口异常自动退款留痕；余额扣减走数据库悲观锁，并发下不为负；
-- **充值方式**：充值中心（`/recharge`）购买套餐（转账 + 管理员后台确认收款，幂等入账）/ 卡密兑换（16 位兑换码，一次核销）；
+- **先预留、有用才收钱**：`@CostTokens` 统一走「预留 → 成功结算 / 失败·降级·早退释放」，
+  **降级（上游不可用、返回空、走模板兜底）一律免扣**并给前端 `degraded` 标记；
+  释放靠 `token_charge` 状态机保证幂等，进程被杀留下的「扣了没退」由定时补偿任务自动退回；
+  余额扣减走数据库悲观锁，并发下不为负；
+- **充值方式**：充值中心（`/recharge`）购买套餐（转账 + 管理员后台确认收款，幂等入账；已到账订单可退款冲正）/ 卡密兑换（16 位兑换码，一次核销）；
 - **充值套餐**：¥6/¥12/¥30/¥68/¥128 五档（基础 + 赠送梯度折扣），后台可增删改/上下架；
-- **流水可对账**：充值/卡密/扣费/退款/赠送/手动调整全部写入 `TokenTransaction`，用户端与后台均可检索。
+- **流水可对账**：充值/卡密/扣费/退款/订单退款/赠送/手动调整全部写入 `TokenTransaction`，
+  每笔都带 `ref_id` 可归因到具体某次 AI 请求；流水、订单、AI 用量均可导出 CSV；
+- **成本可核算**：采集 DeepSeek 真实 `usage`（流式也已开启 `stream_options.include_usage`），
+  按后台配置的单价回算每个场景的 token / 成本 / 毛利、成功率、降级率与 P95 延迟；
+- **资金操作留痕**：加币、改价、确认收款、退款、生成/导出卡密、改平台设置全部写审计日志并可检索。
 
-详细商业模式、定价测算（综合毛利 ≥75%）与实施规划见 `docs/商业化与Token收费方案.md`。
+详细商业模式、定价测算与实施规划见 `docs/商业化与Token收费方案.md`；
+本次计费闭环的改动、实机验收记录与未做项见 `docs/计费闭环交付报告.md`。
 
 ## 运营管理后台（挂在 /api/admin/）
 
 独立 SPA（`admin-console/`，同主站技术栈，独立构建独立登录），生产地址 `http://<域名>/api/admin/`（本地开发 `cd admin-console && npm run dev` → 5175），仅 ADMIN 角色可进入：
 
-- **总览**：今日/累计营收、到账与消耗 Token、按场景 AI 调用统计、待确认订单、最近订单；
-- **用户与余额**：用户列表（带余额/累计充值/消耗）、手动加币/扣币（留痕）、用户流水；沿用认证/重置密码/删除；
-- **Token 流水**：全量检索（用户/类型/场景/日期）+ 分页；
+- **总览**：今日/累计营收、到账与净消耗 Token、按场景 AI 调用与退回统计、**待确认订单超时红条**、**今日降级率**、最近订单；
+- **用户与余额**：用户列表（带余额/累计充值/消耗）、手动加币/扣币（留痕 + 审计）、用户流水；沿用认证/重置密码/删除；
+- **Token 流水**：全量检索（用户/类型/场景/日期）+ 分页 + **导出 CSV**（带 refId 列，可与 AI 调用日志对齐）；
 - **充值套餐 / 卡密管理**：套餐 CRUD 与上下架；按套餐批量生成卡密（1-500 张/批）、批次查询、导出 TXT；
-- **订单管理**：待确认订单【确认收款】即自动到账（防重复入账）、取消订单；
+- **订单管理**：待确认订单【确认收款】即自动到账（防重复入账）、取消订单、**已到账订单退款冲正**、导出 CSV；
 - **场景定价**：9 个 AI 场景单价与收费开关实时调整；
-- **平台设置**：注册赠送/每日免费额度/免费开关、收款说明、微信/支付宝收款码；
+- **AI 成本与可观测**：场景 × 次数 × token × 成本、成功率/降级率/P95 延迟、日趋势、调用明细与导出；
+- **资金操作审计**：按操作类型/操作人/日期检索全部资金类操作，失败的也留痕；
+- **平台设置**：注册赠送/每日免费额度/免费开关、收款说明、微信/支付宝收款码、
+  **上游成本单价**、**待确认订单超时阈值**（部分更新：只传要改的字段，不会清空其它配置）；
 - **竞赛管理**：原主站后台竞赛 CRUD 迁入（主站 `/admin` 路由已移除）。
 
 ## 技术栈
@@ -155,7 +166,8 @@ npm run dev
 | 论坛 | `GET /api/forum/boards`、`GET/POST /api/forum/posts`（board/sort/keyword/competitionId/essence 筛选）、`GET/DELETE /api/forum/posts/{id}`、`POST /api/forum/posts/{id}/like|favorite|essence|pin`、`GET/POST /api/forum/posts/{id}/replies`、`POST /api/forum/replies/{id}/like|accept`、`DELETE /api/forum/replies/{id}`、`POST /api/forum/users/{id}/follow`、`POST /api/forum/ai/polish|suggest`、`GET/POST/DELETE /api/forum/notifications*`、`GET /api/profile/batch`（作者身份）、`PUT /api/users/{id}/verify`（管理员认证） |
 | 管理端（ADMIN） | 竞赛 CRUD（`POST/PUT/DELETE /api/competitions`）、`GET /api/competitions/admin/all`、用户管理 `GET/POST/PUT/DELETE /api/users` |
 | Token 计费（用户） | `GET /api/token/balance`、`GET /api/token/scenes`（场景单价）、`GET /api/token/packages`（上架套餐）、`GET /api/token/settings`（收款说明/收款码）、`POST /api/token/orders`（下单）、`GET /api/token/orders`、`POST /api/token/redeem`（卡密兑换）、`GET /api/token/transactions`（我的流水） |
-| 计费后台（ADMIN） | `/api/admin-api/billing/**`：`GET /overview`（营收/消耗总览）、`GET /users` + `POST /users/{id}/adjust`（加扣币）+ `GET /users/{id}/transactions`、`GET /transactions`（全量流水检索）、`GET/POST/PUT/DELETE /packages`、`POST /cards/generate` + `GET /cards` + `GET /cards/export`（卡密）、`GET /orders` + `POST /orders/{id}/confirm|cancel`、`GET /scenes` + `PUT /scenes/{scene}`（场景定价）、`GET/PUT /settings`（平台设置） |
+| 计费后台（ADMIN） | `/api/admin-api/billing/**`：`GET /overview`（营收/净消耗总览 + 待确认超时提醒）、`GET /users` + `POST /users/{id}/adjust`（加扣币）+ `GET /users/{id}/transactions`、`GET /transactions`（全量流水检索）、`GET/POST/PUT/DELETE /packages`、`POST /cards/generate` + `GET /cards` + `GET /cards/export`（卡密）、`GET /orders` + `POST /orders/{id}/confirm\|cancel\|refund`、`GET /scenes` + `PUT /scenes/{scene}`（场景定价）、`GET/PUT /settings`（平台设置，部分更新） |
+| 计费导出与观测（ADMIN） | `GET /api/admin-api/billing/export/transactions.csv`、`export/orders.csv`、`export/ai-usage.csv`；`GET /ai-stats`（场景×次数×token×成本、成功率/降级率/P95/日趋势）、`GET /ai-logs`（AI 调用明细，含 refId）、`GET /audit-logs`（资金操作审计） |
 
 ## 推荐机制
 
