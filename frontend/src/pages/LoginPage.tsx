@@ -121,12 +121,6 @@ export default function LoginPage() {
               注册学生账号
             </Link>
           </p>
-
-          <div className="mt-10 rounded-[10px] bg-zinc-100/80 px-4 py-3 text-xs leading-relaxed text-zinc-500">
-            演示账号：student01 / student123（学生）
-            <br />
-            admin / admin123（管理员）
-          </div>
         </div>
       </div>
     </div>
