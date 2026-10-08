@@ -100,6 +100,16 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
+            // 生产环境（阿里云 ECS + nginx）。必须显式列出：
+            // Vite 产物里的 <script crossorigin>/<link crossorigin> 会让同源 JS/CSS 也带上 Origin 头，
+            // 只要该 Origin 不在白名单，Spring 直接返回 403 "Invalid CORS request"，静态资源加载失败 → 整站白屏。
+            // 同理，域名下所有 POST/PUT/DELETE（登录、注册、充值…）也依赖这份白名单。
+            // 换域名/加域名时必须同步改这里并重新部署；如需先救急，可在 nginx 侧对 /api/ 用 proxy_set_header Origin "";
+            "https://saidao.asia",
+            "https://www.saidao.asia",
+            "http://saidao.asia",
+            "http://8.133.220.133:8080",
+            // 本地开发
             "http://localhost:3000",
             "http://localhost:4000",
             "http://127.0.0.1:4000",
