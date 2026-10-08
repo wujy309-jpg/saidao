@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Coin, Ticket } from '@phosphor-icons/react';
 import { request, toast } from '../lib/api';
@@ -69,6 +69,24 @@ export default function RechargePage() {
       .catch(() => setScenes([]));
   }, [loadAccount]);
 
+  /**
+   * 价格速览按「显示名 + 单价」去重。
+   * 一个用户功能可能对应多个计费场景：例如「备赛计划生成」是 PLAN_GENERATE，
+   * 走流式输出时另算 PLAN_STREAM，两者显示名与单价都相同——不去重就会在价格条里出现两遍。
+   * 消费记录（下方流水分页）仍逐条展示，不影响对账。
+   */
+  const priceItems = useMemo(() => {
+    const seen = new Set<string>();
+    return scenes
+      .map((s) => ({ scene: s.scene, label: SCENE_LABEL[s.scene] ?? s.label, price: s.price }))
+      .filter(({ label, price }) => {
+        const key = `${label}|${price}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+  }, [scenes]);
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center gap-3">
@@ -91,11 +109,11 @@ export default function RechargePage() {
       </div>
 
       {/* 场景单价速览 */}
-      {scenes.length > 0 && (
+      {priceItems.length > 0 && (
         <Card className="flex flex-wrap items-center gap-x-5 gap-y-1.5 px-4 py-3">
-          {scenes.map((s) => (
+          {priceItems.map((s) => (
             <span key={s.scene} className="text-xs text-zinc-500">
-              {SCENE_LABEL[s.scene] ?? s.label}
+              {s.label}
               <span className="font-num ml-1 font-semibold text-zinc-700">{s.price}</span> 积分/次
             </span>
           ))}
