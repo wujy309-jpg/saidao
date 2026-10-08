@@ -58,7 +58,7 @@ export default function UsersPage() {
     <div className="flex flex-col gap-5">
       <div>
         <h1 className="text-xl font-semibold text-zinc-900">用户与余额</h1>
-        <p className="mt-1 text-sm text-zinc-400">查看 Token 余额，手动加币/扣币（全部留痕）</p>
+        <p className="mt-1 text-sm text-zinc-400">查看积分余额，手动加币/扣币（全部留痕）</p>
       </div>
 
       <div className="flex gap-2">
@@ -102,7 +102,7 @@ export default function UsersPage() {
               <td className="px-4 py-3 text-xs text-zinc-500">{u.department ?? '-'}</td>
               <td className="num px-4 py-3">
                 <span className="font-semibold text-brand-700">{fmtNum(u.balance)}</span>
-                <span className="ml-1 text-xs text-zinc-400">Token</span>
+                <span className="ml-1 text-xs text-zinc-400">积分</span>
               </td>
               <td className="num px-4 py-3 text-xs text-zinc-500">{fmtNum(u.totalRecharged)}</td>
               <td className="num px-4 py-3 text-xs text-zinc-500">{fmtNum(u.totalConsumed)}</td>
@@ -193,7 +193,7 @@ function AdjustModal({
         method: 'POST',
         body: { amount: n, remark: remark.trim() },
       });
-      toast(`已调整「${user.username}」余额 ${n > 0 ? '+' : ''}${n} Token`, 'success');
+      toast(`已调整「${user.username}」余额 ${n > 0 ? '+' : ''}${n} 积分`, 'success');
       onDone();
       onClose();
     } catch (e) {
@@ -205,7 +205,7 @@ function AdjustModal({
 
   return (
     <Modal
-      title={`调整余额 · ${user.name}（当前 ${fmtNum(user.balance)} Token）`}
+      title={`调整余额 · ${user.name}（当前 ${fmtNum(user.balance)} 积分）`}
       onClose={onClose}
       footer={
         <>
@@ -219,7 +219,7 @@ function AdjustModal({
       }
     >
       <div className="flex flex-col gap-4">
-        <Field label="数量（正数加币 / 负数扣币）" hint="如 +100 表示赠送 100 Token，-50 表示扣减 50">
+        <Field label="数量（正数加币 / 负数扣币）" hint="如 +100 表示赠送 100 积分，-50 表示扣减 50">
           <TextInput
             type="number"
             value={amount}
@@ -255,7 +255,7 @@ function TxModal({ user, onClose }: { user: UserBalanceView; onClose: () => void
   }, [user.userId, page]);
 
   return (
-    <Modal title={`${user.name} 的 Token 流水`} onClose={onClose} wide>
+    <Modal title={`${user.name} 的积分流水`} onClose={onClose} wide>
       <Table head={['类型', '场景', '数量', '余额', '备注', '时间']}>
         {(data?.content ?? []).length === 0 && (
           <tr>

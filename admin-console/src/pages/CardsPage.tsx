@@ -81,7 +81,7 @@ export default function CardsPage() {
       </div>
 
       <Card>
-        <Table head={['卡密', '批次', '套餐', 'Token', '状态', '使用人/时间', '操作']}>
+        <Table head={['卡密', '批次', '套餐', '积分', '状态', '使用人/时间', '操作']}>
           {(data?.content ?? []).length === 0 && (
             <tr>
               <td colSpan={7}>
@@ -212,12 +212,12 @@ function GenerateModal({
         </div>
       ) : (
         <div className="flex flex-col gap-4">
-          <Field label="选择套餐（决定每张卡密的到账 Token）">
+          <Field label="选择套餐（决定每张卡密的到账积分）">
             <Select value={packageId} onChange={(e) => setPackageId(e.target.value)}>
               <option value="">请选择套餐</option>
               {enabled.map((p) => (
                 <option key={p.id} value={p.id}>
-                  {p.name}（¥{p.priceYuan} · 到账 {p.tokens + p.bonusTokens} Token）
+                  {p.name}（¥{p.priceYuan} · 到账 {p.tokens + p.bonusTokens} 积分）
                 </option>
               ))}
             </Select>
@@ -235,7 +235,7 @@ function GenerateModal({
           </Field>
           {selected && (
             <p className="rounded-[10px] bg-zinc-50 px-3 py-2 text-xs text-zinc-500">
-              本批次每张卡密到账 <span className="font-semibold text-brand-700">{selected.tokens + selected.bonusTokens}</span> Token
+              本批次每张卡密到账 <span className="font-semibold text-brand-700">{selected.tokens + selected.bonusTokens}</span> 积分
             </p>
           )}
         </div>

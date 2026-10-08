@@ -32,7 +32,7 @@ export default function DashboardPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-semibold text-zinc-900">总览</h1>
-        <p className="mt-1 text-sm text-zinc-400">营收、Token 消耗与 AI 调用情况</p>
+        <p className="mt-1 text-sm text-zinc-400">营收、积分消耗与 AI 调用情况</p>
       </div>
 
       {/* 待确认订单超时提醒 */}
@@ -58,7 +58,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         <StatCard label="今日营收（元）" value={`¥${fmtYuan(t.rechargeAmount)}`} accent="brand" sub={`${t.rechargeCount} 笔到账`} />
         <StatCard
-          label="今日到账 Token"
+          label="今日到账积分"
           value={fmtNum(t.rechargedTokens)}
           sub={`净消耗 ${fmtNum(t.consumedTokens)}${t.refundedTokens > 0 ? ` · 退回 ${fmtNum(t.refundedTokens)}` : ''}`}
         />
@@ -80,9 +80,9 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StatCard label="注册用户" value={fmtNum(a.registeredUsers)} sub={`累计赠送 ${fmtNum(a.grantedTokens)} Token`} />
+        <StatCard label="注册用户" value={fmtNum(a.registeredUsers)} sub={`累计赠送 ${fmtNum(a.grantedTokens)} 积分`} />
         <StatCard
-          label="累计净消耗 Token"
+          label="累计净消耗积分"
           value={fmtNum(a.consumedTokens)}
           sub="只统计已结算的 AI 预留，退款不漂移"
         />
@@ -90,7 +90,7 @@ export default function DashboardPage() {
           label="累计退款（元）"
           value={`¥${fmtYuan(a.refundedAmount)}`}
           accent={Number(a.refundedAmount) > 0 ? 'red' : 'zinc'}
-          sub={`冲正 Token ${fmtNum(a.refundedTokens)}`}
+          sub={`冲正积分 ${fmtNum(a.refundedTokens)}`}
           onClick={() => navigate('/orders')}
         />
         <StatCard

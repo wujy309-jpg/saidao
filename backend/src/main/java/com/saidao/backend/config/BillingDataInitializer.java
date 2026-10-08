@@ -52,10 +52,10 @@ public class BillingDataInitializer implements CommandLineRunner {
     private void initPackages() {
         if (packageRepository.count() > 0) return;
         addPackage("新手包", "小额体验，适合试试 AI 助手", "6", 600, 0, 1);
-        addPackage("体验包", "常用之选，赠送 100 Token", "12", 1300, 100, 2);
-        addPackage("进阶包", "备赛期主力，赠送 500 Token", "30", 3500, 500, 3);
-        addPackage("备赛包", "整个备赛期够用，赠送 1700 Token", "68", 8500, 1700, 4);
-        addPackage("冲刺包", "团队共用，赠送 5200 Token", "128", 18000, 5200, 5);
+        addPackage("体验包", "常用之选，赠送 100 积分", "12", 1300, 100, 2);
+        addPackage("进阶包", "备赛期主力，赠送 500 积分", "30", 3500, 500, 3);
+        addPackage("备赛包", "整个备赛期够用，赠送 1700 积分", "68", 8500, 1700, 4);
+        addPackage("冲刺包", "团队共用，赠送 5200 积分", "128", 18000, 5200, 5);
         log.info("已初始化默认充值套餐");
     }
 

@@ -50,7 +50,7 @@ export default function Layout() {
       .catch(() => setUnread(0));
   };
 
-  // Token 余额:登录后拉取,路由变化(消费过 AI)后刷新
+  // 积分余额:登录后拉取,路由变化(消费过 AI)后刷新
   useEffect(() => {
     if (!user) return;
     let alive = true;
@@ -199,7 +199,7 @@ export default function Layout() {
                 </span>
               )}
             </button>
-            {/* Token 余额与充值入口 */}
+            {/* 积分余额与充值入口 */}
             <Link
               to="/recharge"
               title="充值中心"
@@ -209,7 +209,7 @@ export default function Layout() {
               <span className="font-num">
                 {balance === null ? '…' : balance.toLocaleString('zh-CN')}
               </span>
-              <span className="hidden text-brand-600 sm:inline">Token</span>
+              <span className="hidden text-brand-600 sm:inline">积分</span>
             </Link>
             {/* 用户状态:原「我的」模块的展开项已合并到这里 */}
             <div className="relative" ref={menuRef}>

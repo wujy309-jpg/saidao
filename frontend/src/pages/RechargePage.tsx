@@ -78,14 +78,14 @@ export default function RechargePage() {
           </span>
           <div>
             <h1 className="text-xl font-semibold text-zinc-900">充值中心</h1>
-            <p className="text-xs text-zinc-400">AI 功能按次消耗 Token，按需充值</p>
+            <p className="text-xs text-zinc-400">AI 功能按次消耗积分，按需充值</p>
           </div>
         </div>
         <div className="ml-auto rounded-[14px] border border-brand-200 bg-brand-50 px-4 py-2.5">
           <p className="text-xs text-brand-700/70">当前余额</p>
           <p className="font-num text-2xl font-bold text-brand-800">
             {account ? fmtNum(account.balance) : '…'}
-            <span className="ml-1 text-sm font-semibold">Token</span>
+            <span className="ml-1 text-sm font-semibold">积分</span>
           </p>
         </div>
       </div>
@@ -96,7 +96,7 @@ export default function RechargePage() {
           {scenes.map((s) => (
             <span key={s.scene} className="text-xs text-zinc-500">
               {SCENE_LABEL[s.scene] ?? s.label}
-              <span className="font-num ml-1 font-semibold text-zinc-700">{s.price}</span> Token/次
+              <span className="font-num ml-1 font-semibold text-zinc-700">{s.price}</span> 积分/次
             </span>
           ))}
         </Card>
@@ -182,13 +182,13 @@ function PackagesTab({ onRecharged }: { onRecharged: () => void }) {
               ¥{Number(p.priceYuan).toFixed(2)}
             </p>
             <p className="mt-1 text-xs text-zinc-500">
-              到账 <span className="font-num font-semibold text-brand-700">{fmtNum(p.tokens)}</span> Token
+              到账 <span className="font-num font-semibold text-brand-700">{fmtNum(p.tokens)}</span> 积分
               {p.bonusTokens > 0 && (
                 <span className="font-num text-brand-600">（含赠送 {fmtNum(p.bonusTokens)}）</span>
               )}
             </p>
             <p className="mt-0.5 text-[11px] text-zinc-400">
-              约合 ¥{(Number(p.priceYuan) / (p.tokens + p.bonusTokens)).toFixed(4)}/Token
+              约合 ¥{(Number(p.priceYuan) / (p.tokens + p.bonusTokens)).toFixed(4)}/积分
             </p>
             <Button
               className="mt-4 w-full"
@@ -295,7 +295,7 @@ function CardTab({ onRecharged }: { onRecharged: () => void }) {
         method: 'POST',
         body: { code: code.trim() },
       });
-      setResult(`兑换成功！当前余额 ${fmtNum(data.balance)} Token`);
+      setResult(`兑换成功！当前余额 ${fmtNum(data.balance)} 积分`);
       setCode('');
       onRecharged();
     } catch (e) {
@@ -355,7 +355,7 @@ function OrdersTab() {
           <div className="min-w-0 flex-1">
             <p className="font-num truncate text-sm font-medium text-zinc-800">{o.orderNo}</p>
             <p className="text-xs text-zinc-400">
-              {o.packageName ?? '-'} · 到账 {fmtNum(o.tokens)} Token · {fmtTime(o.createdAt)}
+              {o.packageName ?? '-'} · 到账 {fmtNum(o.tokens)} 积分 · {fmtTime(o.createdAt)}
             </p>
           </div>
           <span className="font-num text-sm font-semibold text-zinc-800">

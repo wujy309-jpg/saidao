@@ -429,7 +429,7 @@ export interface NotificationItem {
   createdAt?: string;
 }
 
-// ============ Token 计费 ============
+// ============ 积分计费 ============
 
 export interface TokenAccount {
   id: number;

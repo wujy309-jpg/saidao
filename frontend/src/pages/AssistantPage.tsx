@@ -76,7 +76,7 @@ export default function AssistantPage() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  // Token 余额与场景单价
+  // 积分余额与场景单价
   const refreshBalance = useCallback(() => {
     request<TokenAccount>('/api/token/balance')
       .then((d) => setBalance(d?.balance ?? 0))
@@ -383,7 +383,7 @@ export default function AssistantPage() {
             <Coin size={15} weight="fill" className="text-brand-600" />
             余额
             <span className="font-num">{balance === null ? '…' : balance.toLocaleString('zh-CN')}</span>
-            <span className="hidden text-brand-600 sm:inline">· 每次对话 {chatPrice} Token · 去充值</span>
+            <span className="hidden text-brand-600 sm:inline">· 每次对话 {chatPrice} 积分 · 去充值</span>
           </Link>
           <CompetitionSearch
             competitions={competitions}
@@ -402,7 +402,7 @@ export default function AssistantPage() {
       {balance !== null && balance < chatPrice && (
         <div className="flex items-center justify-between rounded-[12px] border border-amber-200 bg-amber-50 px-4 py-2.5">
           <p className="text-sm text-amber-800">
-            余额不足 {chatPrice} Token，无法发起新的 AI 对话
+            余额不足 {chatPrice} 积分，无法发起新的 AI 对话
           </p>
           <Link to="/recharge" className="text-sm font-semibold text-amber-800 underline">
             去充值 →

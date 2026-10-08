@@ -115,7 +115,7 @@ public class TokenController {
     @PostMapping("/redeem")
     public ResponseEntity<ApiResponse<Map<String, Object>>> redeem(@RequestBody Map<String, String> body) {
         TokenTransaction tx = tokenService.redeemCard(currentUserId(), body.getOrDefault("code", ""));
-        return ResponseEntity.ok(ApiResponse.success("兑换成功，到账 " + tx.getAmount() + " Token",
+        return ResponseEntity.ok(ApiResponse.success("兑换成功，到账 " + tx.getAmount() + " 积分",
                 Map.of("transaction", tx, "balance", tx.getBalanceAfter())));
     }
 

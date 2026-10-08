@@ -19,7 +19,7 @@ import { MAIN_SITE_URL } from '../lib/api';
 const NAV = [
   { to: '/', label: '总览', icon: ChartBar, end: true },
   { to: '/users', label: '用户与余额', icon: Users },
-  { to: '/transactions', label: 'Token 流水', icon: Receipt },
+  { to: '/transactions', label: '积分流水', icon: Receipt },
   { to: '/packages', label: '充值套餐', icon: Package },
   { to: '/cards', label: '卡密管理', icon: Ticket },
   { to: '/orders', label: '订单管理', icon: CreditCard },
@@ -44,7 +44,7 @@ export default function Shell() {
           </div>
           <div>
             <p className="text-sm font-semibold text-white">赛道 · 运营后台</p>
-            <p className="text-[11px] text-zinc-500">Token 商业化平台</p>
+            <p className="text-[11px] text-zinc-500">积分商业化平台</p>
           </div>
         </div>
 

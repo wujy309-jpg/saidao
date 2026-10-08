@@ -33,7 +33,7 @@ export default function TransactionsPage() {
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <h1 className="text-xl font-semibold text-zinc-900">Token 流水</h1>
+        <h1 className="text-xl font-semibold text-zinc-900">积分流水</h1>
         <p className="mt-1 text-sm text-zinc-400">全量收支明细，支持按用户 / 类型 / 场景 / 日期检索</p>
       </div>
 

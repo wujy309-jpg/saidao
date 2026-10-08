@@ -190,7 +190,7 @@ public class AiCallLogService {
         List<AiCallLog> logs = repository.search(null, null, null, start, end,
                 PageRequest.of(0, Math.min(Math.max(1, limit), 20000))).getContent();
         StringBuilder sb = new StringBuilder();
-        sb.append("时间,refId,用户ID,场景,状态,上游调用次数,输入token,输出token,总token,耗时ms,估算成本元,实收Token,模型,失败/降级原因\n");
+        sb.append("时间,refId,用户ID,场景,状态,上游调用次数,输入token,输出token,总token,耗时ms,估算成本元,实收积分,模型,失败/降级原因\n");
         for (AiCallLog l : logs) {
             sb.append(csv(l.getCreatedAt() == null ? "" : l.getCreatedAt().toString())).append(',')
               .append(csv(l.getRefId())).append(',')

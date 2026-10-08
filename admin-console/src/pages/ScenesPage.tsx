@@ -45,12 +45,12 @@ export default function ScenesPage() {
       <div>
         <h1 className="text-xl font-semibold text-zinc-900">场景定价</h1>
         <p className="mt-1 text-sm text-zinc-400">
-          每个 AI 功能按次扣 Token，单价实时生效；关闭开关则该场景免费。按 1 Token = ¥0.01 定价。
+          每个 AI 功能按次扣积分，单价实时生效；关闭开关则该场景免费。按 1 积分 = ¥0.01 定价。
         </p>
       </div>
 
       <Card>
-        <Table head={['场景', '单价（Token/次）', '折合人民币', '是否收费', '保存']}>
+        <Table head={['场景', '单价（积分/次）', '折合人民币', '是否收费', '保存']}>
           {(list ?? []).length === 0 && (
             <tr>
               <td colSpan={5}>

@@ -139,7 +139,7 @@ public class TokenService {
         accountRepository.save(account);
         record(userId, TokenTransaction.TxType.GRANT, null, s.getRegisterBonusTokens(),
                 account.getBalance(), null, "注册赠送");
-        log.info("用户 {} 注册赠送 {} Token", userId, s.getRegisterBonusTokens());
+        log.info("用户 {} 注册赠送 {} 积分", userId, s.getRegisterBonusTokens());
         return s.getRegisterBonusTokens();
     }
 
@@ -184,7 +184,7 @@ public class TokenService {
         TokenAccount account = lockAccount(userId);
         if (account.getBalance() < price) {
             throw new TokenInsufficientException(
-                    "Token 余额不足（本场景需 " + price + " Token），请前往充值中心充值");
+                    "积分余额不足（本场景需 " + price + " 积分），请前往充值中心充值");
         }
 
         TokenCharge charge = new TokenCharge();
@@ -312,7 +312,7 @@ public class TokenService {
         accountRepository.save(account);
         TokenTransaction tx = record(userId, TokenTransaction.TxType.CARD, null, card.getTokens(),
                 account.getBalance(), card.getBatchNo(), "卡密兑换:" + card.getCode());
-        log.info("用户 {} 兑换卡密 {} 到账 {} Token", userId, card.getCode(), card.getTokens());
+        log.info("用户 {} 兑换卡密 {} 到账 {} 积分", userId, card.getCode(), card.getTokens());
         return tx;
     }
 
@@ -340,7 +340,7 @@ public class TokenService {
         accountRepository.save(account);
         record(order.getUserId(), TokenTransaction.TxType.RECHARGE, null, order.getTokens(),
                 account.getBalance(), order.getOrderNo(), "充值订单:" + order.getPackageName());
-        log.info("订单 {} 确认收款，到账 {} Token", order.getOrderNo(), order.getTokens());
+        log.info("订单 {} 确认收款，到账 {} 积分", order.getOrderNo(), order.getTokens());
         return order;
     }
 
@@ -376,7 +376,7 @@ public class TokenService {
         TokenAccount account = lockAccount(order.getUserId());
         if (account.getBalance() < order.getTokens()) {
             throw new IllegalArgumentException(String.format(
-                    "用户当前余额 %d Token，不足以冲正本次充值的 %d Token（已消费 %d）。"
+                    "用户当前余额 %d 积分，不足以冲正本次充值的 %d 积分（已消费 %d）。"
                             + "请先与用户协商，或用「手动调整」扣减差额后再退款。",
                     account.getBalance(), order.getTokens(),
                     Math.max(0, order.getTokens() - account.getBalance())));
@@ -394,7 +394,7 @@ public class TokenService {
         record(order.getUserId(), TokenTransaction.TxType.ORDER_REFUND, null, -order.getTokens(),
                 account.getBalance(), order.getOrderNo(),
                 "订单退款:" + order.getPackageName() + "（" + adminUsername + "）");
-        log.info("订单 {} 已退款，冲正 {} Token，操作人 {}", order.getOrderNo(), order.getTokens(), adminUsername);
+        log.info("订单 {} 已退款，冲正 {} 积分，操作人 {}", order.getOrderNo(), order.getTokens(), adminUsername);
         return order;
     }
 

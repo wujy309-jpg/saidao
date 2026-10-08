@@ -63,7 +63,7 @@ export default function AiUsagePage() {
         <div>
           <h1 className="text-xl font-semibold text-zinc-900">AI 成本与可观测</h1>
           <p className="mt-1 text-sm text-zinc-400">
-            场景 × 次数 × token × 成本：把「平台收了多少 Token」和「上游真实花了多少钱」对齐
+            场景 × 次数 × token × 成本：把「平台收了多少积分」和「上游真实花了多少钱」对齐
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -133,7 +133,7 @@ export default function AiUsagePage() {
               </span>
             </div>
             <Table
-              head={['场景', '请求数', '成功', '降级', '失败', '输入 token', '输出 token', '平均 token/次', '估算成本', '实收 Token', '毛利', 'P95 延迟']}
+              head={['场景', '请求数', '成功', '降级', '失败', '输入 token', '输出 token', '平均 token/次', '估算成本', '实收积分', '毛利', 'P95 延迟']}
             >
               {stats.scenes.length === 0 && (
                 <tr>
@@ -174,7 +174,7 @@ export default function AiUsagePage() {
               <div className="border-b border-zinc-100 px-4 py-3">
                 <h2 className="text-sm font-semibold text-zinc-800">日趋势</h2>
               </div>
-              <Table head={['日期', '请求数', '上游 token', '估算成本', '实收 Token']}>
+              <Table head={['日期', '请求数', '上游 token', '估算成本', '实收积分']}>
                 {stats.trend.map((d) => (
                   <tr key={d.date}>
                     <td className="num px-4 py-2.5 text-zinc-600">{d.date}</td>

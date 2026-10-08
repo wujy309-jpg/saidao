@@ -98,7 +98,7 @@ public class GlobalExceptionHandler {
     
     @ExceptionHandler(TokenInsufficientException.class)
     public ResponseEntity<ApiResponse<Void>> handleTokenInsufficient(TokenInsufficientException e) {
-        log.warn("Token 余额不足: {}", e.getMessage());
+        log.warn("积分余额不足: {}", e.getMessage());
         // 402：前端据此引导用户前往充值中心
         return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED)
                 .body(ApiResponse.error(e.getMessage()));

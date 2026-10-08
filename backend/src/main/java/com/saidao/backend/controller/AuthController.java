@@ -55,7 +55,7 @@ public class AuthController {
         try {
             tokenService.grantRegisterBonus(registered.getId());
         } catch (Exception e) {
-            log.warn("注册赠送 Token 发放失败: {}", e.getMessage());
+            log.warn("注册赠送积分发放失败: {}", e.getMessage());
         }
         return ResponseEntity.ok(ApiResponse.success("注册成功", registered));
     }

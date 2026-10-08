@@ -40,7 +40,7 @@ export default function LoginPage() {
           </div>
           <div>
             <h1 className="text-lg font-semibold text-white">赛道 · 运营管理后台</h1>
-            <p className="text-xs text-zinc-500">Token 商业化 · 仅限管理员登录</p>
+            <p className="text-xs text-zinc-500">积分商业化 · 仅限管理员登录</p>
           </div>
         </div>
 

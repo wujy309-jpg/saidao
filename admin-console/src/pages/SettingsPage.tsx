@@ -46,7 +46,7 @@ export default function SettingsPage() {
         <div className="p-5">
           <h2 className="text-sm font-semibold text-zinc-800">免费额度（获客）</h2>
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Field label="注册赠送 Token" hint="新用户注册时一次性到账">
+            <Field label="注册赠送积分" hint="新用户注册时一次性到账">
               <TextInput
                 type="number"
                 value={form.registerBonusTokens}
@@ -55,7 +55,7 @@ export default function SettingsPage() {
                 }
               />
             </Field>
-            <Field label="每日免费 Token" hint="用户每天首次登录自动到账">
+            <Field label="每日免费积分" hint="用户每天首次登录自动到账">
               <TextInput
                 type="number"
                 value={form.dailyFreeTokens}

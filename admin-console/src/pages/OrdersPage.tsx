@@ -41,7 +41,7 @@ export default function OrdersPage() {
   useEffect(load, [load]);
 
   const confirm = async (o: RechargeOrder) => {
-    if (!window.confirm(`确认已收到「${o.orderNo}」的 ¥${fmtYuan(o.priceYuan)} 转账？确认后立即到账 ${o.tokens} Token。`)) return;
+    if (!window.confirm(`确认已收到「${o.orderNo}」的 ¥${fmtYuan(o.priceYuan)} 转账？确认后立即到账 ${o.tokens} 积分。`)) return;
     try {
       await request<void>(`/api/admin-api/billing/orders/${o.id}/confirm`, { method: 'POST' });
       toast('已确认收款并到账', 'success');
@@ -70,7 +70,7 @@ export default function OrdersPage() {
         method: 'POST',
         body: { reason: reason || '管理员退款' },
       });
-      toast(`已退款并冲正 ${fmtNum(refunding.tokens)} Token`, 'success');
+      toast(`已退款并冲正 ${fmtNum(refunding.tokens)} 积分`, 'success');
       setRefunding(null);
       setReason('');
       load();
@@ -142,7 +142,7 @@ export default function OrdersPage() {
               <td className="num px-4 py-3 text-xs text-zinc-500">#{o.userId}</td>
               <td className="px-4 py-3">
                 <p className="text-sm font-medium text-zinc-800">{o.packageName ?? '-'}</p>
-                <p className="num text-xs text-zinc-400">到账 {fmtNum(o.tokens)} Token</p>
+                <p className="num text-xs text-zinc-400">到账 {fmtNum(o.tokens)} 积分</p>
               </td>
               <td className="num px-4 py-3 font-semibold text-zinc-800">¥{fmtYuan(o.priceYuan)}</td>
               <td className="px-4 py-3 text-xs text-zinc-500">{CHANNEL_META[o.channel] ?? o.channel}</td>
@@ -207,7 +207,7 @@ export default function OrdersPage() {
                 取消
               </Button>
               <Button variant="danger" onClick={doRefund} disabled={submitting}>
-                {submitting ? '处理中…' : `确认退款并冲正 ${fmtNum(refunding.tokens)} Token`}
+                {submitting ? '处理中…' : `确认退款并冲正 ${fmtNum(refunding.tokens)} 积分`}
               </Button>
             </>
           }
@@ -216,10 +216,10 @@ export default function OrdersPage() {
             <p>
               用户 <span className="num font-medium text-zinc-800">#{refunding.userId}</span> 的订单
               <span className="num"> {refunding.orderNo}</span>（¥{fmtYuan(refunding.priceYuan)}，
-              到账 {fmtNum(refunding.tokens)} Token）将被冲正。
+              到账 {fmtNum(refunding.tokens)} 积分）将被冲正。
             </p>
             <p className="rounded-[10px] bg-amber-50 px-3 py-2 text-xs text-amber-700 ring-1 ring-amber-200">
-              冲正会把已到账的 Token 从用户余额中扣回。若用户已经把 Token 消费掉（余额不足），
+              冲正会把已到账的积分从用户余额中扣回。若用户已经把积分消费掉（余额不足），
               后端会拒绝本次退款并提示差额，请先与用户协商或用「手动调整」处理。
             </p>
             <label className="flex flex-col gap-1.5">

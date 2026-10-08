@@ -54,7 +54,7 @@ public class BillingMaintenanceService {
                     log.error("补偿退款失败 chargeId={} refId={}: {}", charge.getId(), charge.getRefId(), e.getMessage());
                 }
             }
-            log.warn("计费补偿任务：发现 {} 笔未终结预留，退回 {} 笔共 {} Token", stale.size(), released, tokens);
+            log.warn("计费补偿任务：发现 {} 笔未终结预留，退回 {} 笔共 {} 积分", stale.size(), released, tokens);
         } catch (Exception e) {
             log.error("计费补偿任务异常: {}", e.getMessage());
         }

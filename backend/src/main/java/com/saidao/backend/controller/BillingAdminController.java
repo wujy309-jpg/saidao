@@ -186,12 +186,12 @@ public class BillingAdminController {
             tokenService.adjust(userId, amount, remark, operator);
         } catch (RuntimeException e) {
             auditService.logMoneyFailure(currentUserId(), operator, "BILLING_ADJUST", "TOKEN_ACCOUNT",
-                    userId, "调整 " + amount + " Token 失败：" + e.getMessage());
+                    userId, "调整 " + amount + " 积分失败：" + e.getMessage());
             throw e;
         }
         TokenAccount account = tokenService.getOrCreateAccount(userId);
         auditService.logMoney(currentUserId(), operator, "BILLING_ADJUST", "TOKEN_ACCOUNT", userId,
-                String.format("调整 %+d Token，调整后余额 %d，备注：%s", amount, account.getBalance(),
+                String.format("调整 %+d 积分，调整后余额 %d，备注：%s", amount, account.getBalance(),
                         remark.isBlank() ? "无" : remark));
         return ResponseEntity.ok(ApiResponse.success("已调整", account));
     }
@@ -266,7 +266,7 @@ public class BillingAdminController {
         applyPackage(pkg, body);
         TokenPackage saved = packageRepository.save(pkg);
         auditService.logMoney(currentUserId(), currentUsername(), "BILLING_PACKAGE_CREATE", "TOKEN_PACKAGE",
-                saved.getId(), String.format("新建套餐 %s：¥%s = %d Token", saved.getName(),
+                saved.getId(), String.format("新建套餐 %s：¥%s = %d 积分", saved.getName(),
                         saved.getPriceYuan(), saved.totalTokens()));
         return ResponseEntity.ok(ApiResponse.success("套餐已创建", saved));
     }
@@ -276,11 +276,11 @@ public class BillingAdminController {
             @PathVariable Long id, @RequestBody Map<String, Object> body) {
         TokenPackage pkg = packageRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("套餐不存在"));
-        String before = String.format("¥%s = %d Token", pkg.getPriceYuan(), pkg.totalTokens());
+        String before = String.format("¥%s = %d 积分", pkg.getPriceYuan(), pkg.totalTokens());
         applyPackage(pkg, body);
         TokenPackage saved = packageRepository.save(pkg);
         auditService.logMoney(currentUserId(), currentUsername(), "BILLING_PACKAGE_UPDATE", "TOKEN_PACKAGE",
-                saved.getId(), String.format("改套餐 %s：%s → ¥%s = %d Token", saved.getName(), before,
+                saved.getId(), String.format("改套餐 %s：%s → ¥%s = %d 积分", saved.getName(), before,
                         saved.getPriceYuan(), saved.totalTokens()));
         return ResponseEntity.ok(ApiResponse.success("套餐已更新", saved));
     }
@@ -302,7 +302,7 @@ public class BillingAdminController {
         pkg.setPriceYuan(new java.math.BigDecimal(String.valueOf(body.getOrDefault("priceYuan", "0"))));
         pkg.setTokens(toLong(body.get("tokens")));
         pkg.setBonusTokens(toLong(body.get("bonusTokens")));
-        if (pkg.getTokens() + pkg.getBonusTokens() <= 0) throw new IllegalArgumentException("Token 数量必须大于 0");
+        if (pkg.getTokens() + pkg.getBonusTokens() <= 0) throw new IllegalArgumentException("积分数量必须大于 0");
         pkg.setEnabled(Boolean.TRUE.equals(body.get("enabled")));
         pkg.setSortOrder((int) toLong(body.get("sortOrder")));
     }
@@ -362,7 +362,7 @@ public class BillingAdminController {
         RechargeOrder order = tokenService.confirmOrder(id, operator);
         auditService.logMoney(currentUserId(), operator, "BILLING_ORDER_CONFIRM", "RECHARGE_ORDER", id,
                 wasPending
-                        ? String.format("确认收款 %s：¥%s → %d Token（用户 #%d）", order.getOrderNo(),
+                        ? String.format("确认收款 %s：¥%s → %d 积分（用户 #%d）", order.getOrderNo(),
                                 order.getPriceYuan(), order.getTokens(), order.getUserId())
                         : String.format("重复点击确认（订单 %s 已是 %s，未重复入账）",
                                 order.getOrderNo(), order.getStatus()));
@@ -389,12 +389,12 @@ public class BillingAdminController {
             RechargeOrder order = tokenService.refundOrder(id, operator, reason);
             auditService.logMoney(currentUserId(), operator, "BILLING_ORDER_REFUND", "RECHARGE_ORDER", id,
                     wasPaid
-                            ? String.format("订单退款 %s：冲正 %d Token（用户 #%d），原因：%s", order.getOrderNo(),
+                            ? String.format("订单退款 %s：冲正 %d 积分（用户 #%d），原因：%s", order.getOrderNo(),
                                     order.getTokens(), order.getUserId(),
                                     order.getRefundReason() == null ? "无" : order.getRefundReason())
                             : String.format("重复点击退款（订单 %s 已是 %s，未重复冲正）",
                                     order.getOrderNo(), order.getStatus()));
-            return ResponseEntity.ok(ApiResponse.success("已退款并冲正 Token", order));
+            return ResponseEntity.ok(ApiResponse.success("已退款并冲正积分", order));
         } catch (RuntimeException e) {
             auditService.logMoneyFailure(currentUserId(), operator, "BILLING_ORDER_REFUND", "RECHARGE_ORDER",
                     id, "退款失败：" + e.getMessage());
@@ -412,7 +412,7 @@ public class BillingAdminController {
                 parseEnum(status, RechargeOrder.OrderStatus.class),
                 parseDate(start, true), parseDate(end, false), PageRequest.of(0, 50000));
         StringBuilder sb = new StringBuilder();
-        sb.append("订单ID,订单号,用户ID,套餐,金额元,Token数,渠道,状态,创建时间,到账时间,确认人,退款时间,退款人,退款原因\n");
+        sb.append("订单ID,订单号,用户ID,套餐,金额元,积分数,渠道,状态,创建时间,到账时间,确认人,退款时间,退款人,退款原因\n");
         for (RechargeOrder o : rows) {
             sb.append(o.getId()).append(',')
               .append(csv(o.getOrderNo())).append(',')
@@ -480,7 +480,7 @@ public class BillingAdminController {
         if (label != null && !label.isBlank()) cfg.setLabel(label.trim());
         TokenSceneConfig saved = sceneConfigRepository.save(cfg);
         auditService.logMoney(currentUserId(), currentUsername(), "BILLING_SCENE_UPDATE", "TOKEN_SCENE",
-                saved.getId(), String.format("%s 单价 %d → %d Token，启停 %s → %s", saved.getLabel(),
+                saved.getId(), String.format("%s 单价 %d → %d 积分，启停 %s → %s", saved.getLabel(),
                         beforePrice, saved.getPrice(), beforeEnabled, saved.isEnabled()));
         return ResponseEntity.ok(ApiResponse.success("场景定价已更新", saved));
     }

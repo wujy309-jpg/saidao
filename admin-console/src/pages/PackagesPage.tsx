@@ -60,7 +60,7 @@ export default function PackagesPage() {
       </div>
 
       <Card>
-        <Table head={['排序', '套餐', '售价', '基础 Token', '赠送', '到账合计', '状态', '操作']}>
+        <Table head={['排序', '套餐', '售价', '基础积分', '赠送', '到账合计', '状态', '操作']}>
           {(list ?? []).length === 0 && (
             <tr>
               <td colSpan={8}>
@@ -150,7 +150,7 @@ function PackageForm({
 
   const submit = async () => {
     if (!form.name.trim() || !Number(form.priceYuan) || !Number(form.tokens)) {
-      setError('请填写套餐名称、售价与基础 Token');
+      setError('请填写套餐名称、售价与基础积分');
       return;
     }
     setSaving(true);
@@ -215,7 +215,7 @@ function PackageForm({
             placeholder="30"
           />
         </Field>
-        <Field label="基础 Token">
+        <Field label="基础积分">
           <TextInput
             type="number"
             value={form.tokens}
@@ -223,7 +223,7 @@ function PackageForm({
             placeholder="3500"
           />
         </Field>
-        <Field label="赠送 Token">
+        <Field label="赠送积分">
           <TextInput
             type="number"
             value={form.bonusTokens}
@@ -252,7 +252,7 @@ function PackageForm({
             <TextInput
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-              placeholder="如：备赛期主力，赠送 500 Token"
+              placeholder="如：备赛期主力，赠送 500 积分"
             />
           </Field>
         </div>
