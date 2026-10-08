@@ -53,6 +53,12 @@ public class SecurityConfig {
                 .requestMatchers("/auth/**").permitAll()
                 // 游客 SPA 页面（刷新/直达时后端 forward 到 index.html）
                 .requestMatchers("/login", "/register", "/onboarding").permitAll()
+                // 浏览器直接访问/刷新任意 SPA 客户端路由：导航请求带 Accept: text/html，
+                // 放行的只是页面壳（不含数据）；同名 API 的鉴权规则不受影响，见 SpaNavigation
+                .requestMatchers(SpaNavigation.MATCHER).permitAll()
+                // 错误页放行：否则任何异常触发的 /error 派发都会被 anyRequest().authenticated()
+                // 再拦一次，浏览器只能看到一个没有信息的 403
+                .requestMatchers("/error").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
