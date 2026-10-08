@@ -91,6 +91,8 @@ export async function request<T>(
           ? '登录已过期，请重新登录'
           : resp.status === 403
             ? '没有权限执行此操作'
+            : resp.status === 409
+              ? '操作冲突，数据可能已被其他人更新'
             : `请求失败 (${resp.status})`;
     throw new ApiError(msg, resp.status);
   }

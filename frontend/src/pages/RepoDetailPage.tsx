@@ -22,7 +22,7 @@ import {
 } from '@phosphor-icons/react';
 import { request, toast, uploadRequest } from '../lib/api';
 import { useAuth } from '../lib/auth';
-import type { Repo, RepoBranch, RepoCommit, RepoFile, RepoMember, User } from '../lib/types';
+import type { Repo, RepoBranch, RepoCommit, RepoDiff, RepoFile, RepoMember, User } from '../lib/types';
 import { Button, Card, EmptyState, Field, Skeleton, TextInput } from '../components/ui';
 
 type Tab = 'files' | 'commits' | 'members';
@@ -75,6 +75,9 @@ export default function RepoDetailPage() {
   const [showAddMember, setShowAddMember] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [previewFile, setPreviewFile] = useState<RepoFile | null>(null);
+  const [expandedCommitId, setExpandedCommitId] = useState<number | null>(null);
+  const [commitDiff, setCommitDiff] = useState<RepoDiff[]>([]);
+  const [loadingDiff, setLoadingDiff] = useState(false);
 
   const loadRepo = async () => {
     if (!id) return;
@@ -126,6 +129,35 @@ export default function RepoDetailPage() {
       setMembers(ms ?? []);
     } catch {
       setMembers([]);
+    }
+  };
+
+  const toggleDiff = async (commitId: number) => {
+    if (expandedCommitId === commitId) {
+      setExpandedCommitId(null);
+      return;
+    }
+    setLoadingDiff(true);
+    try {
+      const diff = await request<RepoDiff[]>(`/api/code-repos/commits/${commitId}/diff`);
+      setCommitDiff(diff ?? []);
+      setExpandedCommitId(commitId);
+    } catch (err) {
+      toast(err instanceof Error ? err.message : '加载差异失败', 'error');
+    } finally {
+      setLoadingDiff(false);
+    }
+  };
+
+  const rollbackCommit = async (commit: RepoCommit) => {
+    if (!id || !window.confirm(`确认回滚到提交 ${commit.commitHash?.slice(0, 8)}？回滚会生成新的提交记录。`)) return;
+    try {
+      await request(`/api/code-repos/${id}/commits/${commit.id}/rollback`, { method: 'POST' });
+      toast('已生成回滚提交', 'success');
+      await loadFiles();
+      await loadCommits();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : '回滚失败', 'error');
     }
   };
 
@@ -342,7 +374,7 @@ export default function RepoDetailPage() {
                     </div>
                   </div>
                   <pre className="flex-1 overflow-auto bg-zinc-50 p-4 font-mono text-[13px] leading-relaxed text-zinc-700">
-                    {openFile.content ?? (openFile.storagePath ? '（二进制文件，点击右上角下载查看）' : '(空文件)')}
+                    {openFile.content ?? (openFile.binary ? '（二进制文件，点击右上角下载查看）' : '(空文件)')}
                   </pre>
                 </div>
               ) : (
@@ -360,18 +392,48 @@ export default function RepoDetailPage() {
             <p className="px-5 py-12 text-center text-sm text-zinc-400">暂无提交记录</p>
           ) : (
             commits.map((c) => (
-              <div key={c.id} className="flex items-start gap-3 px-5 py-3.5">
-                <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-400">
-                  <GitCommit size={15} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-zinc-800">{c.message}</p>
-                  <p className="mt-0.5 text-xs text-zinc-400">
-                    {typeof c.author === 'object' && c.author ? c.author.name : '未知用户'} ·{' '}
-                    {c.committedAt?.replace('T', ' ').slice(0, 16)}
-                  </p>
+              <div key={c.id} className="px-5 py-3.5">
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-400">
+                    <GitCommit size={15} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-zinc-800">{c.message}</p>
+                    <p className="mt-0.5 text-xs text-zinc-400">
+                      {c.author?.name ?? '未知用户'} · {c.committedAt?.replace('T', ' ').slice(0, 16)} ·
+                      <span className="ml-1 text-emerald-600">+{c.additions ?? 0}</span>{' '}
+                      <span className="text-rose-600">-{c.deletions ?? 0}</span>
+                    </p>
+                  </div>
+                  <span className="shrink-0 font-mono text-xs text-zinc-300">{c.commitHash?.slice(0, 8)}</span>
+                  <button className="shrink-0 text-xs text-brand-600 hover:text-brand-700" onClick={() => toggleDiff(c.id)}>
+                    {loadingDiff && expandedCommitId === c.id ? '加载中…' : expandedCommitId === c.id ? '收起差异' : '查看差异'}
+                  </button>
+                  {canManage && (
+                    <button className="shrink-0 text-xs text-amber-600 hover:text-amber-700" onClick={() => rollbackCommit(c)}>
+                      回滚
+                    </button>
+                  )}
                 </div>
-                <span className="shrink-0 font-mono text-xs text-zinc-300">{c.commitHash?.slice(0, 8)}</span>
+                {expandedCommitId === c.id && (
+                  <div className="ml-10 mt-3 rounded-[10px] border border-zinc-200 bg-zinc-50 p-3">
+                    {commitDiff.length === 0 ? (
+                      <p className="text-xs text-zinc-400">此提交没有可展示的文件差异。</p>
+                    ) : commitDiff.map((d) => (
+                      <div key={d.filePath} className="mb-3 last:mb-0">
+                        <div className="flex items-center justify-between text-xs font-medium text-zinc-600">
+                          <span className="font-mono">{d.filePath}</span>
+                          <span>{d.changeType}{d.binary ? ' · 二进制' : ''}</span>
+                        </div>
+                        {!d.binary && (
+                          <pre className="mt-1 max-h-48 overflow-auto whitespace-pre-wrap rounded bg-white p-2 text-[11px] leading-relaxed text-zinc-600">
+                            {d.afterContent ?? d.beforeContent ?? '(空文件)'}
+                          </pre>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))
           )}
@@ -397,7 +459,7 @@ export default function RepoDetailPage() {
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-zinc-800">{m.user.name}</p>
-                    <p className="truncate text-xs text-zinc-400">@{m.user.username}</p>
+                    <p className="truncate text-xs text-zinc-400">{m.role ?? '协作成员'}</p>
                   </div>
                   {canManage && m.role !== 'OWNER' ? (
                     <select
@@ -481,7 +543,6 @@ export default function RepoDetailPage() {
               fd.append('file', file);
               fd.append('branch', branch);
               fd.append('path', dir);
-              fd.append('authorId', String(user?.id));
               await uploadRequest(`/api/code-repos/${id}/files/upload`, fd);
               toast('上传成功', 'success');
               setShowUpload(false);
@@ -503,7 +564,7 @@ export default function RepoDetailPage() {
             try {
               await request(`/api/code-repos/${id}/members`, {
                 method: 'POST',
-                body: { userId: memberId, role, inviterId: user?.id },
+                body: { userId: memberId, role },
               });
               toast('成员添加成功', 'success');
               setShowAddMember(false);
@@ -701,7 +762,6 @@ function NewFileModal({
   onCreated: () => Promise<void>;
 }) {
   const { id } = useParams();
-  const { user } = useAuth();
   const [path, setPath] = useState('');
   const [content, setContent] = useState('');
   const [message, setMessage] = useState('');
@@ -722,7 +782,6 @@ function NewFileModal({
           branchId,
           message: message || `新增 ${path}`,
           description: '',
-          authorId: user?.id,
           files: [{ path: path.trim(), content, deleted: false }],
         },
       });

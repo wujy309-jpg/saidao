@@ -133,7 +133,7 @@ function CreateRepoModal({
     setSaving(true);
     setError('');
     try {
-      const params = new URLSearchParams({ ownerId: String(user?.id) });
+      const params = new URLSearchParams();
       if (teamId) params.set('teamId', teamId);
       await request<Repo>(`/api/code-repos?${params.toString()}`, {
         method: 'POST',

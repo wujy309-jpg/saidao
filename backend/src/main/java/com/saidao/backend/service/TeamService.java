@@ -24,13 +24,27 @@ public class TeamService {
     private final TeamApplicationRepository applicationRepository;
     private final UserRepository userRepository;
     private final CodeRepositoryRepository repoRepository;
+    private final ForumPostRepository forumPostRepository;
+    private final NotificationRepository notificationRepository;
+    private final AuditService auditService;
     
     @Transactional
     public Team createTeam(Long leaderId, Team team) {
+        if (team == null || team.getName() == null || team.getName().isBlank()) {
+            throw new IllegalArgumentException("团队名称不能为空");
+        }
+        if (team.getName().trim().length() > 100) {
+            throw new IllegalArgumentException("团队名称不能超过100个字符");
+        }
         User leader = userRepository.findById(leaderId)
                 .orElseThrow(() -> new RuntimeException("用户不存在"));
+        team.setId(null);
         team.setLeader(leader);
         team.setMemberCount(1);
+        if (team.getSizeLimit() == null) team.setSizeLimit(5);
+        if (team.getSizeLimit() < 2 || team.getSizeLimit() > 50) {
+            throw new IllegalArgumentException("团队人数上限应在2到50之间");
+        }
         Team saved = teamRepository.save(team);
         
         TeamMember member = new TeamMember();
@@ -38,6 +52,7 @@ public class TeamService {
         member.setUser(leader);
         member.setRole(TeamMember.TeamRole.LEADER);
         memberRepository.save(member);
+        audit(userRepository, leaderId, "CREATE", "TEAM", saved.getId(), "创建团队");
         
         log.info("团队创建成功: {}", saved.getName());
         return saved;
@@ -89,13 +104,30 @@ public class TeamService {
         if (updates.getSlogan() != null) team.setSlogan(updates.getSlogan());
         if (updates.getDescription() != null) team.setDescription(updates.getDescription());
         if (updates.getRecruiting() != null) team.setRecruiting(updates.getRecruiting());
-        if (updates.getSizeLimit() != null) team.setSizeLimit(updates.getSizeLimit());
+        if (updates.getSizeLimit() != null) {
+            int currentMemberCount = team.getMemberCount() == null
+                    ? (int) memberRepository.countByTeamId(teamId) : team.getMemberCount();
+            if (updates.getSizeLimit() < currentMemberCount || updates.getSizeLimit() < 2 || updates.getSizeLimit() > 50) {
+                throw new IllegalArgumentException("人数上限不能小于当前成员数，且应在2到50之间");
+            }
+            team.setSizeLimit(updates.getSizeLimit());
+        }
         if (updates.getTargetCompetition() != null) team.setTargetCompetition(updates.getTargetCompetition());
         return teamRepository.save(team);
     }
     
     @Transactional
     public void deleteTeam(Long teamId) {
+        Team team = getTeam(teamId);
+        List<Long> memberIds = memberRepository.findByTeamId(teamId).stream()
+                .map(m -> m.getUser().getId()).toList();
+        // team_id is a weak reference for recruitment posts: preserve the post and detach it.
+        forumPostRepository.findByTeamId(teamId).forEach(post -> {
+            post.setTeam(null);
+            forumPostRepository.save(post);
+        });
+        memberIds.forEach(userId -> notifyUser(userId, Notification.NotificationType.TEAM_DISBANDED,
+                null, teamId, "团队「" + team.getName() + "」已解散"));
         applicationRepository.deleteByTeamId(teamId);
         memberRepository.deleteByTeamId(teamId);
         // 解除项目空间关联
@@ -103,7 +135,8 @@ public class TeamService {
             r.setTeamId(null);
             repoRepository.save(r);
         });
-        teamRepository.deleteById(teamId);
+        teamRepository.delete(team);
+        audit(userRepository, team.getLeader().getId(), "DELETE", "TEAM", teamId, "解散团队");
         log.info("团队已解散: {}", teamId);
     }
     
@@ -132,7 +165,10 @@ public class TeamService {
         app.setTeam(team);
         app.setUser(user);
         app.setMessage(message);
-        return applicationRepository.save(app);
+        TeamApplication saved = applicationRepository.save(app);
+        notifyUser(team.getLeader().getId(), Notification.NotificationType.TEAM_APPLY,
+                userId, teamId, "收到来自「" + user.getName() + "」的新入队申请");
+        return saved;
     }
     
     public List<TeamApplication> getApplications(Long teamId) {
@@ -150,9 +186,15 @@ public class TeamService {
         if (!app.getTeam().getId().equals(teamId)) {
             throw new RuntimeException("申请与团队不匹配");
         }
+        if (app.getStatus() != TeamApplication.ApplicationStatus.PENDING) {
+            throw new IllegalStateException("该申请已经处理，不能重复审批");
+        }
         if (approve) {
             if (memberRepository.countByTeamId(teamId) >= app.getTeam().getSizeLimit()) {
                 throw new RuntimeException("团队人数已满，无法通过");
+            }
+            if (memberRepository.existsByTeamIdAndUserId(teamId, app.getUser().getId())) {
+                throw new IllegalStateException("该用户已经是团队成员");
             }
             app.setStatus(TeamApplication.ApplicationStatus.APPROVED);
             TeamMember member = new TeamMember();
@@ -162,27 +204,73 @@ public class TeamService {
             memberRepository.save(member);
             Team team = app.getTeam();
             team.setMemberCount((int) memberRepository.countByTeamId(teamId));
+            if (team.getMemberCount() >= team.getSizeLimit()) team.setRecruiting(false);
             teamRepository.save(team);
+            notifyUser(app.getUser().getId(), Notification.NotificationType.TEAM_APPROVED,
+                    team.getLeader().getId(), teamId, "你已加入团队「" + team.getName() + "」");
         } else {
             app.setStatus(TeamApplication.ApplicationStatus.REJECTED);
+            notifyUser(app.getUser().getId(), Notification.NotificationType.TEAM_REJECTED,
+                    app.getTeam().getLeader().getId(), teamId, "团队「" + app.getTeam().getName() + "」拒绝了你的申请");
         }
         return applicationRepository.save(app);
     }
     
     @Transactional
     public void removeMember(Long teamId, Long userId) {
+        removeMember(teamId, userId, userId);
+    }
+
+    @Transactional
+    public void removeMember(Long teamId, Long userId, Long actorId) {
+        TeamMember member = memberRepository.findByTeamIdAndUserId(teamId, userId)
+                .orElseThrow(() -> new RuntimeException("成员不存在"));
+        if (member.getRole() == TeamMember.TeamRole.LEADER) {
+            throw new IllegalStateException("队长不能被移除，请先转让队长或解散团队");
+        }
         memberRepository.deleteByTeamIdAndUserId(teamId, userId);
         Team team = getTeam(teamId);
         team.setMemberCount((int) memberRepository.countByTeamId(teamId));
+        if (team.getMemberCount() < team.getSizeLimit() && Boolean.FALSE.equals(team.getRecruiting())) {
+            team.setRecruiting(true);
+        }
         teamRepository.save(team);
+        notifyUser(userId, Notification.NotificationType.TEAM_REMOVED,
+                team.getLeader().getId(), teamId, "你已被移出团队「" + team.getName() + "」");
+        audit(userRepository, actorId, "DELETE", "TEAM_MEMBER", teamId, "移除用户" + userId);
     }
     
     @Transactional
     public void leave(Long teamId, Long userId) {
+        if (!isMember(teamId, userId)) throw new RuntimeException("你不是该团队成员");
         if (isLeader(teamId, userId)) {
             throw new RuntimeException("队长不能直接退出，请先解散团队或转让队长");
         }
-        removeMember(teamId, userId);
+        removeMember(teamId, userId, userId);
+    }
+
+    @Transactional
+    public Team transferLeadership(Long teamId, Long currentLeaderId, Long newLeaderId) {
+        Team team = getTeam(teamId);
+        if (!isLeader(teamId, currentLeaderId)) throw new org.springframework.security.access.AccessDeniedException("只有队长可以转让队长");
+        TeamMember current = memberRepository.findByTeamIdAndUserId(teamId, currentLeaderId)
+                .orElseThrow(() -> new RuntimeException("当前队长成员记录不存在"));
+        TeamMember next = memberRepository.findByTeamIdAndUserId(teamId, newLeaderId)
+                .orElseThrow(() -> new IllegalArgumentException("新队长必须是现有团队成员"));
+        if (currentLeaderId.equals(newLeaderId)) throw new IllegalArgumentException("新队长不能是当前队长");
+        current.setRole(TeamMember.TeamRole.MEMBER);
+        next.setRole(TeamMember.TeamRole.LEADER);
+        memberRepository.save(current);
+        memberRepository.save(next);
+        User newLeader = next.getUser();
+        team.setLeader(newLeader);
+        Team saved = teamRepository.save(team);
+        audit(userRepository, currentLeaderId, "UPDATE", "TEAM", teamId, "转让队长给用户" + newLeaderId);
+        notifyUser(currentLeaderId, Notification.NotificationType.TEAM_TRANSFERRED,
+                newLeaderId, teamId, "你已将团队「" + team.getName() + "」的队长转让给" + newLeader.getName());
+        notifyUser(newLeaderId, Notification.NotificationType.TEAM_TRANSFERRED,
+                currentLeaderId, teamId, "你已成为团队「" + team.getName() + "」的新队长");
+        return saved;
     }
     
     /** 团队详情附加信息 */
@@ -203,5 +291,24 @@ public class TeamService {
                 "isLeader", isLeader,
                 "hasPendingApplication", pending
         );
+    }
+
+    private void notifyUser(Long userId, Notification.NotificationType type, Long actorId,
+                            Long teamId, String summary) {
+        if (userId == null) return;
+        Notification notification = new Notification();
+        notification.setUserId(userId);
+        notification.setType(type);
+        notification.setActorId(actorId);
+        notification.setTeamId(teamId);
+        notification.setSummary(summary == null ? null : summary.substring(0, Math.min(120, summary.length())));
+        notification.setRead(false);
+        notificationRepository.save(notification);
+    }
+
+    private void audit(UserRepository users, Long userId, String action, String resourceType,
+                       Long resourceId, String details) {
+        users.findById(userId).ifPresent(user -> auditService.logAction(userId, user.getUsername(),
+                action, resourceType, resourceId, details, true, null));
     }
 }

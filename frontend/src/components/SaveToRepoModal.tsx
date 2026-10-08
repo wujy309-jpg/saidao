@@ -63,7 +63,7 @@ export default function SaveToRepoModal({
     setError('');
     try {
       const repo = await request<Repo>(
-        `/api/code-repos?ownerId=${user.id}`,
+        '/api/code-repos',
         { method: 'POST', body: { name: newName.trim(), description: 'AI 生成的作品', visibility: 'PRIVATE' } }
       );
       setRepos((prev) => [...(prev ?? []), repo]);
@@ -90,7 +90,6 @@ export default function SaveToRepoModal({
           branchId: Number(branchId),
           message: message.trim() || 'AI 生成文件',
           description: '由 AI 竞赛助手生成',
-          authorId: user.id,
           files: files.map((f) => ({ path: f.path, content: f.content })),
         },
       });

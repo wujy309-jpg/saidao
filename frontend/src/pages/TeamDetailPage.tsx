@@ -24,6 +24,7 @@ export default function TeamDetailPage() {
   const [applications, setApplications] = useState<TeamApplication[]>([]);
   const [showApply, setShowApply] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
+  const [showTransfer, setShowTransfer] = useState(false);
   const [error, setError] = useState('');
 
   const load = async () => {
@@ -184,6 +185,11 @@ export default function TeamDetailPage() {
                 <Button variant="outline" onClick={() => setShowEdit(true)}>
                   编辑团队
                 </Button>
+                {data.members.some((m) => m.role !== 'LEADER') && (
+                  <Button variant="outline" onClick={() => setShowTransfer(true)}>
+                    转让队长
+                  </Button>
+                )}
                 <Button variant="danger" onClick={disband}>
                   <TrashSimple size={15} />
                   解散团队
@@ -202,19 +208,18 @@ export default function TeamDetailPage() {
           </h2>
           <div className="flex flex-col gap-3">
             {pendingApps.map((a) => (
-              <div key={a.id} className="flex flex-wrap items-center gap-3 rounded-[10px] bg-zinc-50 px-4 py-3">
+              <div key={a.id} className="flex flex-wrap items-start gap-3 rounded-[10px] bg-zinc-50 px-4 py-3">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-xs font-semibold text-zinc-500 ring-1 ring-zinc-200">
                   {a.user.name?.charAt(0)}
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-zinc-800">{a.user.name}</p>
-                  <p className="truncate text-xs text-zinc-400">
-                    @{a.user.username}
-                    {a.user.department ? ` · ${a.user.department}` : ''}
-                    {a.message ? ` · ${a.message}` : ''}
+                  <p className="mt-1 text-xs font-medium text-zinc-500">申请说明</p>
+                  <p className="mt-0.5 whitespace-pre-wrap break-words text-sm leading-6 text-zinc-600">
+                    {a.message?.trim() || '未填写申请说明'}
                   </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex shrink-0 gap-2">
                   <Button variant="outline" className="!px-3 !py-1.5 !text-xs" onClick={() => review(a.id, true)}>
                     <Check size={13} />
                     通过
@@ -249,7 +254,7 @@ export default function TeamDetailPage() {
                     </span>
                   )}
                 </p>
-                <p className="truncate text-xs text-zinc-400">@{m.user.username}</p>
+                <p className="truncate text-xs text-zinc-400">声望 {m.user.reputation ?? 0}</p>
               </div>
               {data.isLeader && m.role !== 'LEADER' && (
                 <button
@@ -316,6 +321,18 @@ export default function TeamDetailPage() {
             setShowEdit(false);
             load();
           }}
+        />
+      )}
+
+      {showTransfer && (
+        <TransferLeadershipModal
+          members={data.members.filter((m) => m.role !== 'LEADER')}
+          onClose={() => setShowTransfer(false)}
+          onTransferred={() => {
+            setShowTransfer(false);
+            load();
+          }}
+          teamId={t.id}
         />
       )}
     </div>
@@ -438,6 +455,59 @@ function EditTeamModal({ team, onClose, onSaved }: { team: NonNullable<TeamDetai
           <Button onClick={submit} disabled={saving}>
             {saving ? '保存中…' : '保存'}
           </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TransferLeadershipModal({
+  teamId,
+  members,
+  onClose,
+  onTransferred,
+}: {
+  teamId: number;
+  members: TeamDetail['members'];
+  onClose: () => void;
+  onTransferred: () => void;
+}) {
+  const [selected, setSelected] = useState<number | undefined>(members[0]?.user.id);
+  const [saving, setSaving] = useState(false);
+  const transfer = async () => {
+    if (!selected) return;
+    setSaving(true);
+    try {
+      await request(`/api/teams/${teamId}/transfer-leadership`, {
+        method: 'POST',
+        body: { newLeaderId: selected },
+      });
+      toast('队长已转让', 'success');
+      onTransferred();
+    } catch (err) {
+      toast(err instanceof Error ? err.message : '转让失败', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+      <div className="absolute inset-0 bg-zinc-900/30" onClick={onClose} />
+      <div className="relative w-full max-w-md rounded-[var(--radius-card)] bg-white p-6 shadow-xl animate-rise">
+        <h2 className="text-lg font-semibold text-zinc-900">转让队长</h2>
+        <p className="mt-1 text-sm text-zinc-400">只能转让给现有团队成员，转让后你将成为普通成员。</p>
+        <select
+          value={selected ?? ''}
+          onChange={(e) => setSelected(Number(e.target.value))}
+          className="mt-5 w-full rounded-[10px] border border-zinc-300 bg-white px-3 py-2 text-sm"
+        >
+          {members.map((member) => (
+            <option key={member.user.id} value={member.user.id}>{member.user.name}</option>
+          ))}
+        </select>
+        <div className="mt-5 flex justify-end gap-2">
+          <Button variant="ghost" onClick={onClose} disabled={saving}>取消</Button>
+          <Button onClick={transfer} disabled={saving || !selected}>{saving ? '转让中…' : '确认转让'}</Button>
         </div>
       </div>
     </div>

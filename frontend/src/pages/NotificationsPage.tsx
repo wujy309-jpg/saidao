@@ -28,6 +28,12 @@ const NOTIFICATION_META: Record<
     icon: CheckCircle,
     color: 'bg-emerald-50 text-emerald-600',
   },
+  TEAM_APPLY: { label: '有新的团队申请', icon: UserPlus, color: 'bg-indigo-50 text-indigo-600' },
+  TEAM_APPROVED: { label: '你的团队申请已通过', icon: CheckCircle, color: 'bg-emerald-50 text-emerald-600' },
+  TEAM_REJECTED: { label: '你的团队申请已拒绝', icon: Bell, color: 'bg-amber-50 text-amber-600' },
+  TEAM_REMOVED: { label: '你已被移出团队', icon: Bell, color: 'bg-rose-50 text-rose-600' },
+  TEAM_TRANSFERRED: { label: '团队队长已变更', icon: UserPlus, color: 'bg-violet-50 text-violet-600' },
+  TEAM_DISBANDED: { label: '团队已解散', icon: Bell, color: 'bg-zinc-100 text-zinc-600' },
 };
 
 export default function NotificationsPage() {
@@ -100,7 +106,7 @@ export default function NotificationsPage() {
           {items.map((n) => {
             const meta = NOTIFICATION_META[n.type];
             const Icon = meta.icon;
-            const target = n.postId ? `/forum/posts/${n.postId}` : null;
+            const target = n.postId ? `/forum/posts/${n.postId}` : n.teamId ? `/teams/${n.teamId}` : null;
             const inner = (
               <div className="flex items-start gap-3 px-5 py-3.5">
                 <span

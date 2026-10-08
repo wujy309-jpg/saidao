@@ -17,6 +17,13 @@ export interface User {
   reputation?: number;
 }
 
+export interface UserBrief {
+  id: number;
+  name: string;
+  reputation?: number;
+  role?: string;
+}
+
 export interface Competition {
   id: number;
   name: string;
@@ -212,7 +219,7 @@ export interface Repo {
   name: string;
   description?: string;
   projectId?: number;
-  owner?: User | number;
+  owner?: UserBrief | number;
   defaultBranch?: string;
   visibility: 'PUBLIC' | 'PRIVATE';
   language?: string;
@@ -233,12 +240,12 @@ export interface RepoFile {
   filePath?: string;
   fileName?: string;
   content?: string;
-  /** 磁盘存储路径（二进制文件），非空时通过 download 接口获取 */
-  storagePath?: string;
+  /** 是否为磁盘存储的二进制文件，内容通过 download 接口获取 */
+  binary?: boolean;
   fileType: 'FILE' | 'DIRECTORY';
   fileSize?: number;
   lastCommitHash?: string;
-  lastModifiedBy?: User;
+  lastModifiedBy?: UserBrief;
   lastModifiedAt?: string;
 }
 
@@ -247,7 +254,7 @@ export interface RepoCommit {
   commitHash?: string;
   message: string;
   description?: string;
-  author?: User;
+  author?: UserBrief;
   parentHash?: string;
   filesChanged?: number;
   additions?: number;
@@ -255,9 +262,19 @@ export interface RepoCommit {
   committedAt?: string;
 }
 
+export interface RepoDiff {
+  filePath: string;
+  changeType: 'ADDED' | 'MODIFIED' | 'DELETED';
+  beforeContent?: string | null;
+  afterContent?: string | null;
+  binary?: boolean;
+  additions?: number;
+  deletions?: number;
+}
+
 export interface RepoMember {
   id: number;
-  user: User;
+  user: UserBrief;
   role: 'OWNER' | 'MAINTAINER' | 'DEVELOPER' | 'REPORTER' | 'GUEST';
 }
 
@@ -325,7 +342,7 @@ export interface Team {
   name: string;
   slogan?: string;
   description?: string;
-  leader?: User;
+  leader?: UserBrief;
   recruiting: boolean;
   sizeLimit: number;
   memberCount: number;
@@ -335,7 +352,7 @@ export interface Team {
 
 export interface TeamMemberInfo {
   id: number;
-  user: User;
+  user: UserBrief;
   role: 'LEADER' | 'MEMBER';
   joinedAt?: string;
 }
@@ -343,7 +360,7 @@ export interface TeamMemberInfo {
 export interface TeamApplication {
   id: number;
   team?: Team;
-  user: User;
+  user: UserBrief;
   message?: string;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
   createdAt?: string;
@@ -394,7 +411,10 @@ export interface ForumReply {
   createdAt?: string;
 }
 
-export type NotificationType = 'REPLY' | 'LIKE_POST' | 'LIKE_REPLY' | 'FOLLOW' | 'ESSENCE' | 'ACCEPTED';
+export type NotificationType =
+  | 'REPLY' | 'LIKE_POST' | 'LIKE_REPLY' | 'FOLLOW' | 'ESSENCE' | 'ACCEPTED'
+  | 'TEAM_APPLY' | 'TEAM_APPROVED' | 'TEAM_REJECTED'
+  | 'TEAM_REMOVED' | 'TEAM_TRANSFERRED' | 'TEAM_DISBANDED';
 
 export interface NotificationItem {
   id: number;
@@ -403,6 +423,7 @@ export interface NotificationItem {
   actorId?: number | null;
   postId?: number | null;
   replyId?: number | null;
+  teamId?: number | null;
   summary?: string | null;
   read: boolean;
   createdAt?: string;

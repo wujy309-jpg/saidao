@@ -34,7 +34,13 @@ public class Notification {
         LIKE_REPLY("赞了你的回复"),
         FOLLOW("关注了你"),
         ESSENCE("你的帖子被设为精华"),
-        ACCEPTED("采纳了你的回复");
+        ACCEPTED("采纳了你的回复"),
+        TEAM_APPLY("有新的团队申请"),
+        TEAM_APPROVED("你的团队申请已通过"),
+        TEAM_REJECTED("你的团队申请已拒绝"),
+        TEAM_REMOVED("你已被移出团队"),
+        TEAM_TRANSFERRED("团队队长已变更"),
+        TEAM_DISBANDED("团队已解散");
 
         private final String description;
         NotificationType(String description) { this.description = description; }
@@ -42,7 +48,7 @@ public class Notification {
     }
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 40)
     private NotificationType type;
 
     /** 触发者(可为空) */
@@ -54,6 +60,10 @@ public class Notification {
 
     @Column(name = "reply_id")
     private Long replyId;
+
+    /** 团队事件关联，论坛通知仍可保持为空。 */
+    @Column(name = "team_id")
+    private Long teamId;
 
     /** 摘要文本(如帖子标题) */
     @Column(length = 120)
