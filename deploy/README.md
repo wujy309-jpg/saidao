@@ -72,5 +72,7 @@ cd /opt/app/deploy && docker compose -f docker-compose.server.yml up -d --build 
 - **前端构建必须带 `VITE_BASE=/api/ VITE_ROUTER_BASE=/api`**（`prepare-stage.sh` 已内置），
   否则静态资源 404。
 - **安全组**：ECS 控制台放行 TCP 8080（来源 0.0.0.0/0）才能从外网访问；正式期建议收口。
-- 演示账号（admin/admin123、student01/student123 等）上线后请立即改密。
+- 账号口令：**不要在文档、登录页或任何前端文案里记录口令**。`admin` 的初始口令已于
+  2026-10-08 重置，之后请用主站「个人中心 → 修改密码」自行更改；`student01` / `student02`
+  等演示账号仍在用初始口令 `student123`，建议尽快改密或停用。
 - AI 功能依赖 `.env` 里的 `DEEPSEEK_API_KEY`，从上海访问 api.deepseek.com 正常。
