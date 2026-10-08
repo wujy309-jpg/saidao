@@ -44,8 +44,10 @@ cp -R "$ROOT/frontend/dist" "$STAGE/static"
 echo "    dist -> $STAGE/static"
 
 echo "==> 构建后台管理平台（base=/api/admin/）"
+# VITE_ROUTER_BASE 必须一起给：admin-console 的 BrowserRouter basename 与 forceLogin 都取这个变量
+# （默认值是 /admin，生产挂在 /api/admin/ 下，漏传会导致后台路由全部对不上、页面空白）
 cd "$ROOT/admin-console"
-VITE_BASE=/api/admin/ npm run build
+VITE_BASE=/api/admin/ VITE_ROUTER_BASE=/api/admin npm run build
 
 cp -R "$ROOT/admin-console/dist" "$STAGE/admin-static"
 echo "    dist -> $STAGE/admin-static"
