@@ -277,7 +277,13 @@ public class RecommendationService {
             case "工科" -> Set.of(Competition.CompetitionCategory.ENGINEERING, Competition.CompetitionCategory.COMPREHENSIVE);
             case "理科" -> Set.of(Competition.CompetitionCategory.SCIENCE, Competition.CompetitionCategory.COMPREHENSIVE);
             case "文科" -> Set.of(Competition.CompetitionCategory.LIBERAL_ARTS, Competition.CompetitionCategory.COMPREHENSIVE);
-            default -> Set.of(Competition.CompetitionCategory.COMPREHENSIVE);
+            // 枚举暂无 ART,用 LIBERAL_ARTS 替代
+            case "艺术" -> Set.of(Competition.CompetitionCategory.LIBERAL_ARTS, Competition.CompetitionCategory.COMPREHENSIVE);
+            case "经管" -> Set.of(Competition.CompetitionCategory.COMPREHENSIVE);
+            case "医学" -> Set.of(Competition.CompetitionCategory.COMPREHENSIVE);
+            case "农学" -> Set.of(Competition.CompetitionCategory.COMPREHENSIVE);
+            case "其他" -> Set.of(Competition.CompetitionCategory.COMPREHENSIVE);
+            default -> throw new IllegalStateException("Unexpected discipline: " + discipline);
         };
     }
     
