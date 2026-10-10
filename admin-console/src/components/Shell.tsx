@@ -2,6 +2,7 @@ import {
   ChartBar,
   Coin,
   CreditCard,
+  Flag,
   GearSix,
   Package,
   Receipt,
@@ -24,6 +25,7 @@ const NAV = [
   { to: '/scenes', label: '场景定价', icon: Coin },
   { to: '/settings', label: '平台设置', icon: GearSix },
   { to: '/competitions', label: '竞赛管理', icon: Trophy },
+  { to: '/reports', label: '社区举报', icon: Flag },
 ];
 
 export default function Shell() {

@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { GitFork, Plus, LockSimple, Globe } from '@phosphor-icons/react';
 import { request, toast } from '../lib/api';
 import { useAuth } from '../lib/auth';
-import type { Repo, Team } from '../lib/types';
+import type { Repo, Team } from '../types';
 import { Button, Card, EmptyState, Field, Skeleton, TextInput } from '../components/ui';
 
 export default function ReposPage() {

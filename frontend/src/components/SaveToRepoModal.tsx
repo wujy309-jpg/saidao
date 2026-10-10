@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { FolderOpen, Plus } from '@phosphor-icons/react';
 import { request, toast } from '../lib/api';
 import { useAuth } from '../lib/auth';
-import type { Repo, RepoBranch } from '../lib/types';
+import type { Repo, RepoBranch } from '../types';
 import { Button, Spinner } from './ui';
 
 export interface SaveFile {

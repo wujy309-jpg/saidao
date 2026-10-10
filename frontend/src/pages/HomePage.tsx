@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+﻿import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
@@ -23,7 +23,7 @@ import type {
   RecommendationItem,
   RecommendationResponse,
   UserProfile,
-} from '../lib/types';
+} from '../types';
 import {
   Button,
   Card,

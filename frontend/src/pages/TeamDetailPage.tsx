@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -13,7 +13,7 @@ import {
 } from '@phosphor-icons/react';
 import { request, toast } from '../lib/api';
 import { useAuth } from '../lib/auth';
-import type { TeamApplication, TeamDetail } from '../lib/types';
+import type { TeamApplication, TeamDetail } from '../types';
 import { Button, Card, EmptyState, Skeleton, TextInput } from '../components/ui';
 
 export default function TeamDetailPage() {

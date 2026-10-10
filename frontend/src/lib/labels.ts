@@ -1,4 +1,4 @@
-import type { Category, Level, Format, ForumBoard, JourneyStatus, WorkType } from './types';
+import type { Category, Level, Format, ForumBoard, JourneyStatus, WorkType } from '../types';
 
 export const CATEGORY_META: Record<Category, { label: string; badge: string; dot: string }> = {
   ENGINEERING: {
@@ -70,6 +70,14 @@ export const INTEREST_OPTIONS = [
   '法律',
   '新闻传播',
   '数据分析',
+  '音乐',
+  '绘画',
+  '书法',
+  '舞蹈',
+  '表演',
+  '播音主持',
+  '影视创作',
+  '手工艺',
 ];
 
 export const SKILL_OPTIONS = [
@@ -91,6 +99,12 @@ export const SKILL_OPTIONS = [
   '电路设计',
   '机械制图',
   '3D建模',
+  '乐器',
+  '声乐',
+  '绘画',
+  '书法',
+  '摄影',
+  '舞台表演',
 ];
 
 export const GOAL_OPTIONS = ['保研加分', '求职简历', '出国申请', '能力锻炼', '兴趣探索', '竞赛获奖'];

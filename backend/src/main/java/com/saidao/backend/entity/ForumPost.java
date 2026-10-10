@@ -1,5 +1,6 @@
 package com.saidao.backend.entity;
 
+import com.saidao.backend.dto.TeamBrief;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,10 +40,13 @@ public class ForumPost {
     @JoinColumn(name = "author_id", nullable = false)
     private User author;
     
-    /** 关联团队（找队友帖可选挂靠团队） */
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "team_id")
-    private Team team;
+    /** 关联团队 ID（找队友帖可选挂靠团队） */
+    @Column(name = "team_id")
+    private Long teamId;
+
+    /** 团队简要信息(非持久化,接口返回用) */
+    @Transient
+    private TeamBrief teamBrief;
     
     /** 关联竞赛（经验帖/问答可挂竞赛标签） */
     @Column(name = "competition_id")
@@ -67,6 +71,10 @@ public class ForumPost {
     /** 置顶帖(管理员设置) */
     @Column(name = "pinned")
     private Boolean pinned;
+
+    /** 隐藏(举报达阈值或管理员手动隐藏) */
+    @Column(name = "hidden")
+    private Boolean hidden = false;
     
     /** 当前用户是否点赞(非持久化,接口返回用) */
     @Transient
@@ -75,6 +83,10 @@ public class ForumPost {
     /** 当前用户是否收藏(非持久化,接口返回用) */
     @Transient
     private Boolean favorited;
+
+    /** 当前用户是否已关注作者(非持久化,接口返回用) */
+    @Transient
+    private Boolean following;
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;
