@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Check, UserCirclePlus } from '@phosphor-icons/react';
 import { clearPendingProfile, isLoggedIn, request, savePendingProfile, toast } from '../lib/api';
@@ -11,7 +11,7 @@ import {
   SKILL_OPTIONS,
   WEEKLY_HOURS_OPTIONS,
 } from '../lib/labels';
-import type { UserProfile } from '../lib/types';
+import type { UserProfile } from '../types';
 import { Button, ChipGroupCustom, Field, TextInput } from '../components/ui';
 
 const STEPS = ['学科背景', '年级', '兴趣方向', '技能储备', '目标与投入', '补充信息'];

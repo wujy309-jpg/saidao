@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+﻿import { useEffect, useMemo, useRef, useState } from 'react';
 import { CaretDown, MagnifyingGlass, X } from '@phosphor-icons/react';
-import type { Competition } from '../lib/types';
+import type { Competition } from '../types';
 import { CategoryBadge, LevelBadge } from './ui';
 
 /** 竞赛搜索选择器:输入关键词过滤,替代全量下拉 */

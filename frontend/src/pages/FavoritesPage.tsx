@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Trophy } from '@phosphor-icons/react';
 import { request, toast } from '../lib/api';
@@ -7,7 +7,7 @@ import {
   JOURNEY_STATUS_META,
   JOURNEY_STATUS_OPTIONS,
 } from '../lib/labels';
-import type { JourneyStatus, MyCompetitionItem } from '../lib/types';
+import type { JourneyStatus, MyCompetitionItem } from '../types';
 import { Card, CategoryBadge, EmptyState, LevelBadge, Skeleton, Stars } from '../components/ui';
 
 export default function FavoritesPage() {

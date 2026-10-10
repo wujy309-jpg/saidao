@@ -1,4 +1,4 @@
-import type { ApiResponse } from './types';
+import type { ApiResponse } from '../types';
 
 const TOKEN_KEY = 'authToken';
 const USER_KEY = 'currentUser';

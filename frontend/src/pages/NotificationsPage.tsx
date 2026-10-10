@@ -1,22 +1,26 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
+  At,
   Bell,
   BookmarkSimple,
   ChatCircleDots,
   CheckCircle,
+  Coins,
+  CreditCard,
+  Flag,
   Heart,
+  Megaphone,
   Star,
   TrashSimple,
   UserPlus,
 } from '@phosphor-icons/react';
 import { request, toast } from '../lib/api';
-import type { NotificationItem, NotificationType } from '../lib/types';
+import type { NotificationItem, NotificationType } from '../types';
 import { Button, Card, EmptyState, Skeleton } from '../components/ui';
 
-const NOTIFICATION_META: Record<
-  NotificationType,
-  { label: string; icon: typeof Bell; color: string }
+const NOTIFICATION_META: Partial<
+  Record<NotificationType, { label: string; icon: typeof Bell; color: string }>
 > = {
   REPLY: { label: '回复了你的帖子', icon: ChatCircleDots, color: 'bg-sky-50 text-sky-600' },
   LIKE_POST: { label: '赞了你的帖子', icon: Heart, color: 'bg-rose-50 text-rose-500' },
@@ -28,13 +32,20 @@ const NOTIFICATION_META: Record<
     icon: CheckCircle,
     color: 'bg-emerald-50 text-emerald-600',
   },
+  MENTION: { label: '@提及了你', icon: At, color: 'bg-sky-50 text-sky-600' },
+  REPORT_RESULT: { label: '举报处理结果', icon: Flag, color: 'bg-amber-50 text-amber-600' },
   TEAM_APPLY: { label: '有新的团队申请', icon: UserPlus, color: 'bg-indigo-50 text-indigo-600' },
   TEAM_APPROVED: { label: '你的团队申请已通过', icon: CheckCircle, color: 'bg-emerald-50 text-emerald-600' },
   TEAM_REJECTED: { label: '你的团队申请已拒绝', icon: Bell, color: 'bg-amber-50 text-amber-600' },
   TEAM_REMOVED: { label: '你已被移出团队', icon: Bell, color: 'bg-rose-50 text-rose-600' },
-  TEAM_TRANSFERRED: { label: '团队队长已变更', icon: UserPlus, color: 'bg-violet-50 text-violet-600' },
   TEAM_DISBANDED: { label: '团队已解散', icon: Bell, color: 'bg-zinc-100 text-zinc-600' },
+  TEAM_TRANSFER: { label: '团队队长已变更', icon: UserPlus, color: 'bg-violet-50 text-violet-600' },
+  TOKEN_LOW: { label: 'Token 余额不足', icon: Coins, color: 'bg-amber-50 text-amber-600' },
+  RECHARGE_PAID: { label: '充值已到账', icon: CreditCard, color: 'bg-emerald-50 text-emerald-600' },
+  SYSTEM: { label: '系统通知', icon: Megaphone, color: 'bg-zinc-100 text-zinc-600' },
 };
+
+const FALLBACK_META = { label: '收到一条通知', icon: Bell, color: 'bg-zinc-100 text-zinc-500' };
 
 export default function NotificationsPage() {
   const [items, setItems] = useState<NotificationItem[] | null>(null);
@@ -70,8 +81,12 @@ export default function NotificationsPage() {
 
   const open = async (n: NotificationItem) => {
     if (!n.read) {
+      // 乐观更新:立即标记已读
+      setItems((prev) =>
+        prev ? prev.map((it) => (it.id === n.id ? { ...it, read: true } : it)) : prev
+      );
+      window.dispatchEvent(new Event('notifications-changed'));
       request(`/api/forum/notifications/${n.id}/read`, { method: 'POST' })
-        .then(() => window.dispatchEvent(new Event('notifications-changed')))
         .catch(() => undefined);
     }
   };
@@ -104,9 +119,11 @@ export default function NotificationsPage() {
       ) : (
         <Card className="divide-y divide-zinc-100 overflow-hidden">
           {items.map((n) => {
-            const meta = NOTIFICATION_META[n.type];
+            const meta = NOTIFICATION_META[n.type] ?? FALLBACK_META;
             const Icon = meta.icon;
-            const target = n.postId ? `/forum/posts/${n.postId}` : n.teamId ? `/teams/${n.teamId}` : null;
+            const target = n.postId
+              ? `/forum/posts/${n.postId}${n.replyId ? `#reply-${n.replyId}` : ''}`
+              : n.teamId ? `/teams/${n.teamId}` : null;
             const inner = (
               <div className="flex items-start gap-3 px-5 py-3.5">
                 <span
@@ -116,7 +133,12 @@ export default function NotificationsPage() {
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm text-zinc-700">
-                    <span className="font-medium">{meta.label}</span>
+                    {n.actorName && (
+                      <span className="font-semibold text-zinc-900">{n.actorName}</span>
+                    )}
+                    <span className={n.actorName ? 'text-zinc-500' : 'font-medium'}>
+                      {n.actorName ? ` ${meta.label}` : meta.label}
+                    </span>
                     {n.summary && (
                       <span className="text-zinc-500">:「{n.summary}」</span>
                     )}

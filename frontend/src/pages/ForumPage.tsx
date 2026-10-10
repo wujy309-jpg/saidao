@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   BookmarkSimple,
@@ -14,7 +14,7 @@ import {
 } from '@phosphor-icons/react';
 import { request, toast } from '../lib/api';
 import { FORUM_BOARDS, forumBoardName } from '../lib/labels';
-import type { Competition, ForumBoard, ForumPost, Team, UserIdentity, UserProfile } from '../lib/types';
+import type { Competition, ForumBoard, ForumPost, ForumPostDTO, PageResponse, Team, UserIdentity, UserProfile } from '../types';
 import { Button, Card, EmptyState, Field, Skeleton, TextInput } from '../components/ui';
 
 export default function ForumPage() {
@@ -26,7 +26,11 @@ export default function ForumPage() {
   const [scope, setScope] = useState<'all' | 'school'>('all');
   const [mySchool, setMySchool] = useState('');
   const [identities, setIdentities] = useState<Record<number, UserIdentity>>({});
-  const [posts, setPosts] = useState<ForumPost[] | null>(null);
+  const [posts, setPosts] = useState<ForumPostDTO[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
+  const [page, setPage] = useState(0);
+  const pageSize = 20;
   const [competitions, setCompetitions] = useState<Competition[]>([]);
   const [myTeams, setMyTeams] = useState<Team[]>([]);
   const [showCreate, setShowCreate] = useState(Boolean(params.get('share')));
@@ -37,12 +41,6 @@ export default function ForumPage() {
     board: (params.get('board') as ForumBoard) || 'GENERAL',
     competitionId: params.get('competition') ? Number(params.get('competition')) : null,
   });
-
-  const compName = useMemo(() => {
-    const m: Record<number, string> = {};
-    competitions.forEach((c) => (m[c.id] = c.name));
-    return m;
-  }, [competitions]);
 
   useEffect(() => {
     request<UserProfile>('/api/profile')
@@ -59,28 +57,45 @@ export default function ForumPage() {
       .catch(() => setMyTeams([]));
   }, []);
 
-  useEffect(() => {
-    request<ForumPost[]>('/api/forum/posts', {
+  const fetchPage = (pageNum: number, append: boolean) => {
+    setLoading(true);
+    request<PageResponse<ForumPostDTO>>('/api/forum/posts', {
       params: {
         board: board || '',
         sort,
         keyword,
         essence: essenceOnly ? 'true' : '',
         scope,
+        page: String(pageNum),
+        size: String(pageSize),
       },
     })
       .then((d) => {
-        setPosts(d ?? []);
+        const content = d?.content ?? [];
+        setPosts(append ? [...posts, ...content] : content);
+        setHasMore(d ? d.number < d.totalPages - 1 : false);
+        setPage(pageNum);
         // 校区模式:批量拉取作者学校
-        if (scope === 'school' && d && d.length > 0) {
-          const ids = [...new Set(d.map((p) => p.author?.id).filter(Boolean))] as number[];
+        if (scope === 'school' && content.length > 0) {
+          const ids = [...new Set(content.map((p) => p.authorId).filter(Boolean))] as number[];
           request<Record<number, UserIdentity>>(`/api/profile/batch?ids=${ids.join(',')}`)
             .then((r) => setIdentities(r ?? {}))
             .catch(() => undefined);
         }
       })
-      .catch(() => setPosts([]));
+      .catch(() => {
+        if (!append) setPosts([]);
+        setHasMore(false);
+      })
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchPage(0, false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [board, sort, keyword, essenceOnly, scope]);
+
+  const loadMore = () => fetchPage(page + 1, true);
 
   const closeCreate = () => {
     setShowCreate(false);
@@ -197,7 +212,7 @@ export default function ForumPage() {
       </div>
 
       {/* 帖子列表 */}
-      {posts === null ? (
+      {loading && posts.length === 0 ? (
         <div className="flex flex-col gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-20" />
@@ -247,12 +262,12 @@ export default function ForumPage() {
               className="flex items-start gap-3 px-5 py-4 transition-colors hover:bg-zinc-50"
             >
               <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-sm font-semibold text-zinc-500">
-                {p.author?.name?.charAt(0)}
+                {p.authorName?.charAt(0)}
               </span>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-1.5">
                   <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-xs text-zinc-500">
-                    {forumBoardName(p.board)}
+                    {forumBoardName(p.board as ForumBoard)}
                   </span>
                   {p.pinned && (
                     <span className="flex items-center gap-0.5 rounded-md bg-red-50 px-1.5 py-0.5 text-xs font-medium text-red-500 ring-1 ring-red-200">
@@ -269,21 +284,21 @@ export default function ForumPage() {
                   <span className="truncate text-[15px] font-medium text-zinc-900">{p.title}</span>
                 </div>
                 <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-zinc-400">
-                  <span>{p.author?.name}</span>
-                  {scope === 'school' && p.author?.id != null && identities[p.author.id]?.school && (
+                  <span>{p.authorName}</span>
+                  {scope === 'school' && p.authorId != null && identities[p.authorId]?.school && (
                     <span className="flex items-center gap-0.5 font-semibold text-brand-700">
                       <GraduationCap size={11} />
-                      {identities[p.author.id]?.school}
+                      {identities[p.authorId]?.school}
                     </span>
                   )}
                   <span>· {p.createdAt?.replace('T', ' ').slice(0, 16)}</span>
-                  {p.competitionId != null && compName[p.competitionId] && (
+                  {p.competitionName && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2 py-0.5 font-medium text-brand-700">
                       <Trophy size={11} />
-                      {compName[p.competitionId]}
+                      {p.competitionName}
                     </span>
                   )}
-                  {p.team && <span className="font-medium text-brand-600">团队：{p.team.name}</span>}
+                  {p.teamBrief && <span className="font-medium text-brand-600">团队：{p.teamBrief.name}</span>}
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-3 text-xs text-zinc-400">
@@ -309,6 +324,14 @@ export default function ForumPage() {
         </Card>
       )}
 
+      {hasMore && (
+        <div className="flex justify-center">
+          <Button variant="ghost" onClick={loadMore} disabled={loading}>
+            {loading ? '加载中…' : '加载更多'}
+          </Button>
+        </div>
+      )}
+
       {showCreate && (
         <CreatePostModal
           myTeams={myTeams}
@@ -319,11 +342,7 @@ export default function ForumPage() {
           onCreated={() => {
             closeCreate();
             toast('发布成功', 'success');
-            request<ForumPost[]>('/api/forum/posts', {
-              params: { board: board || '', sort, keyword },
-            })
-              .then((d) => setPosts(d ?? []))
-              .catch(() => setPosts([]));
+            fetchPage(0, false);
           }}
         />
       )}

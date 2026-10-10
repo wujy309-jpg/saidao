@@ -12,7 +12,7 @@ import {
   Trophy,
   Users,
 } from '@phosphor-icons/react';
-import { request, toast, isLoggedIn } from '../lib/api';
+import { ApiError, request, toast, isLoggedIn } from '../lib/api';
 import {
   CATALOG_META,
   FORMAT_META,
@@ -29,7 +29,7 @@ import type {
   ForumPost,
   JourneyStatus,
   PreparationPlan,
-} from '../lib/types';
+} from '../types';
 import { Button, Card, CategoryBadge, LevelBadge, Skeleton, Stars } from '../components/ui';
 import GeneratePlanModal from '../components/GeneratePlanModal';
 
@@ -47,7 +47,7 @@ export default function CompetitionDetailPage() {
   const [error, setError] = useState('');
   const [similar, setSimilar] = useState<Competition[]>([]);
   const [works, setWorks] = useState<ExcellentWork[]>([]);
-  const [relatedPosts, setRelatedPosts] = useState<ForumPost[]>([]);
+  const [relatedPosts, setRelatedPosts] = useState<ForumPost[] | null>([]);
   const [showPlanModal, setShowPlanModal] = useState(false);
 
   const load = () => {
@@ -69,7 +69,13 @@ export default function CompetitionDetailPage() {
       params: { competitionId: id ?? '', sort: 'hot' },
     })
       .then((d) => setRelatedPosts(d ?? []))
-      .catch(() => setRelatedPosts([]));
+      .catch((e) => {
+        if (e instanceof ApiError && e.status === 401) {
+          setRelatedPosts(null);
+        } else {
+          setRelatedPosts([]);
+        }
+      });
   }, [id]);
 
   if (error) {
@@ -433,9 +439,13 @@ export default function CompetitionDetailPage() {
             + 分享经验
           </button>
         </div>
-        {relatedPosts.length === 0 ? (
+        {relatedPosts === null ? (
           <Card className="p-4 text-center text-xs text-zinc-400">
-            还没有人分享过这个比赛的经验,来写第一帖吧
+            登录后查看相关经验帖
+          </Card>
+        ) : relatedPosts.length === 0 ? (
+          <Card className="p-4 text-center text-xs text-zinc-400">
+            暂无相关帖子
           </Card>
         ) : (
           <div className="flex flex-col gap-2.5">

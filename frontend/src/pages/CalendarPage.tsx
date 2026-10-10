@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   CaretLeft,
@@ -11,7 +11,7 @@ import {
 import { request, toast } from '../lib/api';
 import { FORMAT_META, LEVEL_META } from '../lib/labels';
 import { dateKey, daysUntil, fmtShort, parseDate, regPhase } from '../lib/dates';
-import type { Competition, MyCompetitionItem } from '../lib/types';
+import type { Competition, MyCompetitionItem } from '../types';
 import { Button, Card, Skeleton } from '../components/ui';
 
 const WEEKDAYS = ['一', '二', '三', '四', '五', '六', '日'];
