@@ -3,7 +3,7 @@ import { type ReactNode } from 'react'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { render, type RenderResult } from '@testing-library/react'
 import { AuthProvider } from '../lib/auth'
-import type { User } from '../types'
+import type { User, TokenAccount } from '../types'
 
 /** 包装 API 响应为统一格式 { success, message, data } */
 export function ok<T>(data: T) {
@@ -13,6 +13,18 @@ export function ok<T>(data: T) {
 /** 包装错误响应 */
 export function err(message: string, status = 400) {
   return HttpResponse.json({ success: false, message, data: null }, { status })
+}
+
+/** 构造完整 TokenAccount mock 对象 */
+export function mockTokenAccount(balance: number): TokenAccount {
+  return {
+    id: 1,
+    userId: 1,
+    balance,
+    totalRecharged: 0,
+    totalConsumed: 0,
+    totalGranted: 100,
+  }
 }
 
 /** 测试用 mock 用户 */

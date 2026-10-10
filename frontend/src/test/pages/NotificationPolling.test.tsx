@@ -3,8 +3,8 @@ import { screen, waitFor } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import Layout from '../../components/Layout'
 import { server } from '../msw/server'
-import { ok, mockUser, mockLogin, mockLogout, renderWithAuth } from '../helpers'
-import type { TokenAccount, MyCompetitionItem } from '../../types'
+import { ok, mockUser, mockLogin, mockLogout, mockTokenAccount, renderWithAuth } from '../helpers'
+import type { MyCompetitionItem } from '../../types'
 
 /** 用 vi.fn() 包裹 handler，统计请求数 */
 function makeUnreadHandler(initialCount: number) {
@@ -31,7 +31,7 @@ describe('NotificationPolling (Layout 轮询)', () => {
   it('初始加载时拉取未读数并显示角标', async () => {
     server.use(
       http.get('/api/forum/notifications/unread-count', () => ok(3)),
-      http.get('/api/token/balance', () => ok<TokenAccount>({ balance: 100 })),
+      http.get('/api/token/balance', () => ok(mockTokenAccount(100))),
       http.get('/api/competitions/mine', () => ok<MyCompetitionItem[]>([]))
     )
 
@@ -50,7 +50,7 @@ describe('NotificationPolling (Layout 轮询)', () => {
 
     server.use(
       http.get('/api/forum/notifications/unread-count', unreadFn),
-      http.get('/api/token/balance', () => ok<TokenAccount>({ balance: 100 })),
+      http.get('/api/token/balance', () => ok(mockTokenAccount(100))),
       http.get('/api/competitions/mine', () => ok<MyCompetitionItem[]>([]))
     )
 
@@ -72,7 +72,7 @@ describe('NotificationPolling (Layout 轮询)', () => {
   it('未读数为 0 时不显示角标', async () => {
     server.use(
       http.get('/api/forum/notifications/unread-count', () => ok(0)),
-      http.get('/api/token/balance', () => ok<TokenAccount>({ balance: 100 })),
+      http.get('/api/token/balance', () => ok(mockTokenAccount(100))),
       http.get('/api/competitions/mine', () => ok<MyCompetitionItem[]>([]))
     )
 
@@ -90,7 +90,7 @@ describe('NotificationPolling (Layout 轮询)', () => {
 
     server.use(
       http.get('/api/forum/notifications/unread-count', unreadFn),
-      http.get('/api/token/balance', () => ok<TokenAccount>({ balance: 0 })),
+      http.get('/api/token/balance', () => ok(mockTokenAccount(0))),
       http.get('/api/competitions/mine', () => ok<MyCompetitionItem[]>([]))
     )
 
@@ -107,7 +107,7 @@ describe('NotificationPolling (Layout 轮询)', () => {
 
     server.use(
       http.get('/api/forum/notifications/unread-count', unreadFn),
-      http.get('/api/token/balance', () => ok<TokenAccount>({ balance: 100 })),
+      http.get('/api/token/balance', () => ok(mockTokenAccount(100))),
       http.get('/api/competitions/mine', () => ok<MyCompetitionItem[]>([]))
     )
 
