@@ -27,7 +27,7 @@ export default function UserProfilePage() {
     if (!userId) return;
     setLoading(true);
     Promise.all([
-      request<UserProfileDTO>(`/api/users/${userId}/profile`),
+      request<UserProfileDTO>(`/api/users/${userId}/profile`).catch(() => null),
       request<ForumPostDTO[]>(`/api/forum/posts?authorId=${userId}&size=50`).then(
         (d) => {
           if (Array.isArray(d)) return d;
