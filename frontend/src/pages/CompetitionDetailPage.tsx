@@ -389,7 +389,9 @@ export default function CompetitionDetailPage() {
             className="mt-7 inline-flex items-center gap-1.5 rounded-[10px] border border-zinc-200 px-4 py-2 text-sm text-zinc-400"
             title={c.officialUrl}
           >
-            官网暂时无法访问，可先参考下方赛制规则
+            {c.rules && c.rules.trim()
+              ? '官网暂时无法访问，可先参考下方赛制规则'
+              : '官网暂时无法访问，可先让 AI 助手解读赛制'}
             <WarningCircle size={15} />
           </span>
         )}
