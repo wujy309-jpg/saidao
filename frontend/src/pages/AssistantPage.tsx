@@ -403,7 +403,7 @@ export default function AssistantPage() {
         <div className="flex items-center justify-between gap-3 rounded-[12px] border border-amber-200 bg-amber-50 px-4 py-2.5">
           <p className="text-sm text-amber-800">
             积分不足（本次对话需 {chatPrice} 积分），暂时无法发起新的 AI 对话
-            <span className="ml-1 text-xs text-amber-700">每日免费额度次日 0 点自动到账</span>
+            <span className="ml-1 text-xs text-amber-700">每日免费额度每天自动到账</span>
           </p>
           <Link to="/recharge" className="shrink-0 text-sm font-semibold text-amber-800 underline">
             查看积分规则 →

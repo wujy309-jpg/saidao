@@ -203,7 +203,7 @@ function PackagesTab({ onRecharged }: { onRecharged: () => void }) {
             平台当前为免费内测，充值功能暂未开放
           </p>
           <p className="mt-1 text-xs leading-relaxed text-amber-700">
-            积分可通过「注册赠送」与「每日免费额度」获得，每天首次使用 AI 功能时自动到账；
+            积分可通过「注册赠送」与「每日免费额度」获得，每日额度每天自动到账一次；
             余额与消费流水不受影响，可随时在下方查看。
           </p>
         </div>

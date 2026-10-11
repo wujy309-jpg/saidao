@@ -13,6 +13,7 @@ import com.saidao.backend.repository.TokenPackageRepository;
 import com.saidao.backend.repository.TokenSceneConfigRepository;
 import com.saidao.backend.service.TokenService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @RestController
 @RequestMapping("/token")
 @RequiredArgsConstructor
+@Slf4j
 public class TokenController {
 
     private final TokenService tokenService;
@@ -39,10 +41,17 @@ public class TokenController {
     private final TokenSceneConfigRepository sceneConfigRepository;
     private final RechargeOrderRepository orderRepository;
 
-    /** 我的余额账户 */
+    /** 我的余额账户（顺带结算当天免费额度：只在每天第一次调用时真正发放） */
     @GetMapping("/balance")
     public ResponseEntity<ApiResponse<TokenAccount>> balance() {
-        return ResponseEntity.ok(ApiResponse.success(tokenService.getOrCreateAccount(currentUserId())));
+        Long userId = currentUserId();
+        try {
+            tokenService.grantDailyFree(userId);
+        } catch (Exception e) {
+            // 免费额度发放失败不能连累余额查询本身
+            log.warn("每日免费额度发放失败 userId={}: {}", userId, e.getMessage());
+        }
+        return ResponseEntity.ok(ApiResponse.success(tokenService.getOrCreateAccount(userId)));
     }
 
     /** 场景单价列表（前端展示「本次约消耗 X Token」） */
