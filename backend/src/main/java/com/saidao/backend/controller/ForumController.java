@@ -1,11 +1,14 @@
 package com.saidao.backend.controller;
 
 import com.saidao.backend.dto.ApiResponse;
+import com.saidao.backend.dto.ForumPostDTO;
 import com.saidao.backend.entity.ForumPost;
 import com.saidao.backend.entity.ForumReply;
+import com.saidao.backend.entity.ForumReport;
 import com.saidao.backend.entity.Notification;
 import com.saidao.backend.service.ForumService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,18 +27,20 @@ public class ForumController {
     
     private final ForumService forumService;
     
-    /** 帖子列表(板块/排序/搜索/竞赛标签/只看精华/校区范围) */
+    /** 帖子列表(板块/排序/搜索/竞赛标签/只看精华/校区范围,分页) */
     @GetMapping("/posts")
-    public ResponseEntity<ApiResponse<List<ForumPost>>> list(
+    public ResponseEntity<ApiResponse<Page<ForumPostDTO>>> list(
             @RequestParam(required = false) ForumPost.ForumBoard board,
             @RequestParam(required = false, defaultValue = "latest") String sort,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Long competitionId,
             @RequestParam(required = false) Boolean essence,
-            @RequestParam(required = false, defaultValue = "all") String scope) {
+            @RequestParam(required = false, defaultValue = "all") String scope,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "20") int size) {
         return ResponseEntity.ok(ApiResponse.success(
                 forumService.listPosts(board, sort, keyword, competitionId, essence,
-                        currentUserIdOrNull(), scope)));
+                        currentUserIdOrNull(), scope, page, size)));
     }
     
     /** 板块定义 */
@@ -48,6 +53,30 @@ public class ForumController {
                 Map.of("code", "GENERAL", "name", "综合交流")
         );
         return ResponseEntity.ok(ApiResponse.success(boards));
+    }
+
+    /** 关注的人的帖子 feed */
+    @GetMapping("/feed")
+    public ResponseEntity<ApiResponse<List<ForumPost>>> feed(
+            @RequestParam(required = false, defaultValue = "all") String scope) {
+        if ("following".equalsIgnoreCase(scope)) {
+            return ResponseEntity.ok(ApiResponse.success(
+                    forumService.getFollowingFeed(currentUserIdOrNull())));
+        }
+        return ResponseEntity.ok(ApiResponse.success(List.of()));
+    }
+
+    /** 提交举报 */
+    @PostMapping("/reports")
+    public ResponseEntity<ApiResponse<ForumReport>> submitReport(@RequestBody Map<String, Object> body) {
+        Long reporterId = currentUserIdOrNull();
+        Long postId = body.get("postId") != null ? Long.valueOf(body.get("postId").toString()) : null;
+        Long replyId = body.get("replyId") != null ? Long.valueOf(body.get("replyId").toString()) : null;
+        ForumReport.ReportReason reason = ForumReport.ReportReason.valueOf(
+                body.getOrDefault("reason", "OTHER").toString().toUpperCase());
+        String detail = body.get("detail") != null ? body.get("detail").toString() : null;
+        return ResponseEntity.ok(ApiResponse.success("举报已提交", 
+                forumService.submitReport(reporterId, postId, replyId, reason, detail)));
     }
     
     /** 发帖 */

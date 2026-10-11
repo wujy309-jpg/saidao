@@ -13,6 +13,7 @@ import SettingsPage from './pages/SettingsPage';
 import CompetitionsPage from './pages/CompetitionsPage';
 import AiUsagePage from './pages/AiUsagePage';
 import AuditLogsPage from './pages/AuditLogsPage';
+import CommunityReportsPage from './pages/CommunityReportsPage';
 import type { ReactNode } from 'react';
 
 /** 生产挂载 /api/admin/，开发默认 /admin */
@@ -61,6 +62,7 @@ export default function App() {
             <Route path="/audit-logs" element={<AuditLogsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/competitions" element={<CompetitionsPage />} />
+            <Route path="/reports" element={<CommunityReportsPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

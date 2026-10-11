@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CalendarBlank, CalendarCheck, TrashSimple, Trophy } from '@phosphor-icons/react';
 import { request, toast } from '../lib/api';
 import { daysUntil, fmtShort } from '../lib/dates';
-import type { PreparationPlan } from '../lib/types';
+import type { PreparationPlan } from '../types';
 import { Card, EmptyState, Pill, Skeleton } from '../components/ui';
 
 export default function PlansPage() {

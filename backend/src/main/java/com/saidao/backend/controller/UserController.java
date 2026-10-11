@@ -2,8 +2,9 @@ package com.saidao.backend.controller;
 
 import com.saidao.backend.dto.ApiResponse;
 import com.saidao.backend.dto.PageResponse;
-import com.saidao.backend.entity.User;
-import com.saidao.backend.repository.UserRepository;
+import com.saidao.backend.dto.UserProfileDTO;
+import com.saidao.backend.entity.*;
+import com.saidao.backend.repository.*;
 import com.saidao.backend.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 用户管理接口（管理端，SecurityConfig 已限制 ADMIN 角色）
@@ -29,6 +31,11 @@ public class UserController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ProfileService profileService;
+    private final UserProfileRepository userProfileRepository;
+    private final ForumPostRepository forumPostRepository;
+    private final ForumReplyRepository forumReplyRepository;
+    private final UserFollowRepository userFollowRepository;
+    private final CompetitionRepository competitionRepository;
     
     /** 获取所有用户（分页） */
     @GetMapping
@@ -124,5 +131,55 @@ public class UserController {
         boolean now = profileService.toggleVerified(userId);
         return ResponseEntity.ok(ApiResponse.success(
                 now ? "已认证该用户身份" : "已取消认证", now));
+    }
+
+    /** 用户主页:公开画像 + 发帖/回复统计 + 关注/粉丝数 */
+    @GetMapping("/{userId}/profile")
+    public ResponseEntity<ApiResponse<UserProfileDTO>> getUserProfile(@PathVariable Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("用户不存在"));
+        UserProfile profile = userProfileRepository.findByUserId(userId).orElse(null);
+
+        int postCount = (int) forumPostRepository.findAll().stream()
+                .filter(p -> p.getAuthor() != null && p.getAuthor().getId().equals(userId))
+                .count();
+        List<ForumReply> userReplies = forumReplyRepository.findAll().stream()
+                .filter(r -> r.getAuthor() != null && r.getAuthor().getId().equals(userId))
+                .collect(Collectors.toList());
+        int replyCount = userReplies.size();
+        int acceptedCount = (int) userReplies.stream()
+                .filter(r -> Boolean.TRUE.equals(r.getAccepted()))
+                .count();
+
+        // 参赛历史:从该用户的帖子中提取竞赛名
+        List<Long> compIds = forumPostRepository.findAll().stream()
+                .filter(p -> p.getAuthor() != null && p.getAuthor().getId().equals(userId))
+                .map(ForumPost::getCompetitionId)
+                .filter(java.util.Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+        List<String> compHistory = compIds.isEmpty() ? List.of()
+                : competitionRepository.findAllById(compIds).stream()
+                        .map(Competition::getName)
+                        .collect(Collectors.toList());
+
+        long followingCount = userFollowRepository.countByFollowerId(userId);
+        long followerCount = userFollowRepository.countByFolloweeId(userId);
+
+        UserProfileDTO dto = new UserProfileDTO(
+                user.getId(),
+                user.getName(),
+                profile != null ? profile.getSchool() : null,
+                user.getReputation(),
+                profile != null ? profile.getVerified() : null,
+                user.getRole() == null ? null : user.getRole().name(),
+                postCount,
+                replyCount,
+                acceptedCount,
+                compHistory,
+                (int) followingCount,
+                (int) followerCount
+        );
+        return ResponseEntity.ok(ApiResponse.success(dto));
     }
 }

@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import { request, setAuth, clearAuth, takePendingProfile, clearPendingProfile } from './api';
-import type { LoginData, User, UserProfile } from './types';
+import type { LoginData, User, UserProfile } from '../types';
 
 interface AuthState {
   user: User | null;

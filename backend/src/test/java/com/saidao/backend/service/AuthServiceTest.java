@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -77,9 +78,9 @@ class AuthServiceTest {
         loginRequest.setUsername("testuser");
         loginRequest.setPassword("password123");
         
-        when(httpRequest.getHeader("X-Forwarded-For")).thenReturn(null);
-        when(httpRequest.getHeader("X-Real-IP")).thenReturn(null);
-        when(httpRequest.getRemoteAddr()).thenReturn("127.0.0.1");
+        lenient().when(httpRequest.getHeader("X-Forwarded-For")).thenReturn(null);
+        lenient().when(httpRequest.getHeader("X-Real-IP")).thenReturn(null);
+        lenient().when(httpRequest.getRemoteAddr()).thenReturn("127.0.0.1");
     }
     
     @Test

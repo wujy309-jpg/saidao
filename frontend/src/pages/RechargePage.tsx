@@ -11,7 +11,7 @@ import type {
   TokenSceneConfig,
   TokenTransaction,
   TxType,
-} from '../lib/types';
+} from '../types';
 
 type Tab = 'packages' | 'card' | 'orders' | 'transactions';
 

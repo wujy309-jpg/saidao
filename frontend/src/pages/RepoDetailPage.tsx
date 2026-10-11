@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
@@ -22,7 +22,7 @@ import {
 } from '@phosphor-icons/react';
 import { request, toast, uploadRequest } from '../lib/api';
 import { useAuth } from '../lib/auth';
-import type { Repo, RepoBranch, RepoCommit, RepoDiff, RepoFile, RepoMember, User } from '../lib/types';
+import type { Repo, RepoBranch, RepoCommit, RepoDiff, RepoFile, RepoMember, User } from '../types';
 import { Button, Card, EmptyState, Field, Skeleton, TextInput } from '../components/ui';
 
 type Tab = 'files' | 'commits' | 'members';

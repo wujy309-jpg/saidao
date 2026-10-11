@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -114,14 +113,15 @@ class NotificationSchemaMigrationTest {
         Set<String> missing = new LinkedHashSet<>(required);
         missing.removeAll(existing);
 
-        assertEquals(Set.of("TEAM_APPLY", "TEAM_APPROVED", "TEAM_REJECTED",
-                "TEAM_REMOVED", "TEAM_TRANSFERRED", "TEAM_DISBANDED"), missing,
-                "旧 ENUM 应被判定为缺少全部团队事件枚举值");
+        // 注意:协作域重构把 TEAM_TRANSFERRED 更名为 TEAM_TRANSFER（后端 TeamService 与前端标签同步改），
+        // 并新增了 @提及/举报结果/积分不足/充值到账/系统 五个取值。此处按合并后的实体枚举校准。
+        assertEquals(Set.of("MENTION", "REPORT_RESULT", "TEAM_APPLY", "TEAM_APPROVED", "TEAM_REJECTED",
+                "TEAM_REMOVED", "TEAM_DISBANDED", "TEAM_TRANSFER", "TOKEN_LOW", "RECHARGE_PAID", "SYSTEM"), missing,
+                "旧 ENUM 应被判定为缺少全部新增枚举值");
 
-        assertTrue(DataInitializer.parseEnumValues(
-                        "enum('REPLY','LIKE_POST','LIKE_REPLY','FOLLOW','ESSENCE','ACCEPTED','TEAM_APPLY',"
-                                + "'TEAM_APPROVED','TEAM_REJECTED','TEAM_REMOVED','TEAM_TRANSFERRED','TEAM_DISBANDED')")
-                        .containsAll(required),
+        String fullEnum = "enum(" + required.stream().map(v -> "'" + v + "'")
+                .collect(Collectors.joining(",")) + ")";
+        assertTrue(DataInitializer.parseEnumValues(fullEnum).containsAll(required),
                 "取值已齐全时应判定为无需迁移");
     }
 
@@ -134,7 +134,10 @@ class NotificationSchemaMigrationTest {
         assertNull(DataInitializer.parseCharLength("enum('A','B')"));
         assertNull(DataInitializer.parseCharLength("bigint"));
 
-        List<String> values = List.of("TEAM_TRANSFERRED");
-        assertEquals(16, values.get(0).length());
+        // 迁移按「最长枚举名」判断 VARCHAR 列是否容纳得下；守住它放得进实体的 VARCHAR(40)
+        int longestEnumName = Arrays.stream(Notification.NotificationType.values())
+                .mapToInt(v -> v.name().length()).max().orElse(0);
+        assertTrue(longestEnumName <= 40,
+                "最长枚举名(" + longestEnumName + " 字符)需能放进 notifications.type VARCHAR(40)");
     }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, PencilSimple } from '@phosphor-icons/react';
 import { request, toast } from '../lib/api';
@@ -11,7 +11,7 @@ import {
   SKILL_OPTIONS,
   WEEKLY_HOURS_OPTIONS,
 } from '../lib/labels';
-import type { UserProfile } from '../lib/types';
+import type { UserProfile } from '../types';
 import { Button, Card, ChipGroupCustom, Field, Skeleton, TextInput } from '../components/ui';
 
 export default function ProfilePage() {

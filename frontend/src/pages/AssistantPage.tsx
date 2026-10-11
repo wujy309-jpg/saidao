@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   ArrowUp,
@@ -28,7 +28,7 @@ import type {
   TokenAccount,
   TokenSceneConfig,
   UserDocument,
-} from '../lib/types';
+} from '../types';
 import { Card, Skeleton } from '../components/ui';
 
 interface DisplayMessage {

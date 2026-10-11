@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { request } from './lib/api';
 import { useAuth } from './lib/auth';
-import type { UserProfile } from './lib/types';
+import type { UserProfile } from './types';
 import Layout from './components/Layout';
 import GuestShell from './components/GuestShell';
 import GuestHomePage from './pages/GuestHomePage';
@@ -26,6 +26,7 @@ import ForumPostPage from './pages/ForumPostPage';
 import NotificationsPage from './pages/NotificationsPage';
 import ProfilePage from './pages/ProfilePage';
 import RechargePage from './pages/RechargePage';
+import UserProfilePage from './pages/UserProfilePage';
 
 /** 需要登录的壳 */
 function RequireAuth({ children }: { children: ReactNode }) {
@@ -183,6 +184,7 @@ export default function App() {
           <Route path="/repos" element={<ReposPage />} />
           <Route path="/repos/:id" element={<RepoDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/u/:userId" element={<UserProfilePage />} />
           <Route path="/recharge" element={<RechargePage />} />
         </Route>
 

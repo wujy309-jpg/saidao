@@ -368,7 +368,7 @@ public class DataInitializer implements CommandLineRunner {
         p2.setTitle("星辰算法队招募队友，一起冲 CCPC");
         p2.setContent("我们是一支目标明确的算法小队，现招募 2 名队友：\n\n要求：\n1. 熟悉 C++ 或 Python，刷过一定量算法题\n2. 每周能投入 8 小时以上\n3. 大二、大三优先\n\n有意者点击右侧团队卡片申请加入。");
         p2.setAuthor(student);
-        p2.setTeam(savedTeam);
+        p2.setTeamId(savedTeam.getId());
         p2.setViewCount(56);
         forumPostRepository.save(p2);
         

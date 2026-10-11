@@ -1,9 +1,16 @@
 package com.saidao.backend.service;
 
+import com.saidao.backend.dto.ForumPostDTO;
+import com.saidao.backend.dto.TeamBrief;
 import com.saidao.backend.entity.*;
 import com.saidao.backend.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +30,7 @@ public class ForumService {
     private final ForumPostRepository postRepository;
     private final ForumReplyRepository replyRepository;
     private final UserRepository userRepository;
-    private final TeamRepository teamRepository;
+    private final TeamQueryService teamQueryService;
     private final CompetitionRepository competitionRepository;
     private final PostLikeRepository postLikeRepository;
     private final ReplyLikeRepository replyLikeRepository;
@@ -32,6 +39,7 @@ public class ForumService {
     private final NotificationRepository notificationRepository;
     private final DeepSeekService deepSeekService;
     private final UserProfileRepository profileRepository;
+    private final com.saidao.backend.repository.ForumReportRepository reportRepository;
 
     // ==================== 声望 ====================
 
@@ -39,71 +47,120 @@ public class ForumService {
     public void awardReputation(Long userId, int delta) {
         if (userId == null || delta == 0) return;
         userRepository.findById(userId).ifPresent(u -> {
-            u.setReputation((u.getReputation() == null ? 0 : u.getReputation()) + delta);
+            int current = u.getReputation() == null ? 0 : u.getReputation();
+            u.setReputation(Math.max(0, current + delta));
             userRepository.save(u);
         });
     }
 
     // ==================== 帖子列表 ====================
 
-    public List<ForumPost> listPosts(ForumPost.ForumBoard board, String sort, String keyword,
-                                     Long competitionId, Boolean essenceOnly, Long currentUserId,
-                                     String scope) {
-        List<ForumPost> all = new ArrayList<>(postRepository.findAll());
-
+    public Page<ForumPostDTO> listPosts(ForumPost.ForumBoard board, String sort, String keyword,
+                                         Long competitionId, Boolean essenceOnly, Long currentUserId,
+                                         String scope, int page, int size) {
+        // 构建 Specification 动态查询
+        List<Specification<ForumPost>> specs = new ArrayList<>();
+        // 非管理员不显示隐藏帖
+        specs.add((root, query, cb) -> cb.or(
+                cb.isFalse(root.get("hidden")),
+                cb.isNull(root.get("hidden"))
+        ));
         if (board != null) {
-            all.removeIf(p -> p.getBoard() != board);
+            specs.add((root, query, cb) -> cb.equal(root.get("board"), board));
         }
         if (competitionId != null) {
-            all.removeIf(p -> !competitionId.equals(p.getCompetitionId()));
+            specs.add((root, query, cb) -> cb.equal(root.get("competitionId"), competitionId));
         }
         if (Boolean.TRUE.equals(essenceOnly)) {
-            all.removeIf(p -> !Boolean.TRUE.equals(p.getEssence()));
+            specs.add((root, query, cb) -> cb.isTrue(root.get("essence")));
         }
-        // 校区模式:只看本校同学发的帖
+        if (keyword != null && !keyword.isBlank()) {
+            String kw = "%" + keyword.trim().toLowerCase() + "%";
+            specs.add((root, query, cb) -> cb.or(
+                    cb.like(cb.lower(root.get("title")), kw),
+                    cb.like(cb.lower(root.get("content")), kw)
+            ));
+        }
+
+        // 校区模式:先查出本校作者 ID 集合
         if ("school".equalsIgnoreCase(scope) && currentUserId != null) {
             String mySchool = profileRepository.findByUserId(currentUserId)
                     .map(UserProfile::getSchool)
                     .orElse(null);
             if (mySchool == null || mySchool.isBlank()) {
-                return List.of();
+                return Page.empty();
             }
-            List<Long> authorIds = all.stream()
-                    .map(p -> p.getAuthor() == null ? null : p.getAuthor().getId())
-                    .filter(Objects::nonNull)
-                    .distinct()
-                    .collect(Collectors.toList());
-            Map<Long, String> schoolMap = profileRepository.findByUserIdIn(authorIds).stream()
-                    .filter(p -> p.getSchool() != null && !p.getSchool().isBlank())
-                    .collect(Collectors.toMap(UserProfile::getUserId, UserProfile::getSchool, (a, b) -> a));
-            all.removeIf(p -> {
-                if (p.getAuthor() == null) return true;
-                String s = schoolMap.get(p.getAuthor().getId());
-                return s == null || !s.equals(mySchool);
-            });
-        }
-        if (keyword != null && !keyword.isBlank()) {
-            String kw = keyword.trim().toLowerCase();
-            all.removeIf(p ->
-                    !((p.getTitle() != null && p.getTitle().toLowerCase().contains(kw)) ||
-                      (p.getContent() != null && p.getContent().toLowerCase().contains(kw)) ||
-                      (p.getAuthor() != null && p.getAuthor().getName() != null
-                              && p.getAuthor().getName().toLowerCase().contains(kw)) ||
-                      (competitionNameOf(p.getCompetitionId()).toLowerCase().contains(kw)))
-            );
+            // 查本校所有用户 ID
+            Set<Long> schoolUserIds = profileRepository.findBySchool(mySchool).stream()
+                    .map(UserProfile::getUserId)
+                    .collect(Collectors.toSet());
+            if (schoolUserIds.isEmpty()) {
+                return Page.empty();
+            }
+            specs.add((root, query, cb) -> root.get("author").get("id").in(schoolUserIds));
         }
 
-        if ("hot".equalsIgnoreCase(sort)) {
-            all.sort(Comparator.comparingDouble(this::hotScore).reversed());
-        } else {
-            all.sort(Comparator.comparing(ForumPost::getCreatedAt,
-                    Comparator.nullsLast(Comparator.reverseOrder())));
-        }
-        // 置顶帖始终排最前
-        all.sort(Comparator.comparing(p -> Boolean.TRUE.equals(p.getPinned()) ? 0 : 1));
+        Specification<ForumPost> finalSpec = specs.stream().reduce(Specification.where(null), Specification::and);
 
-        markPostFlags(all, currentUserId);
-        return all;
+        // 分页 + 排序:置顶帖优先,然后按热度或时间
+        Sort.Order pinnedOrder = Sort.Order.asc("pinned").ignoreCase();
+        Sort.Order contentOrder = "hot".equalsIgnoreCase(sort)
+                ? Sort.Order.desc("viewCount")
+                : Sort.Order.desc("createdAt");
+        Pageable pageable = PageRequest.of(page, size, Sort.by(pinnedOrder, contentOrder));
+
+        Page<ForumPost> postPage = postRepository.findAll(finalSpec, pageable);
+        List<ForumPost> posts = postPage.getContent();
+
+        // 批量填充 teamBrief
+        populateTeamBriefs(posts);
+
+        // 批量查询 liked / favorited
+        Set<Long> postIds = posts.stream().map(ForumPost::getId).collect(Collectors.toSet());
+        Set<Long> likedIds = currentUserId != null && !postIds.isEmpty()
+                ? postLikeRepository.findAll().stream()
+                    .filter(l -> l.getUserId().equals(currentUserId) && postIds.contains(l.getPostId()))
+                    .map(l -> l.getPostId())
+                    .collect(Collectors.toSet())
+                : Set.of();
+        Set<Long> favoritedIds = currentUserId != null && !postIds.isEmpty()
+                ? postFavoriteRepository.findAll().stream()
+                    .filter(f -> f.getUserId().equals(currentUserId) && postIds.contains(f.getPostId()))
+                    .map(f -> f.getPostId())
+                    .collect(Collectors.toSet())
+                : Set.of();
+
+        // 预加载 competitionName Map
+        Set<Long> compIds = posts.stream()
+                .map(ForumPost::getCompetitionId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        Map<Long, String> compNameMap = compIds.isEmpty() ? Map.of()
+                : competitionRepository.findAllById(compIds).stream()
+                    .collect(Collectors.toMap(Competition::getId, Competition::getName, (a, b) -> a));
+
+        // 预加载 author verified Map
+        Set<Long> authorIds = posts.stream()
+                .map(p -> p.getAuthor() == null ? null : p.getAuthor().getId())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        Map<Long, Boolean> verifiedMap = authorIds.isEmpty() ? Map.of()
+                : profileRepository.findByUserIdIn(List.copyOf(authorIds)).stream()
+                    .collect(Collectors.toMap(UserProfile::getUserId,
+                            p -> Boolean.TRUE.equals(p.getVerified()), (a, b) -> a));
+
+        // 转换为 DTO
+        List<ForumPostDTO> dtos = posts.stream()
+                .map(p -> ForumPostDTO.from(
+                        p,
+                        p.getCompetitionId() != null ? compNameMap.get(p.getCompetitionId()) : null,
+                        likedIds.contains(p.getId()),
+                        favoritedIds.contains(p.getId()),
+                        p.getAuthor() != null ? verifiedMap.get(p.getAuthor().getId()) : null
+                ))
+                .collect(Collectors.toList());
+
+        return new org.springframework.data.domain.PageImpl<>(dtos, pageable, postPage.getTotalElements());
     }
 
     /** 热门度:互动加权 + 时间衰减(Reddit 式) */
@@ -128,6 +185,22 @@ public class ForumService {
             if (userId != null) {
                 p.setLiked(postLikeRepository.existsByPostIdAndUserId(p.getId(), userId));
                 p.setFavorited(postFavoriteRepository.existsByPostIdAndUserId(p.getId(), userId));
+            }
+        }
+    }
+
+    /** 批量填充 teamBrief,避免 N+1 查询 */
+    private void populateTeamBriefs(List<ForumPost> posts) {
+        if (posts.isEmpty()) return;
+        List<Long> teamIds = posts.stream()
+                .map(ForumPost::getTeamId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .collect(Collectors.toList());
+        Map<Long, TeamBrief> briefMap = teamQueryService.getBriefs(teamIds);
+        for (ForumPost p : posts) {
+            if (p.getTeamId() != null) {
+                p.setTeamBrief(briefMap.get(p.getTeamId()));
             }
         }
     }
@@ -158,13 +231,14 @@ public class ForumService {
         post.setTitle(title);
         post.setContent(content);
         if (teamId != null) {
-            post.setTeam(teamRepository.findById(teamId).orElse(null));
+            post.setTeamId(teamId);
         }
         if (competitionId != null) {
             post.setCompetitionId(competitionId);
         }
         ForumPost saved = postRepository.save(post);
         awardReputation(authorId, 2);
+        populateTeamBriefs(List.of(saved));
         return saved;
     }
 
@@ -178,12 +252,33 @@ public class ForumService {
         if (currentUserId != null) {
             post.setLiked(postLikeRepository.existsByPostIdAndUserId(postId, currentUserId));
             post.setFavorited(postFavoriteRepository.existsByPostIdAndUserId(postId, currentUserId));
+            if (post.getAuthor() != null && !post.getAuthor().getId().equals(currentUserId)) {
+                post.setFollowing(userFollowRepository.existsByFollowerIdAndFolloweeId(currentUserId, post.getAuthor().getId()));
+            }
         }
+        populateTeamBriefs(List.of(post));
         return post;
+    }
+
+    /** 关注的人的帖子 feed */
+    public List<ForumPost> getFollowingFeed(Long currentUserId) {
+        if (currentUserId == null) return List.of();
+        List<Long> followeeIds = userFollowRepository.findByFollowerId(currentUserId).stream()
+                .map(UserFollow::getFolloweeId)
+                .collect(Collectors.toList());
+        if (followeeIds.isEmpty()) return List.of();
+        List<ForumPost> posts = postRepository.findByAuthorIdInOrderByCreatedAtDesc(followeeIds);
+        markPostFlags(posts, currentUserId);
+        populateTeamBriefs(posts);
+        return posts;
     }
 
     public List<ForumReply> getReplies(Long postId, Long currentUserId) {
         List<ForumReply> replies = replyRepository.findByPostIdOrderByCreatedAtAsc(postId);
+        // 过滤隐藏回复
+        replies = replies.stream()
+                .filter(r -> !Boolean.TRUE.equals(r.getHidden()))
+                .collect(Collectors.toList());
         for (ForumReply r : replies) {
             if (r.getLikeCount() == null) r.setLikeCount(0);
             if (r.getAccepted() == null) r.setAccepted(false);
@@ -231,6 +326,9 @@ public class ForumService {
         if (postLikeRepository.existsByPostIdAndUserId(postId, userId)) {
             postLikeRepository.deleteByPostIdAndUserId(postId, userId);
             nowLiked = false;
+            if (!userId.equals(post.getAuthor().getId())) {
+                awardReputation(post.getAuthor().getId(), -1);
+            }
         } else {
             PostLike like = new PostLike();
             like.setPostId(postId);
@@ -308,6 +406,7 @@ public class ForumService {
         Map<Long, ForumPost> map = posts.stream().collect(Collectors.toMap(ForumPost::getId, p -> p));
         List<ForumPost> ordered = postIds.stream().map(map::get).filter(Objects::nonNull).collect(Collectors.toList());
         markPostFlags(ordered, userId);
+        populateTeamBriefs(ordered);
         return ordered;
     }
 
@@ -350,6 +449,8 @@ public class ForumService {
             createNotification(post.getAuthor().getId(), Notification.NotificationType.ESSENCE,
                     null, postId, null, post.getTitle());
             awardReputation(post.getAuthor().getId(), 20);
+        } else {
+            awardReputation(post.getAuthor().getId(), -20);
         }
         return post;
     }
@@ -391,6 +492,9 @@ public class ForumService {
             }
         } else {
             reply.setAccepted(false);
+            if (!userId.equals(reply.getAuthor().getId())) {
+                awardReputation(reply.getAuthor().getId(), -15);
+            }
         }
         replyRepository.save(reply);
         return Map.of("accepted", nowAccepted, "reply", reply);
@@ -513,6 +617,9 @@ public class ForumService {
         n.setUserId(userId);
         n.setType(type);
         n.setActorId(actorId);
+        if (actorId != null) {
+            n.setActorName(userRepository.findById(actorId).map(User::getName).orElse(null));
+        }
         n.setPostId(postId);
         n.setReplyId(replyId);
         if (summary != null && summary.length() > 120) summary = summary.substring(0, 120);
@@ -531,12 +638,7 @@ public class ForumService {
 
     @Transactional
     public void markAllRead(Long userId) {
-        for (Notification n : notificationRepository.findByUserIdOrderByCreatedAtDesc(userId)) {
-            if (!Boolean.TRUE.equals(n.getRead())) {
-                n.setRead(true);
-                notificationRepository.save(n);
-            }
-        }
+        notificationRepository.markAllRead(userId);
     }
 
     @Transactional
@@ -554,5 +656,95 @@ public class ForumService {
         if (n == null || !n.getUserId().equals(userId)) return false;
         notificationRepository.delete(n);
         return true;
+    }
+
+    // ==================== 举报 ====================
+
+    private static final int REPORT_THRESHOLD = 3;
+
+    @Transactional
+    public ForumReport submitReport(Long reporterId, Long postId, Long replyId,
+                                     ForumReport.ReportReason reason, String detail) {
+        if (reporterId == null) throw new RuntimeException("请先登录");
+        if (postId == null && replyId == null) throw new RuntimeException("举报目标不能为空");
+        if (reason == null) throw new RuntimeException("请选择举报原因");
+
+        // 防止重复举报
+        if (postId != null && reportRepository.existsByPostIdAndReporterId(postId, reporterId)) {
+            throw new RuntimeException("你已举报过该帖子");
+        }
+        if (replyId != null && reportRepository.existsByReplyIdAndReporterId(replyId, reporterId)) {
+            throw new RuntimeException("你已举报过该回复");
+        }
+
+        ForumReport report = new ForumReport();
+        report.setReporterId(reporterId);
+        report.setPostId(postId);
+        report.setReplyId(replyId);
+        report.setReason(reason);
+        if (detail != null && detail.length() > 500) detail = detail.substring(0, 500);
+        report.setDetail(detail);
+        report.setStatus(ForumReport.ReportStatus.PENDING);
+        reportRepository.save(report);
+
+        // 阈值检查:pending 举报达阈值自动隐藏
+        checkReportThreshold(postId, replyId);
+
+        return report;
+    }
+
+    private void checkReportThreshold(Long postId, Long replyId) {
+        if (postId != null) {
+            long count = reportRepository.countByPostIdAndStatus(postId, ForumReport.ReportStatus.PENDING);
+            if (count >= REPORT_THRESHOLD) {
+                postRepository.findById(postId).ifPresent(p -> {
+                    p.setHidden(true);
+                    postRepository.save(p);
+                });
+            }
+        }
+        if (replyId != null) {
+            long count = reportRepository.countByReplyIdAndStatus(replyId, ForumReport.ReportStatus.PENDING);
+            if (count >= REPORT_THRESHOLD) {
+                replyRepository.findById(replyId).ifPresent(r -> {
+                    r.setHidden(true);
+                    replyRepository.save(r);
+                });
+            }
+        }
+    }
+
+    public List<ForumReport> listReports(ForumReport.ReportStatus status) {
+        if (status != null) {
+            return reportRepository.findByStatusOrderByCreatedAtDesc(status);
+        }
+        return reportRepository.findAll();
+    }
+
+    @Transactional
+    public ForumReport handleReport(Long reportId, Long handlerId, ForumReport.ReportStatus decision) {
+        ForumReport report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new RuntimeException("举报记录不存在"));
+        report.setStatus(decision);
+        report.setHandlerId(handlerId);
+        report.setHandledAt(java.time.LocalDateTime.now());
+        reportRepository.save(report);
+
+        // 审核通过:隐藏内容
+        if (decision == ForumReport.ReportStatus.APPROVED) {
+            if (report.getPostId() != null) {
+                postRepository.findById(report.getPostId()).ifPresent(p -> {
+                    p.setHidden(true);
+                    postRepository.save(p);
+                });
+            }
+            if (report.getReplyId() != null) {
+                replyRepository.findById(report.getReplyId()).ifPresent(r -> {
+                    r.setHidden(true);
+                    replyRepository.save(r);
+                });
+            }
+        }
+        return report;
     }
 }
