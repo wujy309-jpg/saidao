@@ -262,14 +262,6 @@ export default function Layout() {
                       {m.label}
                     </Link>
                   ))}
-                  {user?.role === 'ADMIN' && (
-                    <a
-                      href={`${import.meta.env.VITE_ROUTER_BASE || '/'}admin/`}
-                      className="block rounded-[8px] px-3 py-2 text-sm text-zinc-600 hover:bg-brand-50 hover:text-brand-800"
-                    >
-                      管理后台
-                    </a>
-                  )}
                   <div className="my-1 h-px bg-zinc-100" />
                   <button
                     onClick={handleLogout}
@@ -322,14 +314,6 @@ export default function Layout() {
                   {item.label}
                 </NavLink>
               ))}
-              {user?.role === 'ADMIN' && (
-                <a
-                  href={`${import.meta.env.VITE_ROUTER_BASE || '/'}admin/`}
-                  className="rounded-[10px] px-3.5 py-2.5 text-sm font-medium text-zinc-500 hover:bg-zinc-100"
-                >
-                  管理后台
-                </a>
-              )}
             </nav>
             <div className="border-t border-zinc-100 p-4">
               <button
