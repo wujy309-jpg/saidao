@@ -2,6 +2,7 @@ package com.saidao.backend.service;
 
 import com.saidao.backend.dto.LoginRequest;
 import com.saidao.backend.dto.LoginResponse;
+import com.saidao.backend.entity.RefreshToken;
 import com.saidao.backend.entity.User;
 import com.saidao.backend.entity.User.UserRole;
 import com.saidao.backend.repository.UserRepository;
@@ -19,6 +20,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -66,9 +68,9 @@ class AuthServiceTest {
         loginRequest.setUsername("testuser");
         loginRequest.setPassword("password123");
         
-        when(httpRequest.getHeader("X-Forwarded-For")).thenReturn(null);
-        when(httpRequest.getHeader("X-Real-IP")).thenReturn(null);
-        when(httpRequest.getRemoteAddr()).thenReturn("127.0.0.1");
+        lenient().when(httpRequest.getHeader("X-Forwarded-For")).thenReturn(null);
+        lenient().when(httpRequest.getHeader("X-Real-IP")).thenReturn(null);
+        lenient().when(httpRequest.getRemoteAddr()).thenReturn("127.0.0.1");
     }
     
     @Test
@@ -78,9 +80,12 @@ class AuthServiceTest {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(testUser));
         when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
         when(jwtUtil.generateToken(any(), anyString(), anyString())).thenReturn("test-token");
-        
+        RefreshToken mockRefreshToken = RefreshToken.builder()
+                .token("refresh-token-value").userId(1L).build();
+        when(refreshTokenService.createRefreshToken(anyLong())).thenReturn(mockRefreshToken);
+
         LoginResponse response = authService.login(loginRequest, httpRequest);
-        
+
         assertNotNull(response);
         assertEquals("test-token", response.getToken());
         assertEquals("testuser", response.getUser().getUsername());

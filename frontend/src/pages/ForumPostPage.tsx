@@ -5,6 +5,7 @@ import {
   BookmarkSimple,
   CheckCircle,
   Eye,
+  Flag,
   Heart,
   Medal,
   PushPin,
@@ -18,7 +19,7 @@ import { request, toast } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { forumBoardName } from '../lib/labels';
 import { levelOf } from '../lib/reputation';
-import type { Competition, ForumPost, ForumReply, UserIdentity } from '../lib/types';
+import type { Competition, ForumPost, ForumReply, UserIdentity } from '../types';
 import { Button, Card, Skeleton } from '../components/ui';
 
 export default function ForumPostPage() {
@@ -31,6 +32,7 @@ export default function ForumPostPage() {
   const [sending, setSending] = useState(false);
   const [applying, setApplying] = useState(false);
   const [following, setFollowing] = useState(false);
+  const [showReport, setShowReport] = useState(false);
   const [identities, setIdentities] = useState<Record<number, UserIdentity>>({});
   const [error, setError] = useState('');
 
@@ -57,6 +59,7 @@ export default function ForumPostPage() {
     try {
       const p = await request<ForumPost>(`/api/forum/posts/${id}`);
       setPost(p);
+      setFollowing(Boolean(p.following));
       const rs = await request<ForumReply[]>(`/api/forum/posts/${id}/replies`);
       setReplies(rs ?? []);
     } catch (err) {
@@ -244,10 +247,12 @@ export default function ForumPostPage() {
             </div>
             <h1 className="mt-2 text-xl font-semibold tracking-tight text-zinc-900">{post.title}</h1>
             <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-zinc-400">
-              <AuthorBadge
-                author={post.author}
-                identity={post.author?.id ? identities[post.author.id] : undefined}
-              />
+              <Link to={post.author?.id ? `/u/${post.author.id}` : '#'}>
+                <AuthorBadge
+                  author={post.author}
+                  identity={post.author?.id ? identities[post.author.id] : undefined}
+                />
+              </Link>
               <span>{post.createdAt?.replace('T', ' ').slice(0, 16)}</span>
               <span className="inline-flex items-center gap-1">
                 <Eye size={13} />
@@ -309,7 +314,31 @@ export default function ForumPostPage() {
               {following ? '已关注' : '关注作者'}
             </button>
           )}
+          {post.author?.id !== user?.id && (
+            <button
+              onClick={() => setShowReport(true)}
+              className="flex items-center gap-1.5 rounded-full bg-zinc-100 px-3.5 py-1.5 text-sm text-zinc-500 transition-colors hover:bg-amber-50 hover:text-amber-600"
+            >
+              <Flag size={15} />
+              举报
+            </button>
+          )}
         </div>
+
+        {/* 举报弹窗 */}
+        {showReport && (
+          <ReportDialog
+            onClose={() => setShowReport(false)}
+            onSubmit={async (reason, detail) => {
+              await request('/api/forum/reports', {
+                method: 'POST',
+                body: { postId: post.id, reason, detail },
+              });
+              toast('举报已提交，管理员将尽快处理', 'success');
+              setShowReport(false);
+            }}
+          />
+        )}
 
         {/* 团队招募卡 */}
         {post.team && (
@@ -372,11 +401,13 @@ export default function ForumPostPage() {
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <AuthorBadge
-                      author={r.author}
-                      identity={r.author?.id ? identities[r.author.id] : undefined}
-                      small
-                    />
+                    <Link to={r.author?.id ? `/u/${r.author.id}` : '#'}>
+                      <AuthorBadge
+                        author={r.author}
+                        identity={r.author?.id ? identities[r.author.id] : undefined}
+                        small
+                      />
+                    </Link>
                     <div className="flex shrink-0 items-center gap-1.5">
                       {r.accepted && (
                         <span className="flex items-center gap-0.5 rounded-md bg-emerald-100 px-1.5 py-0.5 text-[11px] font-medium text-emerald-700">
@@ -485,5 +516,92 @@ function AuthorBadge({
       )}
       {identity?.school && <span className="text-[10px] text-zinc-400">{identity.school}</span>}
     </span>
+  );
+}
+
+/** 举报弹窗 */
+const REPORT_REASONS = [
+  { value: 'SPAM', label: '垃圾广告/刷屏' },
+  { value: 'ABUSE', label: '辱骂/人身攻击' },
+  { value: 'FRAUD', label: '欺诈/不实信息' },
+  { value: 'OTHER', label: '其他' },
+] as const;
+
+function ReportDialog({
+  onClose,
+  onSubmit,
+}: {
+  onClose: () => void;
+  onSubmit: (reason: string, detail: string) => Promise<void>;
+}) {
+  const [reason, setReason] = useState<string>('SPAM');
+  const [detail, setDetail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={onClose}>
+      <div
+        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3 className="text-base font-semibold text-zinc-900">举报内容</h3>
+        <p className="mt-1 text-xs text-zinc-500">选择举报原因，管理员将尽快审核处理</p>
+
+        <div className="mt-4 space-y-2">
+          {REPORT_REASONS.map((r) => (
+            <label
+              key={r.value}
+              className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${
+                reason === r.value
+                  ? 'border-amber-300 bg-amber-50 text-amber-700'
+                  : 'border-zinc-200 text-zinc-600 hover:bg-zinc-50'
+              }`}
+            >
+              <input
+                type="radio"
+                name="reason"
+                checked={reason === r.value}
+                onChange={() => setReason(r.value)}
+                className="accent-amber-500"
+              />
+              {r.label}
+            </label>
+          ))}
+        </div>
+
+        <textarea
+          value={detail}
+          onChange={(e) => setDetail(e.target.value)}
+          placeholder="补充说明（可选）"
+          maxLength={500}
+          className="mt-3 h-20 w-full resize-none rounded-lg border border-zinc-200 px-3 py-2 text-sm text-zinc-700 outline-none focus:border-amber-300"
+        />
+
+        <div className="mt-4 flex justify-end gap-2">
+          <button
+            onClick={onClose}
+            className="rounded-lg px-4 py-2 text-sm text-zinc-500 hover:bg-zinc-100"
+          >
+            取消
+          </button>
+          <button
+            disabled={submitting}
+            onClick={async () => {
+              setSubmitting(true);
+              try {
+                await onSubmit(reason, detail);
+              } catch {
+                // toast handled by caller
+              } finally {
+                setSubmitting(false);
+              }
+            }}
+            className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-medium text-white hover:bg-amber-600 disabled:opacity-50"
+          >
+            {submitting ? '提交中…' : '提交举报'}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

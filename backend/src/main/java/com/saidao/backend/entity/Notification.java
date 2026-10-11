@@ -35,12 +35,17 @@ public class Notification {
         FOLLOW("关注了你"),
         ESSENCE("你的帖子被设为精华"),
         ACCEPTED("采纳了你的回复"),
+        MENTION("@提及了你"),
+        REPORT_RESULT("举报处理结果"),
         TEAM_APPLY("有新的团队申请"),
         TEAM_APPROVED("你的团队申请已通过"),
         TEAM_REJECTED("你的团队申请已拒绝"),
         TEAM_REMOVED("你已被移出团队"),
-        TEAM_TRANSFERRED("团队队长已变更"),
-        TEAM_DISBANDED("团队已解散");
+        TEAM_DISBANDED("团队已解散"),
+        TEAM_TRANSFER("团队队长已变更"),
+        TOKEN_LOW("Token 余额不足"),
+        RECHARGE_PAID("充值已到账"),
+        SYSTEM("系统通知");
 
         private final String description;
         NotificationType(String description) { this.description = description; }
@@ -54,6 +59,10 @@ public class Notification {
     /** 触发者(可为空) */
     @Column(name = "actor_id")
     private Long actorId;
+
+    /** 触发者昵称(冗余存储,避免通知列表 N+1 查询) */
+    @Column(name = "actor_name", length = 50)
+    private String actorName;
 
     @Column(name = "post_id")
     private Long postId;

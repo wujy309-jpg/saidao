@@ -87,7 +87,10 @@ public class SecurityConfig {
                 
                 // 竞赛库只读浏览：游客可见（获客入口；先于 anyRequest 匹配）
                 .requestMatchers(HttpMethod.GET, "/competitions", "/competitions/*", "/competitions/*/similar", "/competitions/*/works").permitAll()
-                
+
+                // 论坛只读浏览：游客可见（帖子列表、详情、回复、板块）
+                .requestMatchers(HttpMethod.GET, "/forum/posts", "/forum/posts/*", "/forum/posts/*/replies", "/forum/boards", "/forum/favorites").permitAll()
+
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

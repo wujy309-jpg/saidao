@@ -1,6 +1,6 @@
-import { useState, type ReactNode, type ButtonHTMLAttributes, type InputHTMLAttributes } from 'react';
+﻿import { useState, type ReactNode, type ButtonHTMLAttributes, type InputHTMLAttributes } from 'react';
 import { CATEGORY_META, LEVEL_META } from '../lib/labels';
-import type { Category, Level } from '../lib/types';
+import type { Category, Level } from '../types';
 
 /** 主按钮(全站唯一实心强调色,控件圆角 12px) */
 export function Button({

@@ -11,6 +11,7 @@ import OrdersPage from './pages/OrdersPage';
 import ScenesPage from './pages/ScenesPage';
 import SettingsPage from './pages/SettingsPage';
 import CompetitionsPage from './pages/CompetitionsPage';
+import CommunityReportsPage from './pages/CommunityReportsPage';
 import type { ReactNode } from 'react';
 
 /** 生产挂载 /api/admin/，开发默认 /admin */
@@ -57,6 +58,7 @@ export default function App() {
             <Route path="/scenes" element={<ScenesPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/competitions" element={<CompetitionsPage />} />
+            <Route path="/reports" element={<CommunityReportsPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

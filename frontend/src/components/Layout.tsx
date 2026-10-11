@@ -13,7 +13,7 @@ import { useAuth } from '../lib/auth';
 import { request } from '../lib/api';
 import { isDeadlineSoon, daysUntil } from '../lib/dates';
 import { levelOf } from '../lib/reputation';
-import type { MyCompetitionItem, TokenAccount } from '../lib/types';
+import type { MyCompetitionItem, TokenAccount } from '../types';
 
 const NAV = [
   { to: '/', label: '首页', end: true },
@@ -64,9 +64,15 @@ export default function Layout() {
 
   useEffect(() => {
     refreshUnread();
+    // 30s 轮询未读数
+    const timer = setInterval(refreshUnread, 30_000);
+    // 仍保留事件监听,用于即时刷新(如标记已读后)
     const handler = () => refreshUnread();
     window.addEventListener('notifications-changed', handler);
-    return () => window.removeEventListener('notifications-changed', handler);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('notifications-changed', handler);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 

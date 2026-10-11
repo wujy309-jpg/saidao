@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Clock, Medal, Sparkle } from '@phosphor-icons/react';
 import { request } from '../lib/api';
 import { CATALOG_META, FORMAT_META } from '../lib/labels';
 import { deadlineText, isDeadlineSoon } from '../lib/dates';
-import type { Competition } from '../lib/types';
+import type { Competition } from '../types';
 import { Card, CategoryBadge, LevelBadge } from '../components/ui';
 import { FEATURES } from '../components/GuestShell';
 

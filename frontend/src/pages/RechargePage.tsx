@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+﻿import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Coin, Ticket } from '@phosphor-icons/react';
 import { request, toast } from '../lib/api';
@@ -11,7 +11,7 @@ import type {
   TokenSceneConfig,
   TokenTransaction,
   TxType,
-} from '../lib/types';
+} from '../types';
 
 type Tab = 'packages' | 'card' | 'orders' | 'transactions';
 

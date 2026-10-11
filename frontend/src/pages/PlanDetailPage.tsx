@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+﻿import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -14,7 +14,7 @@ import {
 } from '@phosphor-icons/react';
 import { request, toast } from '../lib/api';
 import { daysUntil, fmtShort } from '../lib/dates';
-import type { PlanDetail, PreparationTask } from '../lib/types';
+import type { PlanDetail, PreparationTask } from '../types';
 import { Button, Card, Pill, Skeleton, Spinner } from '../components/ui';
 import GeneratePlanModal from '../components/GeneratePlanModal';
 

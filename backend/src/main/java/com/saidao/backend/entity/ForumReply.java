@@ -41,6 +41,10 @@ public class ForumReply {
     /** 楼主采纳的最佳回复 */
     @Column(name = "accepted")
     private Boolean accepted;
+
+    /** 隐藏(举报达阈值或管理员手动隐藏) */
+    @Column(name = "hidden")
+    private Boolean hidden = false;
     
     /** 当前用户是否点赞(非持久化,接口返回用) */
     @Transient

@@ -122,10 +122,12 @@ public class TeamService {
         List<Long> memberIds = memberRepository.findByTeamId(teamId).stream()
                 .map(m -> m.getUser().getId()).toList();
         // team_id is a weak reference for recruitment posts: preserve the post and detach it.
-        forumPostRepository.findByTeamId(teamId).forEach(post -> {
-            post.setTeam(null);
-            forumPostRepository.save(post);
-        });
+        forumPostRepository.findAll().stream()
+                .filter(p -> teamId.equals(p.getTeamId()))
+                .forEach(post -> {
+                    post.setTeamId(null);
+                    forumPostRepository.save(post);
+                });
         memberIds.forEach(userId -> notifyUser(userId, Notification.NotificationType.TEAM_DISBANDED,
                 null, teamId, "团队「" + team.getName() + "」已解散"));
         applicationRepository.deleteByTeamId(teamId);
@@ -266,9 +268,9 @@ public class TeamService {
         team.setLeader(newLeader);
         Team saved = teamRepository.save(team);
         audit(userRepository, currentLeaderId, "UPDATE", "TEAM", teamId, "转让队长给用户" + newLeaderId);
-        notifyUser(currentLeaderId, Notification.NotificationType.TEAM_TRANSFERRED,
+        notifyUser(currentLeaderId, Notification.NotificationType.TEAM_TRANSFER,
                 newLeaderId, teamId, "你已将团队「" + team.getName() + "」的队长转让给" + newLeader.getName());
-        notifyUser(newLeaderId, Notification.NotificationType.TEAM_TRANSFERRED,
+        notifyUser(newLeaderId, Notification.NotificationType.TEAM_TRANSFER,
                 currentLeaderId, teamId, "你已成为团队「" + team.getName() + "」的新队长");
         return saved;
     }

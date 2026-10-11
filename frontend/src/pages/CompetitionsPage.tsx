@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { MagnifyingGlass, Medal } from '@phosphor-icons/react';
 import { request } from '../lib/api';
 import { CATALOG_META, CATALOG_OPTIONS, CATEGORY_META, FORMAT_META, LEVEL_META } from '../lib/labels';
 import { REG_PHASE_META, deadlineText, isDeadlineSoon, regPhase } from '../lib/dates';
-import type { Category, Competition, Format, Level } from '../lib/types';
+import type { Category, Competition, Format, Level } from '../types';
 import { Card, CategoryBadge, LevelBadge, Pill, Skeleton, Stars } from '../components/ui';
 
 const CATEGORY_FILTERS: { value: string; label: string }[] = [
