@@ -53,7 +53,11 @@ deepseek:
   api-key: ${DEEPSEEK_API_KEY:}
   base-url: https://api.deepseek.com
   model: deepseek-chat
-  max-tokens: 2048
+  # 注意：deepseek-chat 现已映射到推理模型（deepseek-flash），max_tokens 是
+  # 「思考 + 正文」的总预算。2048 会被思考过程整个吃光，正文返回空（ai_call_log 实测
+  # completion_tokens=2048/finish=length/内容 0 字），而调用照样计费。
+  # 2026-10-11 线上事故即由此引起：备赛计划全部退化成模板兜底。
+  max-tokens: 8192
   temperature: 0.7
   enabled: true
 
