@@ -29,6 +29,15 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
     @Query("SELECT a FROM AuditLog a WHERE a.success = false AND a.createdAt >= :since ORDER BY a.createdAt DESC")
     List<AuditLog> findFailedActions(@Param("since") LocalDateTime since);
 
+    /**
+     * 活跃用户数：某时间点之后「登录过」的去重人数。
+     *
+     * <p>比「今天消耗过积分的人数」更接近真实的活跃口径——以当前使用强度，
+     * 按消费统计会恒为 0，看不出到底有没有人回来用。
+     */
+    @Query("SELECT COUNT(DISTINCT a.userId) FROM AuditLog a WHERE a.action = 'LOGIN' AND a.createdAt >= :since")
+    long countLoginUsersSince(@Param("since") LocalDateTime since);
+
     /** 后台审计检索（资金类操作）：按 action / 操作人 / 时间范围过滤 */
     @Query("""
         SELECT a FROM AuditLog a

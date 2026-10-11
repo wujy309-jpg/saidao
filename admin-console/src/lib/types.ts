@@ -243,6 +243,8 @@ export interface OverviewData {
     consumedTokens: number;
     refundedTokens: number;
     activeUsers: number;
+    /** 今天登录过的去重人数（真实活跃口径） */
+    loginUsers: number;
     pendingOrders: number;
     aiCalls: number;
     aiCostYuan: number | string;
@@ -256,6 +258,8 @@ export interface OverviewData {
     refundedTokens: number;
     paidUsers: number;
     registeredUsers: number;
+    /** 近 7 天登录过的去重人数 */
+    loginUsers7d: number;
   };
   sceneStatsToday: SceneStat[];
   sceneStatsTotal: SceneStat[];

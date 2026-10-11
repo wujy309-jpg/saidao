@@ -75,6 +75,8 @@ public class BillingAdminController {
         today.put("consumedTokens", tokenService.settledConsumedSince(startOfToday));
         today.put("refundedTokens", tokenService.releasedSince(startOfToday));
         today.put("activeUsers", transactionRepository.countActiveUsersSince(TokenTransaction.TxType.CONSUME, startOfToday));
+        // 登录活跃：今天 / 近 7 天去重人数（消费口径在低使用量下恒为 0，看不出真实活跃）
+        today.put("loginUsers", auditLogRepository.countLoginUsersSince(startOfToday));
         today.put("pendingOrders", orderRepository.countPending(RechargeOrder.OrderStatus.PENDING));
         today.put("aiCalls", aiCallLogService.search(null, null, null, startOfToday, null, 0, 1).getTotalElements());
         today.put("aiCostYuan", todayAiCost(startOfToday));
@@ -89,6 +91,7 @@ public class BillingAdminController {
         total.put("refundedTokens", -transactionRepository.sumSignedTotal(TokenTransaction.TxType.ORDER_REFUND));
         total.put("paidUsers", orderRepository.countPaidUsersTotal(RechargeOrder.OrderStatus.PAID));
         total.put("registeredUsers", userRepository.count());
+        total.put("loginUsers7d", auditLogRepository.countLoginUsersSince(LocalDateTime.now().minusDays(7)));
         total.put("openCharges", tokenService.findStaleCharges(0, 1).size() > 0 ? "有未终结预留" : "无");
 
         Map<String, Object> result = new LinkedHashMap<>();

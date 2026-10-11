@@ -68,6 +68,12 @@ export default function DashboardPage() {
           sub={`估算成本 ¥${fmtYuan(t.aiCostYuan)}`}
           onClick={() => navigate('/ai-usage')}
         />
+        <StatCard
+          label="今日活跃用户"
+          value={fmtNum(t.loginUsers)}
+          accent="brand"
+          sub={`近 7 天 ${fmtNum(a.loginUsers7d)} 人 · 按登录去重`}
+        />
         <StatCard label="今日 AI 活跃用户" value={fmtNum(t.activeUsers)} sub="有扣费/免费调用的用户" />
         <StatCard
           label="待确认订单"
