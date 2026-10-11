@@ -31,6 +31,11 @@ export interface Competition {
   /** 赛制规则与评审标准 */
   rules?: string;
   status: 'ACTIVE' | 'CLOSED';
+  /**
+   * 官网最近一次探活的 HTTP 状态码：null/undefined = 未体检，0 = 连接失败。
+   * 由后台「数据维护 → 链接体检」在服务器侧写入。
+   */
+  linkStatus?: number | null;
 }
 
 export type WorkType = 'PAPER' | 'PROJECT' | 'VIDEO' | 'ARTWORK';

@@ -11,6 +11,7 @@ import {
   ThumbsDown,
   Trophy,
   Users,
+  WarningCircle,
 } from '@phosphor-icons/react';
 import { ApiError, request, toast, isLoggedIn } from '../lib/api';
 import {
@@ -39,6 +40,10 @@ interface DetailData {
   favorited: boolean;
   status: JourneyStatus | null;
   feedback: FeedbackAction | null;
+}
+
+function isLinkBroken(status?: number | null): boolean {
+  return status === 0 || (typeof status === 'number' && status >= 400);
 }
 
 export default function CompetitionDetailPage() {
@@ -378,7 +383,18 @@ export default function CompetitionDetailPage() {
           </div>
         )}
 
-        {c.officialUrl && (
+        {c.officialUrl && isLinkBroken(c.linkStatus) && (
+          // 已知失效（域名换站/被抢注/连接失败）就别再让用户点进一个打不开的页面
+          <span
+            className="mt-7 inline-flex items-center gap-1.5 rounded-[10px] border border-zinc-200 px-4 py-2 text-sm text-zinc-400"
+            title={c.officialUrl}
+          >
+            官网暂时无法访问，可先参考下方赛制规则
+            <WarningCircle size={15} />
+          </span>
+        )}
+
+        {c.officialUrl && !isLinkBroken(c.linkStatus) && (
           <a
             href={c.officialUrl}
             target="_blank"

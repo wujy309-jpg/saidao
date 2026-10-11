@@ -58,6 +58,17 @@ public class ExcellentWork {
     @Column(length = 500)
     private String link;
     
+    /**
+     * 官网/资源链接最近一次探活的 HTTP 状态码。
+     * null = 尚未检测；0 = 连接失败（域名失效/被墙）；其余为真实状态码。
+     */
+    @Column(name = "link_status")
+    private Integer linkStatus;
+
+    /** 链接最近一次探活时间 */
+    @Column(name = "link_checked_at")
+    private LocalDateTime linkCheckedAt;
+
     @Column(name = "sort_order")
     private Integer sortOrder;
     

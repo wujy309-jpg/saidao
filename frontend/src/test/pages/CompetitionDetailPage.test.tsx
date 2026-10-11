@@ -39,9 +39,9 @@ interface PageBody {
   data: { content: ForumPostDTO[]; totalElements: number; number: number; size: number }
 }
 
-function mockDetail(forumResponse: PageBody) {
+function mockDetail(forumResponse: PageBody, comp: Competition = competition) {
   server.use(
-    http.get('*/api/competitions/1', () => ok({ competition, favorited: false, status: null, feedback: null })),
+    http.get('*/api/competitions/1', () => ok({ competition: comp, favorited: false, status: null, feedback: null })),
     http.get('*/api/competitions/1/similar', () => ok([])),
     http.get('*/api/competitions/1/works', () => ok([])),
     http.get('*/api/forum/posts', () => HttpResponse.json(forumResponse))
@@ -81,5 +81,29 @@ describe('竞赛详情页', () => {
 
     expect(await screen.findByText('全国大学生电子设计竞赛')).toBeInTheDocument()
     expect(await screen.findByText('暂无相关帖子')).toBeInTheDocument()
+  })
+
+  it('官网已知失效时不给可点入口，而是提示无法访问', async () => {
+    mockDetail(
+      { success: true, message: 'ok', data: { content: [], totalElements: 0, number: 0, size: 20 } },
+      { ...competition, officialUrl: 'https://dead.example.com/', linkStatus: 0 }
+    )
+
+    renderWithRouter(<CompetitionDetailPage />, '/competitions/1', '/competitions/:id')
+
+    expect(await screen.findByText(/官网暂时无法访问/)).toBeInTheDocument()
+    expect(screen.queryByText('访问官网')).not.toBeInTheDocument()
+  })
+
+  it('官网正常时仍然可点', async () => {
+    mockDetail(
+      { success: true, message: 'ok', data: { content: [], totalElements: 0, number: 0, size: 20 } },
+      { ...competition, officialUrl: 'https://ok.example.com/', linkStatus: 200 }
+    )
+
+    renderWithRouter(<CompetitionDetailPage />, '/competitions/1', '/competitions/:id')
+
+    const link = await screen.findByText('访问官网')
+    expect(link.closest('a')).toHaveAttribute('href', 'https://ok.example.com/')
   })
 })

@@ -11,6 +11,7 @@ import {
   Ticket,
   TrendUp,
   Trophy,
+  UploadSimple,
   Users,
 } from '@phosphor-icons/react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
@@ -30,6 +31,7 @@ const NAV = [
   { to: '/settings', label: '平台设置', icon: GearSix },
   { to: '/competitions', label: '竞赛管理', icon: Trophy },
   { to: '/reports', label: '社区举报', icon: Flag },
+  { to: '/data', label: '数据维护', icon: UploadSimple },
 ];
 
 export default function Shell() {

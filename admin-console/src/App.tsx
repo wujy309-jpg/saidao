@@ -11,6 +11,7 @@ import OrdersPage from './pages/OrdersPage';
 import ScenesPage from './pages/ScenesPage';
 import SettingsPage from './pages/SettingsPage';
 import CompetitionsPage from './pages/CompetitionsPage';
+import DataPage from './pages/DataPage';
 import AiUsagePage from './pages/AiUsagePage';
 import AuditLogsPage from './pages/AuditLogsPage';
 import CommunityReportsPage from './pages/CommunityReportsPage';
@@ -63,6 +64,7 @@ export default function App() {
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/competitions" element={<CompetitionsPage />} />
             <Route path="/reports" element={<CommunityReportsPage />} />
+            <Route path="/data" element={<DataPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

@@ -95,6 +95,17 @@ public class Competition {
     @Column(name = "entry_fee", length = 50)
     private String entryFee;
     
+    /**
+     * 官网/资源链接最近一次探活的 HTTP 状态码。
+     * null = 尚未检测；0 = 连接失败（域名失效/被墙）；其余为真实状态码。
+     */
+    @Column(name = "link_status")
+    private Integer linkStatus;
+
+    /** 链接最近一次探活时间 */
+    @Column(name = "link_checked_at")
+    private LocalDateTime linkCheckedAt;
+
     /** 赛制规则与评审标准（整理自官网，AI 助手上下文） */
     @Column(name = "rules", columnDefinition = "TEXT")
     private String rules;
