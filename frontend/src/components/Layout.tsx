@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { NavLink, Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import ErrorBoundary from './ErrorBoundary';
 import {
   Bell,
   CaretDown,
@@ -344,7 +345,9 @@ export default function Layout() {
       )}
 
       <main className="mx-auto w-full max-w-[1280px] px-4 py-6 md:px-6 md:py-8">
-        <Outlet />
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
       </main>
     </div>
   );

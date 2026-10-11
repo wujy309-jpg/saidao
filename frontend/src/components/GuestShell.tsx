@@ -1,4 +1,5 @@
 import { Link, Outlet } from 'react-router-dom';
+import ErrorBoundary from './ErrorBoundary';
 import { Sparkle, Users, ChatCircleDots } from '@phosphor-icons/react';
 
 /** 游客页外壳:顶部品牌栏 + 登录/注册入口 */
@@ -40,7 +41,9 @@ export default function GuestShell() {
         </div>
       </header>
       <main>
-        <Outlet />
+        <ErrorBoundary>
+          <Outlet />
+        </ErrorBoundary>
       </main>
       <footer className="mx-auto max-w-6xl px-4 py-10 text-center text-xs text-zinc-400 md:px-8">
         赛道 · 大学生竞赛一站式平台:画像推荐 / 竞赛库 / 组队 / 项目空间 / 论坛

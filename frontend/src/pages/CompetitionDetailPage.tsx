@@ -26,8 +26,9 @@ import type {
   Competition,
   ExcellentWork,
   FeedbackAction,
-  ForumPost,
+  ForumPostDTO,
   JourneyStatus,
+  PageResponse,
   PreparationPlan,
 } from '../types';
 import { Button, Card, CategoryBadge, LevelBadge, Skeleton, Stars } from '../components/ui';
@@ -47,7 +48,7 @@ export default function CompetitionDetailPage() {
   const [error, setError] = useState('');
   const [similar, setSimilar] = useState<Competition[]>([]);
   const [works, setWorks] = useState<ExcellentWork[]>([]);
-  const [relatedPosts, setRelatedPosts] = useState<ForumPost[] | null>([]);
+  const [relatedPosts, setRelatedPosts] = useState<ForumPostDTO[] | null>([]);
   const [showPlanModal, setShowPlanModal] = useState(false);
 
   const load = () => {
@@ -65,10 +66,12 @@ export default function CompetitionDetailPage() {
     request<ExcellentWork[]>(`/api/competitions/${id}/works`)
       .then((d) => setWorks(d ?? []))
       .catch(() => setWorks([]));
-    request<ForumPost[]>(`/api/forum/posts`, {
+    // 论坛列表自协作域改造起改为分页返回（{content,...}），不能再当数组用——
+    // 否则 relatedPosts 变成对象，下面 .slice() 会抛 TypeError 并把整页渲染成白屏
+    request<PageResponse<ForumPostDTO>>(`/api/forum/posts`, {
       params: { competitionId: id ?? '', sort: 'hot' },
     })
-      .then((d) => setRelatedPosts(d ?? []))
+      .then((d) => setRelatedPosts(d?.content ?? []))
       .catch((e) => {
         if (e instanceof ApiError && e.status === 401) {
           setRelatedPosts(null);
@@ -464,7 +467,7 @@ export default function CompetitionDetailPage() {
                     <h3 className="line-clamp-1 text-sm font-semibold text-zinc-900">{p.title}</h3>
                   </div>
                   <p className="mt-1.5 text-xs text-zinc-400">
-                    {p.author?.name} · {p.createdAt?.replace('T', ' ').slice(0, 16)} ·{' '}
+                    {p.authorName ?? '匿名'} · {p.createdAt?.replace('T', ' ').slice(0, 16)} ·{' '}
                     {p.likeCount ?? 0} 赞 · {p.replyCount ?? 0} 回复
                   </p>
                 </Card>
