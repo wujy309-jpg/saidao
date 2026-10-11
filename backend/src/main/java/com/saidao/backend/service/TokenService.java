@@ -86,6 +86,9 @@ public class TokenService {
         if (patch.freeQuotaEnabled() != null) {
             s.setFreeQuotaEnabled(patch.freeQuotaEnabled());
         }
+        if (patch.rechargeEnabled() != null) {
+            s.setRechargeEnabled(patch.rechargeEnabled());
+        }
         if (patch.paymentNote() != null) {
             s.setPaymentNote(patch.paymentNote());
         }
@@ -183,8 +186,12 @@ public class TokenService {
 
         TokenAccount account = lockAccount(userId);
         if (account.getBalance() < price) {
+            // 充值关闭期间不能再引导用户「去充值」——指向一扇关着的门比直接说清楚更伤体验
+            String tail = getSettings().rechargeOpen()
+                    ? "请前往充值中心充值。"
+                    : "平台当前为免费内测，暂不支持充值；每日免费额度会在次日 0 点自动发放。";
             throw new TokenInsufficientException(
-                    "积分余额不足（本场景需 " + price + " 积分），请前往充值中心充值");
+                    "积分不足（本场景需 " + price + " 积分）。" + tail);
         }
 
         TokenCharge charge = new TokenCharge();

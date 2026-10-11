@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   ArrowUp,
@@ -377,13 +377,13 @@ export default function AssistantPage() {
         <div className="ml-auto flex items-center gap-2">
           <Link
             to="/recharge"
-            title="充值中心"
+            title="积分中心"
             className="flex items-center gap-1.5 rounded-[12px] border border-brand-200 bg-brand-50 px-3 py-2 text-xs font-semibold text-brand-800 transition-colors hover:bg-brand-100"
           >
             <Coin size={15} weight="fill" className="text-brand-600" />
             余额
             <span className="font-num">{balance === null ? '…' : balance.toLocaleString('zh-CN')}</span>
-            <span className="hidden text-brand-600 sm:inline">· 每次对话 {chatPrice} 积分 · 去充值</span>
+            <span className="hidden text-brand-600 sm:inline">· 每次对话 {chatPrice} 积分</span>
           </Link>
           <CompetitionSearch
             competitions={competitions}
@@ -400,12 +400,13 @@ export default function AssistantPage() {
       </div>
 
       {balance !== null && balance < chatPrice && (
-        <div className="flex items-center justify-between rounded-[12px] border border-amber-200 bg-amber-50 px-4 py-2.5">
+        <div className="flex items-center justify-between gap-3 rounded-[12px] border border-amber-200 bg-amber-50 px-4 py-2.5">
           <p className="text-sm text-amber-800">
-            余额不足 {chatPrice} 积分，无法发起新的 AI 对话
+            积分不足（本次对话需 {chatPrice} 积分），暂时无法发起新的 AI 对话
+            <span className="ml-1 text-xs text-amber-700">每日免费额度次日 0 点自动到账</span>
           </p>
-          <Link to="/recharge" className="text-sm font-semibold text-amber-800 underline">
-            去充值 →
+          <Link to="/recharge" className="shrink-0 text-sm font-semibold text-amber-800 underline">
+            查看积分规则 →
           </Link>
         </div>
       )}

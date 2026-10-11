@@ -207,6 +207,8 @@ export interface TokenSceneConfig {
 }
 
 export interface BillingPaymentInfo {
+  /** 充值是否开放；关闭时后端不下发收款码与转账说明 */
+  rechargeEnabled?: boolean;
   paymentNote: string;
   wechatQrUrl: string;
   alipayQrUrl: string;

@@ -43,7 +43,7 @@ class BillingSettingsPartialUpdateTest extends BillingTestSupport {
     void partialUpdateDoesNotClobberQrOrQuotaSwitch() {
         // 1) 先全量设置：关掉免费额度（成本止损开关）、放上收款码
         tokenService.updateSettings(new BillingSettingPatch(
-                5L, 50L, false, "原说明",
+                5L, 50L, false, true, "原说明",
                 "https://cdn.example.com/wechat.png", "https://cdn.example.com/alipay.png",
                 null, null, null));
 
@@ -63,7 +63,7 @@ class BillingSettingsPartialUpdateTest extends BillingTestSupport {
     @DisplayName("部分更新：显式传 false 才关闭免费额度，传 null 不生效")
     void onlyExplicitFieldsAreApplied() {
         tokenService.updateSettings(new BillingSettingPatch(
-                5L, 50L, true, "说明", null, null, null, null, null));
+                5L, 50L, true, true, "说明", null, null, null, null, null));
         assertTrue(tokenService.getSettings().isFreeQuotaEnabled());
 
         billingAdminController.updateSettings(Map.of("freeQuotaEnabled", false));

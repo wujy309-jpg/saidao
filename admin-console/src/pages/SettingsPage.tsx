@@ -38,10 +38,42 @@ export default function SettingsPage() {
     <div className="flex max-w-2xl flex-col gap-5">
       <div>
         <h1 className="text-xl font-semibold text-zinc-900">平台设置</h1>
-        <p className="mt-1 text-sm text-zinc-400">免费额度、收款说明与收款码，保存后即时生效</p>
+        <p className="mt-1 text-sm text-zinc-400">充值开关、免费额度、收款说明与收款码，保存后即时生效</p>
       </div>
 
       <Card className="divide-y divide-zinc-100">
+        {/* 充值开关 */}
+        <div className="p-5">
+          <h2 className="text-sm font-semibold text-zinc-800">用户充值</h2>
+          <label className="mt-4 flex items-start gap-2 text-sm text-zinc-700">
+            <span className="mt-0.5">
+              <Toggle
+                checked={form.rechargeEnabled === true}
+                onChange={(v) => setForm((f) => f && { ...f, rechargeEnabled: v })}
+              />
+            </span>
+            <span>
+              开放充值
+              <span className="mt-1 block text-xs leading-relaxed text-zinc-400">
+                关闭时：用户端「立即充值」按钮显示「暂未开放」，下单接口直接拒绝，
+                并且不再向用户下发收款码与转账说明。
+                <br />
+                <b className="text-amber-700">
+                  非经营性 ICP 备案期间必须保持关闭
+                </b>
+                ——从事有偿服务需先取得 ICP 经营许可证（主体须为公司）。
+                详见 docs/赛道-合规调研报告-2026-10.md。
+              </span>
+            </span>
+          </label>
+          {form.rechargeEnabled !== true && (
+            <p className="mt-3 rounded-[10px] bg-amber-50 px-3 py-2 text-xs text-amber-700">
+              当前为免费内测：平台不收取任何费用。请勿通过线下转账、个人收款码或第三方平台
+              售卖卡密——那仍属有偿服务，风险不减反增。
+            </p>
+          )}
+        </div>
+
         {/* 免费额度 */}
         <div className="p-5">
           <h2 className="text-sm font-semibold text-zinc-800">免费额度（获客）</h2>
@@ -77,6 +109,11 @@ export default function SettingsPage() {
         {/* 收款信息 */}
         <div className="p-5">
           <h2 className="text-sm font-semibold text-zinc-800">收款信息（展示在充值中心）</h2>
+          {form.rechargeEnabled !== true && (
+            <p className="mt-2 text-xs text-zinc-400">
+              充值已关闭，以下内容不会下发给用户；重新开放充值后才会生效。
+            </p>
+          )}
           <div className="mt-4 flex flex-col gap-4">
             <Field label="收款说明" hint="提示用户转账时备注订单号、如何联系管理员">
               <Textarea

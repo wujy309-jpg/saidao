@@ -57,20 +57,28 @@ public class TokenController {
         return ResponseEntity.ok(ApiResponse.success(packageRepository.findByEnabledTrueOrderBySortOrderAscIdAsc()));
     }
 
-    /** 收款说明/收款码（充值页展示） */
+    /** 计费设置（充值页展示）：充值关闭时不下发收款码与转账说明 */
     @GetMapping("/settings")
-    public ResponseEntity<ApiResponse<Map<String, String>>> settings() {
+    public ResponseEntity<ApiResponse<Map<String, Object>>> settings() {
         BillingSetting s = tokenService.getSettings();
-        return ResponseEntity.ok(ApiResponse.success(Map.of(
-                "paymentNote", s.getPaymentNote() == null ? "" : s.getPaymentNote(),
-                "wechatQrUrl", s.getWechatQrUrl() == null ? "" : s.getWechatQrUrl(),
-                "alipayQrUrl", s.getAlipayQrUrl() == null ? "" : s.getAlipayQrUrl()
-        )));
+        boolean open = s.rechargeOpen();
+        Map<String, Object> body = new java.util.LinkedHashMap<>();
+        body.put("rechargeEnabled", open);
+        // 关闭期间绝不下发收款信息：页面上挂着收款码等于仍在引导用户付款
+        body.put("paymentNote", open && s.getPaymentNote() != null ? s.getPaymentNote() : "");
+        body.put("wechatQrUrl", open && s.getWechatQrUrl() != null ? s.getWechatQrUrl() : "");
+        body.put("alipayQrUrl", open && s.getAlipayQrUrl() != null ? s.getAlipayQrUrl() : "");
+        return ResponseEntity.ok(ApiResponse.success(body));
     }
 
     /** 创建充值订单（人工确认收款模式） */
     @PostMapping("/orders")
     public ResponseEntity<ApiResponse<Map<String, Object>>> createOrder(@RequestBody Map<String, Object> body) {
+        // 充值开关为唯一入口，且必须在服务端拦：只藏前端按钮，接口仍可被直接调用
+        if (!tokenService.getSettings().rechargeOpen()) {
+            throw new IllegalStateException(
+                    "充值功能暂未开放：平台当前为免费内测，积分可通过注册赠送与每日免费额度获得");
+        }
         Long userId = currentUserId();
         Long packageId = toLong(body.get("packageId"));
         TokenPackage pkg = packageId == null ? null

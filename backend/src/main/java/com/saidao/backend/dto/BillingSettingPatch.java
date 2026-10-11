@@ -10,6 +10,8 @@ public record BillingSettingPatch(
         Long dailyFreeTokens,
         Long registerBonusTokens,
         Boolean freeQuotaEnabled,
+        /** 用户充值开关：关闭期间不接受任何付费（非经营性备案期间的合规要求） */
+        Boolean rechargeEnabled,
         String paymentNote,
         String wechatQrUrl,
         String alipayQrUrl,

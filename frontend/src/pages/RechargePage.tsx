@@ -95,8 +95,8 @@ export default function RechargePage() {
             <Coin size={22} weight="fill" />
           </span>
           <div>
-            <h1 className="text-xl font-semibold text-zinc-900">充值中心</h1>
-            <p className="text-xs text-zinc-400">AI 功能按次消耗积分，按需充值</p>
+            <h1 className="text-xl font-semibold text-zinc-900">积分中心</h1>
+            <p className="text-xs text-zinc-400">AI 功能按次消耗积分，可查看余额、额度与消费记录</p>
           </div>
         </div>
         <div className="ml-auto rounded-[14px] border border-brand-200 bg-brand-50 px-4 py-2.5">
@@ -147,7 +147,7 @@ export default function RechargePage() {
       {tab === 'transactions' && <TransactionsTab />}
 
       <p className="text-xs text-zinc-400">
-        充值问题请联系管理员；转账后订单状态变为「已到账」即生效。
+        积分与额度问题请联系管理员。
         <Link to="/assistant" className="ml-1 text-brand-700 hover:underline">
           回到 AI 助手 →
         </Link>
@@ -165,11 +165,17 @@ function PackagesTab({ onRecharged }: { onRecharged: () => void }) {
   const [order, setOrder] = useState<RechargeOrder | null>(null);
   const [selected, setSelected] = useState<TokenPackage | null>(null);
   const [error, setError] = useState('');
+  /** null = 设置还没取到；false = 充值关闭（非经营性备案期间不收费） */
+  const [rechargeOpen, setRechargeOpen] = useState<boolean | null>(null);
 
   useEffect(() => {
     request<TokenPackage[]>('/api/token/packages')
       .then((d) => setPackages(d ?? []))
       .catch(() => setPackages([]));
+    // 充值开关由后端下发；取不到时按「关闭」处理（合规上保守）
+    request<BillingPaymentInfo>('/api/token/settings')
+      .then((d) => setRechargeOpen(d?.rechargeEnabled === true))
+      .catch(() => setRechargeOpen(false));
   }, []);
 
   const createOrder = async (pkg: TokenPackage) => {
@@ -191,6 +197,18 @@ function PackagesTab({ onRecharged }: { onRecharged: () => void }) {
 
   return (
     <div>
+      {rechargeOpen === false && (
+        <div className="mb-4 rounded-[12px] border border-amber-200 bg-amber-50 px-4 py-3">
+          <p className="text-sm font-medium text-amber-800">
+            平台当前为免费内测，充值功能暂未开放
+          </p>
+          <p className="mt-1 text-xs leading-relaxed text-amber-700">
+            积分可通过「注册赠送」与「每日免费额度」获得，每天首次使用 AI 功能时自动到账；
+            余额与消费流水不受影响，可随时在下方查看。
+          </p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {(packages ?? []).map((p) => (
           <Card key={p.id} className="flex flex-col p-4">
@@ -210,10 +228,14 @@ function PackagesTab({ onRecharged }: { onRecharged: () => void }) {
             </p>
             <Button
               className="mt-4 w-full"
-              disabled={creating && selected?.id === p.id}
+              disabled={rechargeOpen !== true || (creating && selected?.id === p.id)}
               onClick={() => createOrder(p)}
             >
-              {creating && selected?.id === p.id ? '创建中…' : '立即充值'}
+              {rechargeOpen !== true
+                ? '暂未开放'
+                : creating && selected?.id === p.id
+                  ? '创建中…'
+                  : '立即充值'}
             </Button>
           </Card>
         ))}
@@ -221,7 +243,7 @@ function PackagesTab({ onRecharged }: { onRecharged: () => void }) {
 
       {packages && packages.length === 0 && (
         <Card className="p-10 text-center text-sm text-zinc-400">
-          暂无上架套餐，请联系管理员购买卡密
+          {rechargeOpen === true ? '暂无上架套餐，请联系管理员购买卡密' : '暂无上架套餐'}
         </Card>
       )}
 
@@ -272,7 +294,7 @@ function PackagesTab({ onRecharged }: { onRecharged: () => void }) {
             </div>
 
             <div className="mt-4 rounded-[10px] bg-brand-50 px-4 py-3 text-sm text-brand-800">
-              {payInfo.paymentNote || '转账时请备注订单号，转账后联系管理员确认到账。'}
+              {payInfo.paymentNote}
             </div>
 
             <Button
@@ -347,7 +369,7 @@ function CardTab({ onRecharged }: { onRecharged: () => void }) {
         </Button>
       </div>
       {result && <p className="mt-3 text-sm font-medium text-brand-700">{result}</p>}
-      <p className="mt-3 text-xs text-zinc-400">卡密可向管理员购买，每张卡密仅可使用一次。</p>
+      <p className="mt-3 text-xs text-zinc-400">卡密由管理员发放，每张仅可使用一次。</p>
     </Card>
   );
 }

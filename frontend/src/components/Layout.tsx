@@ -205,10 +205,10 @@ export default function Layout() {
                 </span>
               )}
             </button>
-            {/* 积分余额与充值入口 */}
+            {/* 积分余额与积分说明入口 */}
             <Link
               to="/recharge"
-              title="充值中心"
+              title="积分中心"
               className="flex items-center gap-1.5 whitespace-nowrap rounded-[12px] border border-brand-200 bg-brand-50 px-2.5 py-1.5 text-xs font-semibold text-brand-800 transition-colors hover:bg-brand-100"
             >
               <Coin size={15} weight="fill" className="text-brand-600" />

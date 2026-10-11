@@ -33,6 +33,18 @@ public class BillingSetting {
     @Column(name = "payment_note", length = 1000)
     private String paymentNote = "转账时请备注订单号，转账后联系管理员确认到账。";
 
+    /**
+     * 用户充值开关，默认关闭。
+     *
+     * <p>关闭期间平台不收取任何费用：下单接口直接拒绝，也不再向前端下发收款码与转账说明。
+     * 原因见 docs/赛道-合规调研报告-2026-10.md——非经营性 ICP 备案不得从事有偿服务，
+     * 取得 ICP 经营许可证（需公司主体）后再打开此开关。
+     *
+     * <p>用包装类型：老数据行没有该列时为 NULL，按「关闭」处理，避免 ALTER 加非空列的迁移风险。
+     */
+    @Column(name = "recharge_enabled")
+    private Boolean rechargeEnabled = Boolean.FALSE;
+
     /** 微信收款码图片地址 */
     @Column(name = "wechat_qr_url", length = 500)
     private String wechatQrUrl;
@@ -55,6 +67,11 @@ public class BillingSetting {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    /** 充值是否开放：NULL（历史数据行）视为关闭 */
+    public boolean rechargeOpen() {
+        return Boolean.TRUE.equals(rechargeEnabled);
+    }
 
     @PrePersist
     @PreUpdate

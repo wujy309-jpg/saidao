@@ -105,6 +105,8 @@ export interface BillingSetting {
   dailyFreeTokens: number;
   registerBonusTokens: number;
   freeQuotaEnabled: boolean;
+  /** 用户充值开关：关闭期间不接受任何付费（非经营性备案期间的合规要求），下单接口直接拒绝 */
+  rechargeEnabled?: boolean;
   paymentNote?: string;
   wechatQrUrl?: string;
   alipayQrUrl?: string;

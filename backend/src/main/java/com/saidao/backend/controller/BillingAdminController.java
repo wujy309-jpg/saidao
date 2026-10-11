@@ -509,6 +509,8 @@ public class BillingAdminController {
                 body.containsKey("registerBonusTokens") ? toLong(body.get("registerBonusTokens")) : null,
                 body.containsKey("freeQuotaEnabled")
                         ? Boolean.TRUE.equals(body.get("freeQuotaEnabled")) : null,
+                body.containsKey("rechargeEnabled")
+                        ? Boolean.TRUE.equals(body.get("rechargeEnabled")) : null,
                 body.containsKey("paymentNote") ? str(body, "paymentNote") : null,
                 body.containsKey("wechatQrUrl") ? str(body, "wechatQrUrl") : null,
                 body.containsKey("alipayQrUrl") ? str(body, "alipayQrUrl") : null,
