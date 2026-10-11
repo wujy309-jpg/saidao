@@ -38,9 +38,15 @@ public class DeepSeekConfig {
     private double temperature = 0.7;
     
     /**
-     * 推理强度(low/medium/high):v4-flash 为推理模型,low 可减少思考 token、降本提速
+     * 推理强度(low/high/max)：null = 不传该参数，由服务端用默认值。
+     *
+     * <p>2026-10-11 实测（同一备赛计划任务，各采样 2 次）：
+     * 传 low → completion 2747/3685 tokens、正文 2123/2412 字；
+     * 不传 → completion 953/1105 tokens、正文 2246/2635 字。
+     * 不传反而便宜约 3 倍且正文更长，故默认置空。
+     * 原先「low 可减少思考 token」的注释与实测相反，已更正。
      */
-    private String reasoningEffort = "low";
+    private String reasoningEffort;
     
     /**
      * 是否启用
