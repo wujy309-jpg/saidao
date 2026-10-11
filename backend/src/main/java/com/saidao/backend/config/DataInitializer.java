@@ -19,6 +19,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -299,6 +300,11 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
     
+    /** 作品在「整表重插」时的身份键：竞赛名 + 标题 */
+    private String workKey(String competitionName, String title) {
+        return (competitionName == null ? "" : competitionName) + "\u0000" + (title == null ? "" : title);
+    }
+
     private void initExcellentWorks() {
         try {
             ClassPathResource resource = new ClassPathResource("excellent-works.json");
@@ -310,20 +316,37 @@ public class DataInitializer implements CommandLineRunner {
                 Map<String, List<ExcellentWork>> data = objectMapper.readValue(in, new TypeReference<>() {});
                 List<ExcellentWork> works = data.get("works");
                 if (works == null) return;
-                // 每次启动全量同步：删除旧数据后按 JSON 重插，保证链接与条目更新即时生效
+
+                // 每次启动全量同步：删除旧数据后按 JSON 重插，保证链接与条目更新即时生效。
+                // 但「链接体检」的结果存在同一张表上，整表重插会把它清空——2026-10-12 实测踩到：
+                // 重启一次，75 条作品的体检状态全变回「未体检」。这里按「竞赛名 + 标题」把
+                // 状态带过来；链接变了才作废（新链接需要重新探测）。
+                Map<String, ExcellentWork> previous = new HashMap<>();
+                for (ExcellentWork old : excellentWorkRepository.findAll()) {
+                    previous.put(workKey(old.getCompetitionName(), old.getTitle()), old);
+                }
+
                 excellentWorkRepository.deleteAll();
                 final int[] saved = {0};
+                final int[] carried = {0};
                 for (ExcellentWork w : works) {
                     competitionRepository.findByNameContainingIgnoreCase(w.getCompetitionName()).stream()
                             .findFirst()
                             .ifPresent(c -> {
                                 w.setCompetitionId(c.getId());
                                 w.setCompetitionName(c.getName());
+                                ExcellentWork old = previous.get(workKey(c.getName(), w.getTitle()));
+                                if (old != null && java.util.Objects.equals(old.getLink(), w.getLink())
+                                        && old.getLinkStatus() != null) {
+                                    w.setLinkStatus(old.getLinkStatus());
+                                    w.setLinkCheckedAt(old.getLinkCheckedAt());
+                                    carried[0]++;
+                                }
                                 excellentWorkRepository.save(w);
                                 saved[0]++;
                             });
                 }
-                log.info("历年优秀作品同步完成，共 {} 条", saved[0]);
+                log.info("历年优秀作品同步完成，共 {} 条（沿用体检状态 {} 条）", saved[0], carried[0]);
             }
         } catch (Exception e) {
             log.error("历年优秀作品初始化失败", e);
