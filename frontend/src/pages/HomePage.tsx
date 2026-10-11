@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
@@ -44,14 +44,19 @@ export default function HomePage() {
   const [summary, setSummary] = useState('');
   const [generating, setGenerating] = useState(false);
   const [loadError, setLoadError] = useState('');
+  const [loadFailed, setLoadFailed] = useState(false);
   const [mine, setMine] = useState<MyCompetitionItem[]>([]);
 
   const loadProfile = useCallback(async () => {
     try {
       const p = await request<UserProfile>('/api/profile');
       setProfile(p);
+      setLoadError('');
+      setLoadFailed(false);
     } catch (err) {
+      // 只置错误标记不动 profile：保留 undefined 表示「未加载成功」，由下方失败态兜底
       setLoadError(err instanceof Error ? err.message : '加载失败');
+      setLoadFailed(true);
     }
   }, []);
 
@@ -75,6 +80,15 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
+    loadProfile();
+    loadHistory();
+    loadMine();
+  }, [loadProfile, loadHistory, loadMine]);
+
+  /** 加载失败后重试：清掉错误标记重新拉取 */
+  const retry = useCallback(() => {
+    setLoadError('');
+    setLoadFailed(false);
     loadProfile();
     loadHistory();
     loadMine();
@@ -132,6 +146,24 @@ export default function HomePage() {
       toast(err instanceof Error ? err.message : '操作失败', 'error');
     }
   };
+
+  // 加载失败:必须早于「加载中」判定，否则失败时骨架屏会永远转圈
+  if (profile === undefined && loadFailed) {
+    return (
+      <div className="mx-auto max-w-xl pt-10">
+        <EmptyState
+          title="首页加载失败"
+          description={loadError || '请检查网络后重试'}
+          action={
+            <Button onClick={retry}>
+              重新加载
+              <ArrowRight size={16} />
+            </Button>
+          }
+        />
+      </div>
+    );
+  }
 
   // 加载中
   if (profile === undefined) {

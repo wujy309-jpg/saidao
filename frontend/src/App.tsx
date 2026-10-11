@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import { request } from './lib/api';
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { ApiError, onAuthExpired, request } from './lib/api';
 import { useAuth } from './lib/auth';
 import type { UserProfile } from './types';
 import Layout from './components/Layout';
@@ -55,7 +55,13 @@ function RequireProfile({ children }: { children: ReactNode }) {
     setChecking(true);
     request<UserProfile>('/api/profile')
       .then((p) => alive && setProfile(p))
-      .catch(() => alive && setProfile(null))
+      .catch((err) => {
+        if (!alive) return;
+        // 登录态失效由 AuthExpiryWatcher 统一跳登录页，
+        // 这里若当成「还没填画像」会把人误送到问卷页
+        if (err instanceof ApiError && err.sessionExpired) return;
+        setProfile(null);
+      })
       .finally(() => alive && setChecking(false));
     return () => {
       alive = false;
@@ -124,9 +130,23 @@ function OnboardingRoute() {
 /** 生产部署在后端 context-path /api 下时构建注入 /api；开发模式默认 '/' */
 const ROUTER_BASE = import.meta.env.VITE_ROUTER_BASE || '/';
 
+/**
+ * 登录态失效（token 过期/被拒）时统一跳到登录页。
+ * 必须放在 Router 内部才能用 navigate；AuthProvider 在 Router 外层，只管清用户。
+ */
+function AuthExpiryWatcher() {
+  const navigate = useNavigate();
+  useEffect(
+    () => onAuthExpired(() => navigate('/login', { replace: true, state: { expired: true } })),
+    [navigate]
+  );
+  return null;
+}
+
 export default function App() {
   return (
     <BrowserRouter basename={ROUTER_BASE}>
+      <AuthExpiryWatcher />
       <Routes>
         <Route
           path="/login"

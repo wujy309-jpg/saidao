@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight, Sparkle } from "@phosphor-icons/react";
 import { useAuth } from '../lib/auth';
 import { Button, Field, TextInput } from '../components/ui';
@@ -7,6 +7,9 @@ import { Button, Field, TextInput } from '../components/ui';
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  // 由 AuthExpiryWatcher 跳转过来时带 expired 标记
+  const expired = Boolean((location.state as { expired?: boolean } | null)?.expired);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -83,6 +86,15 @@ export default function LoginPage() {
 
           <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">欢迎回来</h1>
           <p className="mt-1.5 text-sm text-zinc-400">登录后继续你的竞赛之旅</p>
+
+          {expired && (
+            <p
+              role="status"
+              className="mt-6 rounded-[10px] bg-amber-50 px-3 py-2 text-sm text-amber-700"
+            >
+              登录已过期，请重新登录
+            </p>
+          )}
 
           <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-4">
             <Field label="用户名">

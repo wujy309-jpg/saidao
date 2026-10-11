@@ -1,5 +1,13 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
-import { request, setAuth, clearAuth, takePendingProfile, clearPendingProfile } from './api';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import {
+  request,
+  setAuth,
+  clearAuth,
+  takePendingProfile,
+  clearPendingProfile,
+  onAuthExpired,
+  resetAuthExpired,
+} from './api';
 import type { LoginData, User, UserProfile } from '../types';
 
 interface AuthState {
@@ -24,12 +32,17 @@ function readStoredUser(): User | null {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(readStoredUser);
 
+  // 接口层判定登录态失效（token 过期/被拒）时，同步清掉内存中的用户，
+  // 否则顶部仍显示着缓存在 localStorage 的用户名，看起来像「已登录但页面卡住」
+  useEffect(() => onAuthExpired(() => setUser(null)), []);
+
   const login = async (username: string, password: string): Promise<boolean> => {
     const data = await request<LoginData>('/api/auth/login', {
       method: 'POST',
       body: { username, password },
     });
     setAuth(data.token, JSON.stringify(data.user));
+    resetAuthExpired();
     setUser(data.user);
     // 游客问卷获客钩子:登录后自动保存问卷画像
     const pending = takePendingProfile() as UserProfile | null;
