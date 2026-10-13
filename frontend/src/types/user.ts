@@ -9,6 +9,11 @@ export interface User {
   phone?: string;
   department?: string;
   studentId?: string;
+  /**
+   * 头像引用：null/undefined=默认（昵称首字色块）；`preset:xxx`=系统预设；
+   * `/api/avatars/{id}?v=...`=用户上传的图片。渲染统一走 <Avatar> 组件。
+   */
+  avatarUrl?: string | null;
   /** 社区声望 */
   reputation?: number;
 }
@@ -18,12 +23,32 @@ export interface UserBrief {
   name: string;
   reputation?: number;
   role?: string;
+  verified?: boolean | null;
+  school?: string | null;
+  avatarUrl?: string | null;
+}
+
+/** 「账号设置」页的本人账号视图（后端 AccountDTO 对应） */
+export interface AccountDTO {
+  id: number;
+  username: string;
+  name: string;
+  avatarUrl?: string | null;
+  role?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  studentId?: string | null;
+  school?: string | null;
+  verified?: boolean | null;
+  reputation?: number | null;
+  createdAt?: string | null;
 }
 
 /** 用户主页 DTO（后端 UserProfileDTO 对应） */
 export interface UserProfileDTO {
   id: number;
   name: string;
+  avatarUrl?: string | null;
   school?: string | null;
   reputation?: number | null;
   verified?: boolean | null;

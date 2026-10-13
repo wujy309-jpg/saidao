@@ -13,6 +13,7 @@ import { request, toast } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { levelOf } from '../lib/reputation';
 import type { UserProfileDTO, ForumPostDTO } from '../types';
+import { Avatar } from '../components/Avatar';
 import { Button, Card, Skeleton } from '../components/ui';
 
 export default function UserProfilePage() {
@@ -90,9 +91,7 @@ export default function UserProfilePage() {
       <Card className="p-6">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 text-xl font-bold text-white">
-              {profile.name?.charAt(0) ?? '?'}
-            </div>
+            <Avatar name={profile.name} avatarUrl={profile.avatarUrl} size={64} />
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-semibold text-zinc-900">{profile.name}</h1>

@@ -16,6 +16,8 @@ public record ForumPostDTO(
         String authorName,
         Integer authorReputation,
         Boolean authorVerified,
+        /** 作者头像引用，列表页与作者卡片直接展示 */
+        String authorAvatar,
         TeamBrief teamBrief,
         Integer likeCount,
         Integer replyCount,
@@ -45,6 +47,7 @@ public record ForumPostDTO(
                 p.getAuthor() == null ? null : p.getAuthor().getName(),
                 p.getAuthor() == null ? null : p.getAuthor().getReputation(),
                 authorVerified,
+                p.getAuthor() == null ? null : p.getAuthor().getAvatarUrl(),
                 p.getTeamBrief(),
                 p.getLikeCount(),
                 p.getReplyCount(),

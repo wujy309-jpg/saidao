@@ -17,6 +17,7 @@ export interface ForumPostDTO {
   authorName?: string | null;
   authorReputation?: number | null;
   authorVerified?: boolean | null;
+  authorAvatar?: string | null;
   teamBrief?: TeamBrief | null;
   likeCount?: number;
   replyCount?: number;
@@ -76,6 +77,8 @@ export interface NotificationItem {
   type: NotificationType;
   actorId?: number | null;
   actorName?: string | null;
+  /** 触发者头像（历史通知可能为空，组件会回退到首字色块） */
+  actorAvatar?: string | null;
   postId?: number | null;
   replyId?: number | null;
   teamId?: number | null;

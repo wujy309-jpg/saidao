@@ -169,6 +169,7 @@ public class UserController {
         UserProfileDTO dto = new UserProfileDTO(
                 user.getId(),
                 user.getName(),
+                user.getAvatarUrl(),
                 profile != null ? profile.getSchool() : null,
                 user.getReputation(),
                 profile != null ? profile.getVerified() : null,

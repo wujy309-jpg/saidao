@@ -62,6 +62,9 @@ public class SecurityConfig {
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
+                // 头像图片：<img> 标签不会带 Authorization 头，且游客也能浏览论坛，
+                // 所以头像是公开只读资源（写操作在 /account/avatar，仍需登录）
+                .requestMatchers(HttpMethod.GET, "/avatars/**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/v3/api-docs/**").permitAll()
                 
@@ -78,6 +81,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/competitions/mine").authenticated()
                 // 成员搜索：认证用户可用（仓库成员管理）
                 .requestMatchers(HttpMethod.GET, "/users/search").authenticated()
+                // 社区作者主页：登录同学点开作者头像就能看公开资料。
+                // 必须排在下面的 ADMIN 规则之前，否则学生的这次请求会被 /users/** 拦成 403
+                .requestMatchers(HttpMethod.GET, "/users/*/profile").authenticated()
                 
                 // 管理员：竞赛库管理、用户管理、审计日志
                 .requestMatchers(HttpMethod.POST, "/competitions/**").hasRole("ADMIN")

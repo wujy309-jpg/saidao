@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
@@ -23,6 +23,7 @@ import {
 import { request, toast, uploadRequest } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import type { Repo, RepoBranch, RepoCommit, RepoDiff, RepoFile, RepoMember, User } from '../types';
+import { Avatar } from '../components/Avatar';
 import { Button, Card, EmptyState, Field, Skeleton, TextInput } from '../components/ui';
 
 type Tab = 'files' | 'commits' | 'members';
@@ -454,9 +455,7 @@ export default function RepoDetailPage() {
             ) : (
               members.map((m) => (
                 <div key={m.id} className="flex items-center gap-3 px-5 py-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-xs font-semibold text-zinc-500">
-                    {m.user.name?.charAt(0)}
-                  </span>
+                  <Avatar name={m.user.name} avatarUrl={m.user.avatarUrl} size={32} />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-zinc-800">{m.user.name}</p>
                     <p className="truncate text-xs text-zinc-400">{m.role ?? '协作成员'}</p>
@@ -703,9 +702,7 @@ function AddMemberModal({
                   selected?.id === u.id ? 'bg-brand-50' : 'hover:bg-zinc-50'
                 }`}
               >
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-xs font-semibold text-zinc-500">
-                  {u.name?.charAt(0)}
-                </span>
+                <Avatar name={u.name} avatarUrl={u.avatarUrl} size={28} />
                 <span className="min-w-0 flex-1 truncate text-zinc-700">{u.name}</span>
                 <span className="text-xs text-zinc-400">@{u.username}</span>
               </button>

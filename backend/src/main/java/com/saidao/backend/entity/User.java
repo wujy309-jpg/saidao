@@ -55,6 +55,14 @@ public class User {
     @Column(length = 100)
     private String company;
     
+    /**
+     * 头像引用,三种取值(见 AvatarPresets):
+     * null = 默认头像(前端按昵称首字生成色块);preset:xxx = 系统预设头像;
+     * /api/avatars/{id}?v=... = 用户上传的图片(带版本号用于刷新缓存)
+     */
+    @Column(name = "avatar_url", length = 300)
+    private String avatarUrl;
+    
     /** 社区声望:发帖+2/回帖+1/被赞+1/被采纳+15/加精+20 */
     @Column(name = "reputation")
     private Integer reputation;

@@ -6,6 +6,8 @@ import java.util.List;
 public record UserProfileDTO(
         Long id,
         String name,
+        /** 头像引用：null=默认；preset:xxx=预设；/api/avatars/{id}?v=...=上传的图片 */
+        String avatarUrl,
         String school,
         Integer reputation,
         Boolean verified,

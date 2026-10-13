@@ -61,6 +61,15 @@
 - **问答采纳**：楼主或管理员可采纳最佳回复（绿色高亮 + 回复者 +15 声望 + 通知）;
 - **AI 内容助手**：发帖框支持 AI 润色 / AI 扩写 / AI 智能建议板块与竞赛标签（复用 DeepSeek）。
 
+## 个人形象（头像 / 昵称）
+
+社区里「这是谁」的第一印象由头像与昵称决定，所以两者都可以自助修改，入口在顶部用户菜单 →「账号设置」：
+
+- **换头像**：上传本地图片（PNG / JPG / GIF / BMP，≤2MB，服务端统一居中裁剪并重新编码为 256×256 PNG，换头像覆写同一文件、不产生垃圾文件）、一键选用 **10 款系统预设头像**（渐变 + 图标，纯前端渲染、零请求），或**恢复默认**（回到昵称首字色块）;
+- **改昵称**：2-16 个字符，自动规范化空白，拒绝特殊符号与「管理员/官方/客服」等保留词，**登录用户名不可改**（登录凭据与审计标识）；保存后顶栏、论坛、团队、项目空间里的称呼立刻同步;
+- **全站贯通**：`avatarUrl` 随登录响应、作者卡片、团队/仓库成员、通知触发者一起下发，未设置头像时按昵称首字生成**确定性配色**（同一个人各处颜色一致），图片加载失败也会自动回退，不会出现破图;
+- 换头像后 URL 带版本号（`/api/avatars/{id}?v=...`）+ 长缓存，既省流量又不会看到旧头像；头像图片是**公开只读**资源（`<img>` 不带 token，游客浏览论坛也需要），写操作仍在 `/api/account/**` 下要求登录。
+
 ## 项目空间
 
 为团队参赛项目提供文件共享与协作：
@@ -157,6 +166,7 @@ npm run dev
 |------|------|
 | 认证 | `POST /api/auth/register`（学生自助注册）、`POST /api/auth/login`、`POST /api/auth/refresh`、`PUT /api/auth/change-password` |
 | 画像 | `GET/PUT /api/profile` |
+| 账号设置 | `GET /api/account/me`（本人账号视图）、`PUT /api/account/name`（改昵称）、`POST /api/account/avatar`（上传头像，multipart 字段 `file`）、`PUT /api/account/avatar/preset`（预设头像）、`DELETE /api/account/avatar`（恢复默认）、`GET /api/avatars/{userId}`（头像图片，公开只读） |
 | 竞赛库 | `GET /api/competitions`（category/level/format/keyword/catalogList/baoyanBonus 筛选）、`GET /api/competitions/{id}`、`GET /api/competitions/{id}/similar`（相似推荐）、`GET /api/competitions/{id}/works`（历年优秀作品）、`POST /api/competitions/{id}/favorite`、`PUT /api/competitions/{id}/status`（参赛状态）、`GET /api/competitions/mine`（我的竞赛）、`POST/DELETE /api/competitions/{id}/feedback`（行为反馈） |
 | AI 助手 | `GET /api/assistant/sessions`、`GET /api/assistant/sessions/{id}/messages`、`DELETE /api/assistant/sessions/{id}`、`GET /api/assistant/context/{competitionId}`（上下文）、`POST /api/assistant/chat`（SSE 流式对话）、`POST /api/assistant/chat/continue`（断点续写）、`PUT /api/assistant/messages/{id}`（暂停回写）、`GET/POST/DELETE /api/assistant/documents*`（我的资料上传） |
 | 备赛计划 | `POST /api/preparation-plans/generate`（goal/weeklyHours/completed 条件化）、`POST /api/preparation-plans/generate-stream`（SSE 流式叙事）、`GET /api/preparation-plans/mine`、`GET /api/preparation-plans/{id}`、`PUT /api/preparation-plans/{id}/tasks/{taskId}/toggle`（打卡）、`POST /api/preparation-plans/{id}/tasks/{taskId}/swap`（换一个任务）、`PUT/DELETE /api/preparation-plans/{id}/tasks/{taskId}`（编辑/删除任务）、`POST /api/preparation-plans/{id}/adjust`（一句话重排,已打卡保留）、`DELETE /api/preparation-plans/{id}` |

@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
@@ -14,6 +14,7 @@ import {
 import { request, toast } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import type { TeamApplication, TeamDetail } from '../types';
+import { Avatar } from '../components/Avatar';
 import { Button, Card, EmptyState, Skeleton, TextInput } from '../components/ui';
 
 export default function TeamDetailPage() {
@@ -209,9 +210,7 @@ export default function TeamDetailPage() {
           <div className="flex flex-col gap-3">
             {pendingApps.map((a) => (
               <div key={a.id} className="flex flex-wrap items-start gap-3 rounded-[10px] bg-zinc-50 px-4 py-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-xs font-semibold text-zinc-500 ring-1 ring-zinc-200">
-                  {a.user.name?.charAt(0)}
-                </span>
+                <Avatar name={a.user.name} avatarUrl={a.user.avatarUrl} size={32} />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-zinc-800">{a.user.name}</p>
                   <p className="mt-1 text-xs font-medium text-zinc-500">申请说明</p>
@@ -241,9 +240,7 @@ export default function TeamDetailPage() {
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {data.members.map((m) => (
             <div key={m.id} className="flex items-center gap-3 rounded-[10px] px-2 py-2">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-sm font-semibold text-zinc-500">
-                {m.user.name?.charAt(0)}
-              </span>
+              <Avatar name={m.user.name} avatarUrl={m.user.avatarUrl} size={36} />
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-zinc-800">
                   {m.user.name}

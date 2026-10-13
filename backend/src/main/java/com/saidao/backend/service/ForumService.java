@@ -618,7 +618,11 @@ public class ForumService {
         n.setType(type);
         n.setActorId(actorId);
         if (actorId != null) {
-            n.setActorName(userRepository.findById(actorId).map(User::getName).orElse(null));
+            // 昵称与头像一起冗余到通知行:通知列表不做 join,历史通知也保留当时的身份样子
+            userRepository.findById(actorId).ifPresent(actor -> {
+                n.setActorName(actor.getName());
+                n.setActorAvatar(actor.getAvatarUrl());
+            });
         }
         n.setPostId(postId);
         n.setReplyId(replyId);

@@ -1,6 +1,6 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, PencilSimple } from '@phosphor-icons/react';
+import { ArrowRight, PencilSimple, UserCircle } from '@phosphor-icons/react';
 import { request, toast } from '../lib/api';
 import {
   DISCIPLINE_OPTIONS,
@@ -13,6 +13,7 @@ import {
 } from '../lib/labels';
 import type { UserProfile } from '../types';
 import { Button, Card, ChipGroupCustom, Field, Skeleton, TextInput } from '../components/ui';
+import { PasswordCard } from '../components/PasswordCard';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -75,12 +76,19 @@ export default function ProfilePage() {
           <h1 className="text-xl font-semibold text-zinc-900">我的画像</h1>
           <p className="mt-1 text-sm text-zinc-400">推荐结果的依据，随时可以更新</p>
         </div>
-        {!editing && (
-          <Button variant="outline" onClick={() => setEditing(true)}>
-            <PencilSimple size={15} />
-            编辑
+        <div className="flex items-center gap-2">
+          {/* 昵称/头像属于账号设置，这里只留入口，避免两个页面都能改同一份数据 */}
+          <Button variant="ghost" onClick={() => navigate('/settings')}>
+            <UserCircle size={15} />
+            账号设置
           </Button>
-        )}
+          {!editing && (
+            <Button variant="outline" onClick={() => setEditing(true)}>
+              <PencilSimple size={15} />
+              编辑
+            </Button>
+          )}
+        </div>
       </div>
 
       {!editing ? (
@@ -253,88 +261,6 @@ export default function ProfilePage() {
 
       <PasswordCard />
     </div>
-  );
-}
-
-/** 与后端 PasswordStrengthValidator 的 SPECIAL 字符集保持一致 */
-const SPECIAL_CHAR_PATTERN = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/;
-
-/** 修改密码:PUT /api/auth/change-password(需登录态;改完后端会吊销全部 refresh token) */
-function PasswordCard() {
-  const [oldPassword, setOldPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirm, setConfirm] = useState('');
-  const [saving, setSaving] = useState(false);
-
-  const strengthError = (() => {
-    if (!newPassword) return undefined;
-    if (newPassword.length < 8) return '至少 8 位';
-    if (!/[A-Z]/.test(newPassword)) return '需要包含大写字母';
-    if (!/[a-z]/.test(newPassword)) return '需要包含小写字母';
-    if (!/[0-9]/.test(newPassword)) return '需要包含数字';
-    if (!SPECIAL_CHAR_PATTERN.test(newPassword)) return '需要包含特殊字符,例如 ! @ # % ^ * - _ = +';
-    return undefined;
-  })();
-  const confirmError = confirm && confirm !== newPassword ? '两次输入的新密码不一致' : undefined;
-  const canSubmit = Boolean(oldPassword && newPassword && confirm && !strengthError && !confirmError);
-
-  const submit = async () => {
-    if (!canSubmit || saving) return;
-    setSaving(true);
-    try {
-      await request('/api/auth/change-password', {
-        method: 'PUT',
-        body: { oldPassword, newPassword },
-      });
-      setOldPassword('');
-      setNewPassword('');
-      setConfirm('');
-      toast('密码已修改,请用新密码重新登录其它设备', 'success');
-    } catch (err) {
-      toast(err instanceof Error ? err.message : '修改失败', 'error');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <Card className="mt-5 flex flex-col gap-5 p-6">
-      <div>
-        <h2 className="text-sm font-semibold text-zinc-800">修改密码</h2>
-        <p className="mt-0.5 text-xs text-zinc-400">
-          至少 8 位,需包含大小写字母、数字和特殊字符;修改后其它设备的登录会失效
-        </p>
-      </div>
-      <Field label="当前密码">
-        <TextInput
-          type="password"
-          autoComplete="current-password"
-          value={oldPassword}
-          onChange={(e) => setOldPassword(e.target.value)}
-        />
-      </Field>
-      <Field label="新密码" error={strengthError}>
-        <TextInput
-          type="password"
-          autoComplete="new-password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-        />
-      </Field>
-      <Field label="确认新密码" error={confirmError}>
-        <TextInput
-          type="password"
-          autoComplete="new-password"
-          value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
-        />
-      </Field>
-      <div className="flex justify-end">
-        <Button onClick={submit} disabled={!canSubmit || saving}>
-          {saving ? '提交中…' : '修改密码'}
-        </Button>
-      </div>
-    </Card>
   );
 }
 

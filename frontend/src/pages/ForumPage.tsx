@@ -15,6 +15,7 @@ import {
 import { request, toast } from '../lib/api';
 import { FORUM_BOARDS, forumBoardName } from '../lib/labels';
 import type { Competition, ForumBoard, ForumPost, ForumPostDTO, PageResponse, Team, UserIdentity, UserProfile } from '../types';
+import { Avatar } from '../components/Avatar';
 import { Button, Card, EmptyState, Field, Skeleton, TextInput } from '../components/ui';
 
 export default function ForumPage() {
@@ -261,9 +262,12 @@ export default function ForumPage() {
               to={`/forum/posts/${p.id}`}
               className="flex items-start gap-3 px-5 py-4 transition-colors hover:bg-zinc-50"
             >
-              <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-sm font-semibold text-zinc-500">
-                {p.authorName?.charAt(0)}
-              </span>
+              <Avatar
+                name={p.authorName}
+                avatarUrl={p.authorAvatar}
+                size={36}
+                className="mt-0.5"
+              />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-1.5">
                   <span className="rounded-md bg-zinc-100 px-1.5 py-0.5 text-xs text-zinc-500">

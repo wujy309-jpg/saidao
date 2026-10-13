@@ -64,6 +64,10 @@ public class Notification {
     @Column(name = "actor_name", length = 50)
     private String actorName;
 
+    /** 触发者头像(与 actorName 同理冗余存储;历史数据为空时前端回退到首字色块) */
+    @Column(name = "actor_avatar", length = 300)
+    private String actorAvatar;
+
     @Column(name = "post_id")
     private Long postId;
 

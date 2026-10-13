@@ -17,6 +17,7 @@ import {
 } from '@phosphor-icons/react';
 import { request, toast } from '../lib/api';
 import type { NotificationItem, NotificationType } from '../types';
+import { Avatar } from '../components/Avatar';
 import { Button, Card, EmptyState, Skeleton } from '../components/ui';
 
 const NOTIFICATION_META: Partial<
@@ -126,11 +127,23 @@ export default function NotificationsPage() {
               : n.teamId ? `/teams/${n.teamId}` : null;
             const inner = (
               <div className="flex items-start gap-3 px-5 py-3.5">
-                <span
-                  className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${meta.color}`}
-                >
-                  <Icon size={16} />
-                </span>
+                {/* 有人触发的通知直接露脸;系统类通知没有 actor,退回类型图标 */}
+                {n.actorId ? (
+                  <span className="relative mt-0.5 shrink-0">
+                    <Avatar name={n.actorName} avatarUrl={n.actorAvatar} size={36} />
+                    <span
+                      className={`absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full ring-2 ring-white ${meta.color}`}
+                    >
+                      <Icon size={11} />
+                    </span>
+                  </span>
+                ) : (
+                  <span
+                    className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${meta.color}`}
+                  >
+                    <Icon size={16} />
+                  </span>
+                )}
                 <div className="min-w-0 flex-1">
                   <p className="text-sm text-zinc-700">
                     {n.actorName && (

@@ -25,6 +25,7 @@ import ForumPage from './pages/ForumPage';
 import ForumPostPage from './pages/ForumPostPage';
 import NotificationsPage from './pages/NotificationsPage';
 import ProfilePage from './pages/ProfilePage';
+import SettingsPage from './pages/SettingsPage';
 import RechargePage from './pages/RechargePage';
 import UserProfilePage from './pages/UserProfilePage';
 
@@ -204,6 +205,7 @@ export default function App() {
           <Route path="/repos" element={<ReposPage />} />
           <Route path="/repos/:id" element={<RepoDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="/u/:userId" element={<UserProfilePage />} />
           <Route path="/recharge" element={<RechargePage />} />
         </Route>

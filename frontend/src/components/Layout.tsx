@@ -14,6 +14,7 @@ import { useAuth } from '../lib/auth';
 import { request } from '../lib/api';
 import { isDeadlineSoon, daysUntil } from '../lib/dates';
 import { levelOf } from '../lib/reputation';
+import { Avatar } from './Avatar';
 import type { MyCompetitionItem, TokenAccount } from '../types';
 
 const NAV = [
@@ -30,6 +31,7 @@ const MY_MENU = [
   { to: '/favorites', label: '我的竞赛' },
   { to: '/plans', label: '备赛计划' },
   { to: '/profile', label: '我的画像' },
+  { to: '/settings', label: '账号设置' },
 ];
 
 export default function Layout() {
@@ -109,7 +111,7 @@ export default function Layout() {
   }, [location.pathname]);
 
   const level = levelOf(user?.reputation);
-  const myActive = ['/favorites', '/plans', '/profile'].some((p) => location.pathname.startsWith(p));
+  const myActive = ['/favorites', '/plans', '/profile', '/settings'].some((p) => location.pathname.startsWith(p));
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -227,9 +229,7 @@ export default function Layout() {
                 }`}
                 title={user?.name}
               >
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-brand-600 to-brand-800 text-sm font-bold text-white">
-                  {user?.name?.charAt(0) ?? 'U'}
-                </span>
+                <Avatar name={user?.name} avatarUrl={user?.avatarUrl} size={32} />
                 <span className="hidden text-left leading-tight sm:block">
                   <span className="block text-xs font-semibold text-zinc-800">{user?.name}</span>
                   <span className="block text-[10px] text-zinc-400">
@@ -242,13 +242,24 @@ export default function Layout() {
                 />
               </button>
               {menuOpen && (
-                <div className="absolute right-0 top-12 z-40 w-48 rounded-[12px] border border-emerald-900/8 bg-white p-1.5 shadow-[var(--shadow-lift)]">
-                  <div className="border-b border-zinc-100 px-3 pb-2 pt-1.5 sm:hidden">
-                    <p className="text-xs font-semibold text-zinc-800">{user?.name}</p>
-                    <p className="mt-0.5 text-[10px] text-zinc-400">
-                      {user?.role === 'ADMIN' ? '管理员' : `${level.name} · 声望 ${user?.reputation ?? 0}`}
-                    </p>
-                  </div>
+                <div className="absolute right-0 top-12 z-40 w-56 rounded-[12px] border border-emerald-900/8 bg-white p-1.5 shadow-[var(--shadow-lift)]">
+                  {/* 身份区在手机端也要能看到:窄屏时顶栏只剩一个头像 */}
+                  <Link
+                    to="/settings"
+                    className="flex items-center gap-2.5 rounded-[8px] px-2 py-2 transition-colors hover:bg-zinc-50"
+                  >
+                    <Avatar name={user?.name} avatarUrl={user?.avatarUrl} size={34} />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-xs font-semibold text-zinc-800">
+                        {user?.name}
+                      </span>
+                      <span className="mt-0.5 block text-[10px] text-zinc-400">
+                        {user?.role === 'ADMIN' ? '管理员' : `${level.name} · 声望 ${user?.reputation ?? 0}`}
+                      </span>
+                    </span>
+                    <span className="text-[10px] text-zinc-400">设置</span>
+                  </Link>
+                  <div className="my-1 h-px bg-zinc-100" />
                   {MY_MENU.map((m) => (
                     <Link
                       key={m.to}

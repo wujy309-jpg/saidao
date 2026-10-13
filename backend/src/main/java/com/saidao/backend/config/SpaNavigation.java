@@ -33,7 +33,7 @@ public final class SpaNavigation {
     /** 这些前缀归后端自己所有，即使是浏览器访问也不能当作 SPA 客户端路由 */
     private static final List<String> BACKEND_PREFIXES = List.of(
             "/admin", "/admin-api", "/auth", "/actuator", "/swagger-ui", "/api-docs",
-            "/v3/api-docs", "/h2-console", "/uploads", "/error", "/assets", "/css", "/js");
+            "/v3/api-docs", "/h2-console", "/uploads", "/avatars", "/error", "/assets", "/css", "/js");
 
     /** 供 Spring Security 使用的匹配器：命中即为页面导航 */
     public static final RequestMatcher MATCHER = SpaNavigation::isBrowserNavigation;

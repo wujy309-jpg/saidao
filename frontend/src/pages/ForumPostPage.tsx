@@ -20,6 +20,7 @@ import { useAuth } from '../lib/auth';
 import { forumBoardName } from '../lib/labels';
 import { levelOf } from '../lib/reputation';
 import type { Competition, ForumPost, ForumReply, UserIdentity } from '../types';
+import { Avatar } from '../components/Avatar';
 import { Button, Card, Skeleton } from '../components/ui';
 
 export default function ForumPostPage() {
@@ -392,9 +393,7 @@ export default function ForumPostPage() {
                 key={r.id}
                 className={`flex items-start gap-3 ${r.accepted ? 'rounded-[10px] ring-1 ring-emerald-200' : ''}`}
               >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-xs font-semibold text-zinc-500">
-                  {r.author?.name?.charAt(0)}
-                </span>
+                <Avatar name={r.author?.name} avatarUrl={r.author?.avatarUrl} size={32} />
                 <div
                   className={`min-w-0 flex-1 rounded-[10px] px-4 py-3 ${
                     r.accepted ? 'bg-emerald-50/70' : 'bg-zinc-50'
@@ -482,19 +481,20 @@ export default function ForumPostPage() {
   );
 }
 
-/** 作者徽章:姓名 + 等级 + 声望 + 学校认证 */
+/** 作者徽章:头像 + 姓名 + 等级 + 声望 + 学校认证 */
 function AuthorBadge({
   author,
   identity,
   small,
 }: {
-  author?: { id?: number; name?: string; reputation?: number };
+  author?: { id?: number; name?: string; reputation?: number; avatarUrl?: string | null };
   identity?: UserIdentity;
   small?: boolean;
 }) {
   const level = levelOf(author?.reputation);
   return (
     <span className="flex flex-wrap items-center gap-1.5">
+      <Avatar name={author?.name} avatarUrl={author?.avatarUrl} size={small ? 20 : 26} />
       <span className={`font-medium ${small ? 'text-xs text-zinc-600' : 'text-zinc-500'}`}>
         {author?.name}
       </span>

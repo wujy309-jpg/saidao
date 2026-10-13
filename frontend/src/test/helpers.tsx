@@ -35,6 +35,7 @@ export const mockUser: User = {
   role: 'STUDENT',
   email: 'test@example.com',
   department: '工科',
+  avatarUrl: null,
   reputation: 50,
 }
 
@@ -43,6 +44,7 @@ export const mockOtherUser: User = {
   username: 'otheruser',
   name: '其他用户',
   role: 'STUDENT',
+  avatarUrl: null,
   reputation: 120,
 }
 

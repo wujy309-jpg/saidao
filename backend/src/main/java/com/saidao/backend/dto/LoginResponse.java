@@ -33,5 +33,9 @@ public class LoginResponse {
         private String name;
         private String role;
         private String email;
+        /** 头像引用：null=默认；preset:xxx=预设；/api/avatars/{id}?v=...=上传的图片 */
+        private String avatarUrl;
+        /** 社区声望，顶栏等级徽章直接用它，省掉一次额外请求 */
+        private Integer reputation;
     }
 }
